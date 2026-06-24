@@ -51,7 +51,7 @@ PsSetCreateProcessNotifyRoutine(sCreateProcessNotifyRoutine, FALSE);
 
 Below shows how the routine `sCreateProcessNotifyRoutine` gets executed when a new process hostname.exe (PID 2892) is spawned by powershell (PID 7176). Additionally, it shows that the process 7176 (hostname) terminated:
 
-![](../../.gitbook/assets/PsSetCreateProcessNotifyRoutine.gif)
+![[PsSetCreateProcessNotifyRoutine.gif]]
 
 ## PsSetLoadImageNotifyRoutine
 
@@ -84,7 +84,7 @@ PsSetLoadImageNotifyRoutine(sLoadImageNotifyRoutine);
 
 Testing the driver - once we open a notepad.exe, our driver gets notified about all the modules that notepad.exe loaded:
 
-![](../../.gitbook/assets/PsSetLoadImageNotifyRoutine.gif)
+![[PsSetLoadImageNotifyRoutine.gif]]
 
 ## PsSetCreateThreadNotifyRoutine
 
@@ -118,7 +118,7 @@ PsSetCreateThreadNotifyRoutine(sCreateThreadNotifyRoutine);
 
 Testing the driver now, we can see we are indeed geting notified about new and terminated threads across processes on our system:
 
-![](<../../.gitbook/assets/image (529).png>)
+![[image (529).png]]
 
 ## PsSetCreateProcessNotifyRoutineEx
 
@@ -157,15 +157,14 @@ void sCreateProcessNotifyRoutineEx(PEPROCESS process, HANDLE pid, PPS_CREATE_NOT
 PsSetCreateProcessNotifyRoutineEx(sCreateProcessNotifyRoutineEx, FALSE);
 ```
 
-{% hint style="info" %}
-If `PsSetCreateProcessNotifyRoutineEx` is not working in your driver, you will need to add a `/integritycheck` switch in your linker configuration
-{% endhint %}
+> [!INFO]
+> If `PsSetCreateProcessNotifyRoutineEx` is not working in your driver, you will need to add a `/integritycheck` switch in your linker configuration
 
-![](<../../.gitbook/assets/image (530).png>)
+![[image (530).png]]
 
 Below shows how an attempt to spawn notepad.exe is blocked by our driver:
 
-![](../../.gitbook/assets/PsSetCreateProcessNotifyRoutineEx.gif)
+![[PsSetCreateProcessNotifyRoutineEx.gif]]
 
 ## Code
 
@@ -354,8 +353,8 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutine" %}
+[docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutine](https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreateprocessnotifyroutine)
 
-{% embed url="https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetloadimagenotifyroutine" %}
+[docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetloadimagenotifyroutine](https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetloadimagenotifyroutine)
 
-{% embed url="https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreatethreadnotifyroutine" %}
+[docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreatethreadnotifyroutine](https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-pssetcreatethreadnotifyroutine)

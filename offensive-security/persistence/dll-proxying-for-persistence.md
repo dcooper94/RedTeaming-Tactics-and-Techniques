@@ -16,7 +16,7 @@ This function forwarding from one DLL to another is what gives the technique its
 
 At a high-level, below diagram shows how it all looks before and after the DLL is hijacked:
 
-![](<../../.gitbook/assets/image (654).png>)
+![[image (654).png]]
 
 ## Walkthrough
 
@@ -33,8 +33,8 @@ At a high level, the technique works as follows:
 
 For demo purposes, we will create our own DLL legitimate DLL to be hijacked, called `legit.dll`:
 
-{% tabs %}
-{% tab title="legit-dll.cpp" %}
+
+
 ```cpp
 #include "pch.h"
 
@@ -69,14 +69,14 @@ extern "C" __declspec(dllexport) VOID exportedFunction3(int a)
     MessageBoxA(NULL, "Hi from legit exportedFunction3", "Hi from legit exportedFunction3", 0);
 }
 ```
-{% endtab %}
-{% endtabs %}
+
+
 
 Let's say we've now compiled the above as a `legit.dll` to `c:\temp\legit.dll`. It has 3 exported functions as shown below:
 
 <div align="center">
 
-<img src="../../.gitbook/assets/image (638).png" alt="">
+![[image (638).png]]
 
 </div>
 
@@ -86,7 +86,7 @@ To confirm the DLL works, we can see that calling `exportedFunction1` from insid
 rundll32 c:\temp\legit.dll,exportedFunction1
 ```
 
-![](<../../.gitbook/assets/image (639).png>)
+![[image (639).png]]
 
 We now have the `legit.dll` and its target function `exportedFunction1` to hijack, let's move on to the malicious DLL that will do the function proxying.
 
@@ -94,8 +94,8 @@ We now have the `legit.dll` and its target function `exportedFunction1` to hijac
 
 Let's now create the `malicious.dll` - we will be using it to hijack programs that call functions from `c:\temp\legit.dll`. Compile the below as a `malicious.dll`:
 
-{% tabs %}
-{% tab title="malicious-dll.cpp" %}
+
+
 ```cpp
 #include "pch.h"
 
@@ -123,14 +123,14 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     return TRUE;
 }
 ```
-{% endtab %}
-{% endtabs %}
+
+
 
 The key piece in the `malicious.dll` is the `#pragma` comment at the top, that tells the linker to export / forward (technical name is `Forward Export`) functions `exportedFunction1`, `exportedFunction2`, `exportedFunction3` to the module `legit1.dll`.
 
 Also, note that once the `malicious.dll` is loaded, it will display a prompt saying `Hi from malicious dll`, but this could be any payload of our choice:
 
-![](<../../.gitbook/assets/image (645).png>)
+![[image (645).png]]
 
 Let's test if the `malicious.dll` executes our payload - shows a message prompt:
 
@@ -138,7 +138,7 @@ Let's test if the `malicious.dll` executes our payload - shows a message prompt:
 rundll32 malicious.dll,whatever
 ```
 
-![](<../../.gitbook/assets/image (643).png>)
+![[image (643).png]]
 
 ### DLL Proxying / Hijacking
 
@@ -146,7 +146,7 @@ We now have all the required pieces to test the dll proxying concept.&#x20;
 
 Let's move the `malicious.dll` to `c:\temp`, where `legit.dll` resides:
 
-![](<../../.gitbook/assets/image (644).png>)
+![[image (644).png]]
 
 Rename the `legit.dll` to `legit1.dll` and `alicious.dll` to `legit.dll`:
 
@@ -154,7 +154,7 @@ Rename the `legit.dll` to `legit1.dll` and `alicious.dll` to `legit.dll`:
 mv .\legit.dll .\legit1.dll; mv .\malicious.dll .\legit.dll
 ```
 
-![](../../.gitbook/assets/rename-files.gif)
+![[rename-files.gif]]
 
 ### Moment of Truth
 
@@ -162,7 +162,7 @@ Now, let's invoke the `exportedFunction1` from `legit.dll` - this is our malicio
 
 If the hijacking is successful, we will see the prompt `Hi from malicious dll` followed by the prompt `Hi from legit exportedFunction1` from the `legit1.dll`:
 
-![Successful DLL proxying in action](../../.gitbook/assets/dll-proxying-forwarding-in-action.gif)
+![[dll-proxying-forwarding-in-action.gif|Successful DLL proxying in action]]
 
 Implementing DLL proxying for a DLL that exports many functions may be a bit painful, but luckily there are multiple projects that help you automate this process, one of which is [https://github.com/Flangvik/SharpDllProxy](https://github.com/Flangvik/SharpDllProxy), so go check it out.
 

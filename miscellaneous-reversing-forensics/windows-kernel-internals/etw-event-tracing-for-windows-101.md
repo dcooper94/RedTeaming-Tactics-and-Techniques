@@ -21,7 +21,7 @@ We can see all the providers registered to Windows like so:
 logman query providers
 ```
 
-![](<../../.gitbook/assets/image (532).png>)
+![[image (532).png]]
 
 ### Provider Information
 
@@ -34,17 +34,16 @@ logman query providers Microsoft-Windows-Kernel-Process
 logman query providers "{22FB2CD6-0E7B-422B-A0C7-2FAD1FD0E716}"
 ```
 
-![](<../../.gitbook/assets/image (533).png>)
+![[image (533).png]]
 
 As we can tell from the above `keywords`, this provider could provide us with some process, thread and image (load/unload as we will see later) related events.
 
-{% hint style="info" %}
-Use [ETWExplorer](https://github.com/zodiacon/EtwExplorer) for a deep provider inspection, and see what events and more importantly data it can provide.&#x20;
-{% endhint %}
+> [!INFO]
+> Use [ETWExplorer](https://github.com/zodiacon/EtwExplorer) for a deep provider inspection, and see what events and more importantly data it can provide.&#x20;
 
 Below shows Microsoft-Windows-Kernel-Process being inspected with ETWExplorer with some information, which looks like something Sysmon and other similar security monitoring oriented tools could use:
 
-![ETWExplorer](<../../.gitbook/assets/image (534).png>)
+![[image (534).png|ETWExplorer]]
 
 ### Creating a Tracing Session
 
@@ -56,7 +55,7 @@ logman create trace spotless-tracing -ets
 
 We can see our session is now created:
 
-![](<../../.gitbook/assets/image (535).png>)
+![[image (535).png]]
 
 We can query the tracing session and see some information about it:
 
@@ -66,7 +65,7 @@ logman query spotless-tracing -ets
 
 Note that at the moment, although the tracing session is running, it is not recording any events as we have not yet subscribed to any providers:
 
-![Events will be saved to the output location](<../../.gitbook/assets/image (536).png>)
+![[image (536).png|Events will be saved to the output location]]
 
 ### Subscribing to Microsoft-Windows-Kernel-Process
 
@@ -74,7 +73,7 @@ Inside the `spotless-tracing` tracing session, let's subscribe to events about `
 
 In order to subscribe to those events, we first need to refer back to `Microsoft-Windows-Kernel-Process` available `keywords` (event types of this provider) and add `0x10` (`WINEVENT_KEYWORD_PROCESS`) to `0x40` (`WINEVENT_KEYWORD_IMAGE`), which gives us the total of `0x50`:
 
-![](<../../.gitbook/assets/image (537).png>)
+![[image (537).png]]
 
 We can now register a provider to the tracing session and ask it to emit events that map back to events `WINEVENT_KEYWORD_PROCESS` and `WINEVENT_KEYWORD_IMAGE`:
 
@@ -88,7 +87,7 @@ If we query the tracing session again, we see it now has `Microsoft-Windows-Kern
 logman query spotless-tracing -ets
 ```
 
-![](<../../.gitbook/assets/image (538).png>)
+![[image (538).png]]
 
 ### Checking the .etl Log
 
@@ -96,15 +95,15 @@ After the tracing session has run for some time, we can check the log file  by o
 
 We can see process creation events (event ID 1):
 
-![](<../../.gitbook/assets/image (539).png>)
+![[image (539).png]]
 
 Image load events (event ID 5):
 
-![](<../../.gitbook/assets/image (540).png>)
+![[image (540).png]]
 
 Image unload events (event ID 6):
 
-![](<../../.gitbook/assets/image (541).png>)
+![[image (541).png]]
 
 ### Removing Providers from a Tracing Session
 
@@ -116,7 +115,7 @@ logman update trace spotless-tracing --p Microsoft-Windows-Kernel-Process 0x50 -
 
 Note that the kernel provider is no longer associated with the `spotless-tracing` tracing session:
 
-![](<../../.gitbook/assets/image (543).png>)
+![[image (543).png]]
 
 ### Killing the Tracing Session
 
@@ -128,7 +127,7 @@ logman stop spotless-tracing -ets
 
 ...and the tracing session is no longer present on the system:
 
-![](<../../.gitbook/assets/image (544).png>)
+![[image (544).png]]
 
 ### Listing Providers a Process is Registered with
 
@@ -140,7 +139,7 @@ Below shows how we can check which providers our current powershell console is r
 logman query providers -pid $pid
 ```
 
-![](<../../.gitbook/assets/image (545).png>)
+![[image (545).png]]
 
 ## Consuming Events via Code
 
@@ -214,11 +213,11 @@ namespace SimpleKernelConsumer {
 
 Don't forget to install the package:
 
-![](<../../.gitbook/assets/image (542).png>)
+![[image (542).png]]
 
 If we compile and run the code, we will now see events flowing in:
 
-![](../../.gitbook/assets/kernel-consumer.gif)
+![[kernel-consumer.gif]]
 
 ## Notes
 
@@ -231,13 +230,13 @@ From a defender's perspective, you may want to:
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/windows/win32/etw/about-event-tracing" %}
+[docs.microsoft.com/en-us/windows/win32/etw/about-event-tracing](https://docs.microsoft.com/en-us/windows/win32/etw/about-event-tracing)
 
-{% embed url="https://medium.com/palantir/tampering-with-windows-event-tracing-background-offense-and-defense-4be7ac62ac63" %}
+[medium.com/palantir/tampering-with-windows-event-tracing-background-offense-and-defense-4be7ac62ac63](https://medium.com/palantir/tampering-with-windows-event-tracing-background-offense-and-defense-4be7ac62ac63)
 
-{% embed url="https://github.com/zodiacon/EtwExplorer" %}
+[github.com/zodiacon/EtwExplorer](https://github.com/zodiacon/EtwExplorer)
 
 [Microsoft-Windows-Threat-Intelligence](https://pastebin.com/6VGHjGjH) Provider Manifest as [mentioned](https://twitter.com/FancyCyber/status/1267536407272345602) by @FancyCyber:
 
-![](<../../.gitbook/assets/image (546).png>)
+![[image (546).png]]
 

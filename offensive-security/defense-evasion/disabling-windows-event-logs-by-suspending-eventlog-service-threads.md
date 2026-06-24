@@ -4,9 +4,8 @@ This lab was inspired by an old post [Phant0m: Killing Windows Event Log](https:
 
 The purpose of this quick lab is to understand some of the inner workings of Invoke-Phant0m. In particular, I wanted to play around with Windows APIs related to retrieving a process ID that hosts a given service, thread enumeration, mapping threads to a particular service (Windows Eventlog in this case) hosted in the svchost.exe and so on. This would give me a better understanding of how I can target specific threads when I need to, I thought.
 
-{% hint style="info" %}
-Although this lab was inspired by @hlldz' post, you will notice that we implemented the same technique in a slightly different way by levarging different Windows APIs.
-{% endhint %}
+> [!INFO]
+> Although this lab was inspired by @hlldz' post, you will notice that we implemented the same technique in a slightly different way by levarging different Windows APIs.
 
 ## Overview
 
@@ -14,11 +13,11 @@ Windows event logs are handled by `EventLog` service that is hosted by svchost.e
 
 If we list svchost processes, we see a number of those:
 
-![](<../../.gitbook/assets/image (618).png>)
+![[image (618).png]]
 
 From the above screenshot, it's not clear which process actually hosts the `EventLog` service, but if we keep inspecting `svchost.exe` processes one by one in Process Hacker, we will eventually find the process hosting the `EventLog` service, which in my case it is `svchost.exe` with pid 2196:
 
-![](<../../.gitbook/assets/image (620).png>)
+![[image (620).png]]
 
 Note that we can find out the PID of the process that is hosting `EventLog`:
 
@@ -26,21 +25,20 @@ Note that we can find out the PID of the process that is hosting `EventLog`:
 Get-WmiObject -Class win32_service -Filter "name = 'eventlog'" | select -exp ProcessId
 ```
 
-![](<../../.gitbook/assets/image (621).png>)
+![[image (621).png]]
 
 If we look into svchost.exe threads for `EventLog`, we see there are a couple of threads of interest as highlighted in blue:
 
-![](<../../.gitbook/assets/image (622).png>)
+![[image (622).png]]
 
 Below shows that indeed, suspending the threas is enough to disable the EventLog service from registering any new events:
 
-![](<../../.gitbook/assets/suspended-threads-no-events (1).gif>)
+![[suspended-threads-no-events (1).gif]]
 
 Based on the above, the main goal of this lab is to hack some code to find these threads and simply suspend them and disable windows event logging this way.
 
-{% hint style="warning" %}
-Resuming threads will write out the events to the events log as if the threads had not been suspended in the first place.
-{% endhint %}
+> [!WARNING]
+> Resuming threads will write out the events to the events log as if the threads had not been suspended in the first place.
 
 ## Code
 
@@ -162,8 +160,8 @@ Below GIF illustrates:
 * 4 EventLog threads are suspended in svchost.exe (PID 2196)
 * `net user ola ola` is executed again at 6:55:38 PM, but no new event `4724` is captured
 
-![](<../../.gitbook/assets/demo-suspending-eventlog-threads (1).gif>)
+![[demo-suspending-eventlog-threads (1).gif]]
 
 ## References
 
-{% embed url="https://artofpwn.com/phant0m-killing-windows-event-log.html" %}
+[artofpwn.com/phant0m-killing-windows-event-log.html](https://artofpwn.com/phant0m-killing-windows-event-log.html)

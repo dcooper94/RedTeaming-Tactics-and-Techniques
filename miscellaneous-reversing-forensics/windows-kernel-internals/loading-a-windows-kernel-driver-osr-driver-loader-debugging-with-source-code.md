@@ -8,11 +8,11 @@ On the system where you want to load your driver (debugee), from an elevated com
 bcdedit /set nointegritychecks on; bcdedit /set testsigning on
 ```
 
-![](<../../.gitbook/assets/image (253).png>)
+![[image (253).png]]
 
 Once you have rebooted the system, open up the [OSR Loader](https://www.osronline.com/article.cfm^article=157.htm) and load the driver as shown below:
 
-![](../../.gitbook/assets/loadkerneldriver.gif)
+![[loadkerneldriver.gif]]
 
 Note that my driver name was `kmdfHelloDriver`. We can now confirm the driver loaded successfully by debugging the kernel:
 
@@ -20,7 +20,7 @@ Note that my driver name was `kmdfHelloDriver`. We can now confirm the driver lo
 0: kd> db kmdfHelloDriver
 ```
 
-![](../../.gitbook/assets/confirmdriverloaded.gif)
+![[confirmdriverloaded.gif]]
 
 Additionally, we can check it this way by showing some basic details about the loaded module:
 
@@ -28,7 +28,7 @@ Additionally, we can check it this way by showing some basic details about the l
 0: kd> ln kmdfHelloDriver
 ```
 
-![](<../../.gitbook/assets/image (254).png>)
+![[image (254).png]]
 
 If we check it via the service configuration manager, we also see that our driver is now loaded and running:
 
@@ -36,16 +36,15 @@ If we check it via the service configuration manager, we also see that our drive
 sc.exe query kmdfHelloDriver
 ```
 
-![](<../../.gitbook/assets/image (255).png>)
+![[image (255).png]]
 
 ## Loading a Driver via Command Prompt + WinDBG
 
 The benefit of loading a kernel driver this way is that it does not rely on OSR Driver Loader or any other 3rd party tools and also is much more efficient.
 
-{% hint style="info" %}
-**Important**\
-In order for this technique to work, the WinDBG debugger needs to be attached to the debugee.
-{% endhint %}
+> [!INFO]
+> **Important**\
+> In order for this technique to work, the WinDBG debugger needs to be attached to the debugee.
 
 ### Preparing Powershell Profile
 
@@ -84,17 +83,16 @@ The function `Install-Driver` will:
 
 Below screenshot shows the two steps explained above:
 
-![](<../../.gitbook/assets/image (596).png>)
+![[image (596).png]]
 
-{% hint style="info" %}
-Once the powershell profile is saved, close the powershell console and open it again for the function `Install-Driver` to become usable.
-{% endhint %}
+> [!INFO]
+> Once the powershell profile is saved, close the powershell console and open it again for the function `Install-Driver` to become usable.
 
 ### Loading the Driver
 
 Navigate to the folder that contains the .sys file of the driver you want to install, which in my case is `wdm-helloworld.sys` in Z:\wdm-helloworld\x64\Debug:
 
-![](<../../.gitbook/assets/image (599).png>)
+![[image (599).png]]
 
 Now, we can install the driver by simply invoking:
 
@@ -102,10 +100,10 @@ Now, we can install the driver by simply invoking:
 Install-Driver wdm-helloworld.sys
 ```
 
-![](../../.gitbook/assets/load-driver.gif)
+![[load-driver.gif]]
 
 ### Stepping through Source Code
 
 If we have source code for the driver we want to debug, we can load its source code and step through it in WinDBG.  Load the source code via the `Source > Open Source File` and re-load the driver again using `Install-Driver` function:
 
-![Stepping through driver's C code](../../.gitbook/assets/debugging-kernel-source-code.gif)
+![[debugging-kernel-source-code.gif|Stepping through driver's C code]]

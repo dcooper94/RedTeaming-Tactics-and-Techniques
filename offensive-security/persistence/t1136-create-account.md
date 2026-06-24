@@ -1,32 +1,32 @@
 ---
 description: Persistence
+tags: [#persistence]
 ---
 
 # Create Account
 
 ## Execution
 
-{% code title="attacker@victim" %}
 ```bash
+// attacker@victim
 net user test test123 /add /domain
 ```
-{% endcode %}
 
 ## Observations
 
-![commandline arguments](../../.gitbook/assets/account-add.png)
+![[account-add.png|commandline arguments]]
 
 There is a whole range of interesting events that could be monitored related to new account creation:
 
-![](../../.gitbook/assets/account-events.png)
+![[account-events.png]]
 
 Details for the newly added account are logged as event `4720` :
 
-![](../../.gitbook/assets/account-created.png)
+![[account-created.png]]
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1136" %}
+[attack.mitre.org/wiki/Technique/T1136](https://attack.mitre.org/wiki/Technique/T1136)
 
 
 

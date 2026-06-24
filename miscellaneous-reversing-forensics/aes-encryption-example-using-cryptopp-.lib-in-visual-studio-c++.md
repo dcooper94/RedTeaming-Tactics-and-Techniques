@@ -6,11 +6,11 @@ This is a quick note showing how to compile, link and include a [Crypto++](https
 
 Open the crypto++ solution file cryptest.sln:
 
-![](<../.gitbook/assets/image (193).png>)
+![[image (193).png]]
 
 Change cryptlib project runtime library to `Multi-threaded` and change configuration to `Release` `x64`:
 
-![](<../.gitbook/assets/image (187).png>)
+![[image (187).png]]
 
 Build cryptlib project. It will spit out a cryptlib.lib static library:
 
@@ -22,24 +22,24 @@ C:\Users\mantvydas\Desktop\cryptopp\x64\Output\Release\cryptlib.lib
 
 Create a new VS project and include cryptlib.lib that you've just compiled:
 
-![](<../.gitbook/assets/image (188).png>)
+![[image (188).png]]
 
 Change project's runtime library to Multi-threaded - it has to use the same runtime library as cryptlib.lib:
 
-![](<../.gitbook/assets/image (189).png>)
+![[image (189).png]]
 
 Copy over all the header files from the crypto++ project to your project's folder like so:
 
-![](<../.gitbook/assets/image (190).png>)
+![[image (190).png]]
 
 Include those headers in the project by adding the folder to `Include Directories` list:
 
-![](<../.gitbook/assets/image (191).png>)
+![[image (191).png]]
 
 Copy over the below sample code to your main .cpp file and compile:
 
-{% code title="crypto.cpp" %}
 ```cpp
+// crypto.cpp
 // code copy pasted from here https://www.cryptopp.com/w/images/b/bd/AES-CBC-Filter.zip
 // crypto.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
@@ -203,16 +203,15 @@ int main(int argc, char* argv[])
 	return 0;
 }
 ```
-{% endcode %}
 
 Success:
 
-![](<../.gitbook/assets/image (192).png>)
+![[image (192).png]]
 
 ## References
 
-{% embed url="https://www.cryptopp.com/w/images/b/bd/AES-CBC-Filter.zip" %}
+[www.cryptopp.com/w/images/b/bd/AES-CBC-Filter.zip](https://www.cryptopp.com/w/images/b/bd/AES-CBC-Filter.zip)
 
-{% embed url="https://stackoverflow.com/questions/36000317/link-errors-using-cryptopp-on-vs2012-static-library-console-application-and-clr" %}
+[stackoverflow.com/questions/36000317/link-errors-using-cryptopp-on-vs2012-static-library-console-application-and-clr](https://stackoverflow.com/questions/36000317/link-errors-using-cryptopp-on-vs2012-static-library-console-application-and-clr)
 
-{% embed url="https://www.cryptopp.com/" %}
+[www.cryptopp.com](https://www.cryptopp.com/)

@@ -1,5 +1,6 @@
 ---
 description: PowerShell remoting for lateral movement.
+tags: [#lateral-movement]
 ---
 
 # WinRM for Lateral Movement
@@ -8,8 +9,8 @@ description: PowerShell remoting for lateral movement.
 
 Attacker establishing a PSRemoting session from a compromised system `10.0.0.2` to a domain controller `dc-mantvydas` at `10.0.0.6`:
 
-{% code title="attacker@10.0.0.2" %}
 ```csharp
+// attacker@10.0.0.2
 New-PSSession -ComputerName dc-mantvydas -Credential (Get-Credential)
 
   Id Name            ComputerName    ComputerType    State         ConfigurationName     Availability
@@ -19,23 +20,22 @@ New-PSSession -ComputerName dc-mantvydas -Credential (Get-Credential)
 PS C:\Users\mantvydas> Enter-PSSession 1
 [dc-mantvydas]: PS C:\Users\spotless\Documents> calc.exe
 ```
-{% endcode %}
 
 ## Observations
 
 Note the process ancestry:
 
-![](../../.gitbook/assets/wsmprovhost-calc.png)
+![[wsmprovhost-calc.png]]
 
-![](<../../.gitbook/assets/wsmprovhost-calc-sysmon (1).png>)
+![[wsmprovhost-calc-sysmon (1).png]]
 
 On the host that initiated the connection, a `4648` logon attempt is logged, showing what process initiated it, the hostname where it connected to and which account was used:
 
-![](../../.gitbook/assets/winrm-local-logon-events.png)
+![[winrm-local-logon-events.png]]
 
 The below graphic shows that the logon events `4648` annd `4624` are being logged on both the system that initiated the connection (`pc-mantvydas - 4648`) and the system that it logged on to (`dc-mantvydas - 4624`):
 
-![](../../.gitbook/assets/winrm-logons-both.png)
+![[winrm-logons-both.png]]
 
 Additionally, `%SystemRoot%\System32\Winevt\Logs\Microsoft-Windows-WinRM%4Operational.evtx` on the host that initiated connection to the remote host, logs some interesting data for a task `WSMan Session initialize` :
 
@@ -73,13 +73,13 @@ Additionally, `%SystemRoot%\System32\Winevt\Logs\Microsoft-Windows-WinRM%4Operat
 
 ...same as above just in the actual screenshot:
 
-![](../../.gitbook/assets/winrm-eventlogs.png)
+![[winrm-eventlogs.png]]
 
-![](../../.gitbook/assets/winrm-session-information.png)
+![[winrm-session-information.png]]
 
 Since we entered into a PS Shell on the remote system `(Enter-PSSession)` , there is another interesting log showing the establishment of a remote shell - note that the ShellID corresponds to the earlier observed `Correlation ActivityID`:
 
-![](../../.gitbook/assets/winrm-shell.png)
+![[winrm-shell.png]]
 
 ## Additional Useful Commands
 
@@ -116,6 +116,6 @@ Copy-Item -Path C:\Users\Administrator\Desktop\test.txt -Destination C:\Temp\ -F
 
 ## References
 
-{% embed url="http://www.hurryupandwait.io/blog/a-look-under-the-hood-at-powershell-remoting-through-a-ruby-cross-plaform-lens" %}
+[www.hurryupandwait.io/blog/a-look-under-the-hood-at-powershell-remoting-through-a-ruby-cross-plaform-lens](http://www.hurryupandwait.io/blog/a-look-under-the-hood-at-powershell-remoting-through-a-ruby-cross-plaform-lens)
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1028" %}
+[attack.mitre.org/wiki/Technique/T1028](https://attack.mitre.org/wiki/Technique/T1028)

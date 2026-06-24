@@ -10,13 +10,12 @@ A list of all the open handles on the system is retrieved by using a `NtQuerySys
 
 Below code retrieves all handles opened by the `SYSTEM` process (PID 4):
 
-{% hint style="danger" %}
-* Below code does not handle errors
-* `SystemHandleInformationSize` is a hardcoded value, which you should not do in production code. Instead, you should:
-  * start with an arbitrary size for `SystemHandleInformationSize`
-  * call `NtQuerySystemInformation` in a loop, until it no longer returns `0xc0000004` (`STATUS_INFO_LENGTH_MISMATCH`)
-  * if `0xc0000004` is returned, increase `SystemHandleInformationSize`
-{% endhint %}
+> [!DANGER]
+> * Below code does not handle errors
+> * `SystemHandleInformationSize` is a hardcoded value, which you should not do in production code. Instead, you should:
+>   * start with an arbitrary size for `SystemHandleInformationSize`
+>   * call `NtQuerySystemInformation` in a loop, until it no longer returns `0xc0000004` (`STATUS_INFO_LENGTH_MISMATCH`)
+>   * if `0xc0000004` is returned, increase `SystemHandleInformationSize`
 
 ```cpp
 #include <iostream>
@@ -78,10 +77,9 @@ int main()
 }
 ```
 
-{% hint style="info" %}
-**Remember**\
-The above code could be easily modified to find an object's location in kernel given its handle.
-{% endhint %}
+> [!INFO]
+> **Remember**\
+> The above code could be easily modified to find an object's location in kernel given its handle.
 
 ## Validation
 
@@ -89,11 +87,11 @@ Let's see if the code above lists out the handles and the object addresses those
 
 If we compile and run the code, we will get a list of all the handles for the process with PID 4:
 
-![](<../../.gitbook/assets/image (600).png>)
+![[image (600).png]]
 
 We can cross-check and ensure that our listed handles are accurate with Process Hacker by inspecting the `Handles` tab of the `SYSTEM` process (PID 4). Let's check the first handle 0x4:
 
-![](<../../.gitbook/assets/image (601).png>)
+![[image (601).png]]
 
 The above shows:
 
@@ -109,7 +107,7 @@ We can easily check the object at `0xffff8f077c882300` in WinDBG:
 
 The above command indicates that `0xffff8f077c882300` is a valid object address and it's of type Process:
 
-![Output of !object 0xffff8f077c882300](<../../.gitbook/assets/image (602).png>)
+![[image (602).png|Output of !object 0xffff8f077c882300]]
 
 We can confirm `0xffff8f077c882300` is a process object by using a `!process` command in WinDBG:
 
@@ -123,7 +121,7 @@ Below confirms that it's indeed a process object:
 * in blue - process id (4)
 * in lime - process name (system)
 
-![Output of !process 0xffff8f077c882300 0](<../../.gitbook/assets/image (603).png>)
+![[image (603).png|Output of !process 0xffff8f077c882300 0]]
 
 Finally, we can overlay the `_EPROCESS` over `ffff8f077c882300` and print the `UniqueProcessId` and `ImageFileNames`, that again confirm it's a `SYSTEM` process with PID 4:
 
@@ -131,14 +129,14 @@ Finally, we can overlay the `_EPROCESS` over `ffff8f077c882300` and print the `U
 dt _eprocess ffff8f077c882300 uniqueprocessid imagefilename
 ```
 
-![](<../../.gitbook/assets/image (605).png>)
+![[image (605).png]]
 
 ## References
 
-{% embed url="https://processhacker.sourceforge.io/doc/struct___s_y_s_t_e_m___h_a_n_d_l_e___i_n_f_o_r_m_a_t_i_o_n.html" %}
+[processhacker.sourceforge.io/doc/struct___s_y_s_t_e_m___h_a_n_d_l_e___i_n_f_o_r_m_a_t_i_o_n.html](https://processhacker.sourceforge.io/doc/struct___s_y_s_t_e_m___h_a_n_d_l_e___i_n_f_o_r_m_a_t_i_o_n.html)
 
-{% embed url="https://www.geoffchappell.com/studies/windows/km/ntoskrnl/api/ex/sysinfo/handle.htm" %}
+[www.geoffchappell.com/studies/windows/km/ntoskrnl/api/ex/sysinfo/handle.htm](https://www.geoffchappell.com/studies/windows/km/ntoskrnl/api/ex/sysinfo/handle.htm)
 
-{% embed url="https://www.geoffchappell.com/studies/windows/km/ntoskrnl/api/ex/sysinfo/handle_table_entry.htm?ts=0,81" %}
+[www.geoffchappell.com/studies/windows/km/ntoskrnl/api/ex/sysinfo/handle_table_entry.htm?ts=0,81](https://www.geoffchappell.com/studies/windows/km/ntoskrnl/api/ex/sysinfo/handle_table_entry.htm?ts=0,81)
 
-{% embed url="https://blez.wordpress.com/2012/09/17/enumerating-opened-handles-from-a-process/" %}
+[blez.wordpress.com/2012/09/17/enumerating-opened-handles-from-a-process](https://blez.wordpress.com/2012/09/17/enumerating-opened-handles-from-a-process/)

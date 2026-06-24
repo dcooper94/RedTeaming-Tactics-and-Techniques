@@ -12,42 +12,40 @@ First of, download hasherezade's PoC for doppleganging here [https://github.com/
 
 Then test the technique like so:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 .\process-doppelganger.exe C:\tools\mimikatz\x64\mimikatz.exe c:\zone.txt
 ```
-{% endcode %}
 
 Note in the below screenshot how mimikatz is launched, but the Process Explorer actually represents the mimikatz process as zone.txt - this is because multiple Process Environment Block's (PEB) memory structures of the newly created process were modified during the new process creation:
 
-{% hint style="info" %}
-This test was done on Windows 7
-{% endhint %}
+> [!INFO]
+> This test was done on Windows 7
 
-![](<../../.gitbook/assets/Screenshot from 2018-12-31 15-37-35.png>)
+![[Screenshot from 2018-12-31 15-37-35.png]]
 
 Below are two links where we explore the PEB in a bit more depth:
 
-{% content-ref url="../../miscellaneous-reversing-forensics/windows-kernel-internals/exploring-process-environment-block.md" %}
-[exploring-process-environment-block.md](../../miscellaneous-reversing-forensics/windows-kernel-internals/exploring-process-environment-block.md)
-{% endcontent-ref %}
 
-{% content-ref url="../defense-evasion/masquerading-processes-in-userland-through-_peb.md" %}
+[exploring-process-environment-block.md](../../miscellaneous-reversing-forensics/windows-kernel-internals/exploring-process-environment-block.md)
+
+
+
 [masquerading-processes-in-userland-through-\_peb.md](../defense-evasion/masquerading-processes-in-userland-through-\_peb.md)
-{% endcontent-ref %}
+
 
 ## Windows 10
 
 Going back to my original motivation as to why I wanted to try this technique out, which was to see if Windows 10 would detect this type of code injection - below is the answer:
 
-![](<../../.gitbook/assets/Screenshot from 2018-12-31 16-15-21.png>)
+![[Screenshot from 2018-12-31 16-15-21.png]]
 
-![](<../../.gitbook/assets/Screenshot from 2018-12-31 15-35-14.png>)
+![[Screenshot from 2018-12-31 15-35-14.png]]
 
 ## References
 
-{% embed url="https://www.blackhat.com/docs/eu-17/materials/eu-17-Liberman-Lost-In-Transaction-Process-Doppelganging.pdf" %}
+[www.blackhat.com/docs/eu-17/materials/eu-17-Liberman-Lost-In-Transaction-Process-Doppelganging.pdf](https://www.blackhat.com/docs/eu-17/materials/eu-17-Liberman-Lost-In-Transaction-Process-Doppelganging.pdf)
 
-{% embed url="https://hshrzd.wordpress.com/2017/12/18/process-doppelganging-a-new-way-to-impersonate-a-process/" %}
+[hshrzd.wordpress.com/2017/12/18/process-doppelganging-a-new-way-to-impersonate-a-process](https://hshrzd.wordpress.com/2017/12/18/process-doppelganging-a-new-way-to-impersonate-a-process/)
 
-{% embed url="https://github.com/hasherezade/process_doppelganging" %}
+[github.com/hasherezade/process_doppelganging](https://github.com/hasherezade/process_doppelganging)

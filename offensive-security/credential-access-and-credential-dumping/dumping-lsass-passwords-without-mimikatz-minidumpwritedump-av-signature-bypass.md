@@ -6,10 +6,9 @@ description: Evasion, Credential Dumping
 
 This lab explores multiple ways of how we can write a simple `lsass` process dumper using `MiniDumpWriteDump` API. Lsass process dumps created with `MiniDumpWriteDump` can be loaded to mimikatz offline, where credential materials could be extracted.
 
-{% hint style="warning" %}
-Note that you may get flagged by AVs/EDRs for reading lsass process memory. Depending on what AV/EDR you are dealing with, see other notes:\
-[Bypassing Cylance and other AVs/EDRs by Unhooking Windows APIs](../defense-evasion/bypassing-cylance-and-other-avs-edrs-by-unhooking-windows-apis.md) and [Full DLL Unhooking with C++](../defense-evasion/how-to-unhook-a-dll-using-c++.md)
-{% endhint %}
+> [!WARNING]
+> Note that you may get flagged by AVs/EDRs for reading lsass process memory. Depending on what AV/EDR you are dealing with, see other notes:\
+> [Bypassing Cylance and other AVs/EDRs by Unhooking Windows APIs](../defense-evasion/bypassing-cylance-and-other-avs-edrs-by-unhooking-windows-apis.md) and [Full DLL Unhooking with C++](../defense-evasion/how-to-unhook-a-dll-using-c++.md)
 
 ## MiniDumpWriteDump to Disk
 
@@ -17,8 +16,8 @@ It's possible to use `MiniDumpWriteDump` API call to dump lsass process memory.
 
 ### Code
 
-{% code title="dumper.cpp" %}
 ```cpp
+// dumper.cpp
 #include "stdafx.h"
 #include <windows.h>
 #include <DbgHelp.h>
@@ -61,20 +60,18 @@ int main() {
     return 0;
 }
 ```
-{% endcode %}
 
-{% file src="../../.gitbook/assets/CreateMiniDump (1).exe" %}
+
 CreateMiniDump.exe
-{% endfile %}
+
 
 Do not forget to add `dbghelp.lib` as a dependency in the Linker > Input settings for your C++ project if the compiler is giving you a hard time:
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-23 17-01-44.png>)
+![[Screenshot from 2019-03-23 17-01-44.png]]
 
-{% hint style="info" %}
-Or simply include at the top of the source code:\
-`#pragma comment (lib, "Dbghelp.lib")`
-{% endhint %}
+> [!INFO]
+> Or simply include at the top of the source code:\
+> `#pragma comment (lib, "Dbghelp.lib")`
 
 ### Demo
 
@@ -84,26 +81,25 @@ Or simply include at the top of the source code:\
 4. Open mimikatz and load in the dump file&#x20;
 5. Dump passwords
 
-{% code title="attacker" %}
 ```csharp
+// attacker
 .\createminidump.exe
 .\mimikatz.exe
 sekurlsa::minidump c:\temp\lsass.dmp
 sekurlsa::logonpasswords
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Peek 2019-03-23 22-16.gif>)
+![[Peek 2019-03-23 22-16.gif]]
 
 ### Why it's worth it?
 
 See how Windows Defender on Windows 10 is flagging up mimikatz immediately... but allows running CreateMiniDump.exe? Good for us - we get lsass.exe dumped to `lsass.dmp`:
 
-![](<../../.gitbook/assets/Peek 2019-03-23 21-25.gif>)
+![[Peek 2019-03-23 21-25.gif]]
 
 ..which then can be read in mimikatz offline:
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-23 21-26-41.png>)
+![[Screenshot from 2019-03-23 21-26-41.png]]
 
 Of ourse, there is Sysinternal's `procdump` that does the same thing and it does not get flagged by Windows defender, but it is always good to know there are alternatives you could turn to if you need to for whatever reason.&#x20;
 
@@ -111,7 +107,7 @@ Of ourse, there is Sysinternal's `procdump` that does the same thing and it does
 
 As mentioned earlier, the code above uses a native windows API call `MiniDumpWriteDump` to make a memory dump of a given process. If you are on the blue team and trying to write detections for these activities, you may consider looking for processes loading in `dbghelp.dll` module and calling `MiniDumpWriteDump` function:
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-23 17-08-29.png>)
+![[Screenshot from 2019-03-23 17-08-29.png]]
 
 ## MiniDumpWriteDump to Memory using MiniDump Callbacks
 
@@ -237,11 +233,10 @@ On the left, `0x00000135B8291040` (`dumpBuffer`) gets populated with minidump da
 
 On the right, we're executing the same code and it says that the minidump was written to our buffer at `0x000001AEA0BC4040`. For testing purposes, bytes from the same buffer `0x000001AEA0BC4040` were also written to `c:\temp\lsass.dmp` using `WriteFile`, so that we could load the lsass dump to mimikatz (bottom right) and ensure it's not corrupted and credentials can be retrieved:
 
-![MiniDumpWriteDump dumping lsass process to a memory location](../../.gitbook/assets/minidumpwritedump-dump-to-memory.gif)
+![[minidumpwritedump-dump-to-memory.gif|MiniDumpWriteDump dumping lsass process to a memory location]]
 
-{% hint style="info" %}
-If you ever try using `MiniDumpWriteDump` to dump process memory to memory using named pipes, you will notice that the minidump file "kind of" gets created, but mimikatz is not able to read it. That's because the minidump buffer is actually written non-sequentially (you can see this from the screenshot in the top right corner - note the differing offsets of the write operations of the minidump data), so when you are reading the minidump using named pipes, you simply are writting the minidump data in incorrect order, which effectively produces a corrupted minidump file.
-{% endhint %}
+> [!INFO]
+> If you ever try using `MiniDumpWriteDump` to dump process memory to memory using named pipes, you will notice that the minidump file "kind of" gets created, but mimikatz is not able to read it. That's because the minidump buffer is actually written non-sequentially (you can see this from the screenshot in the top right corner - note the differing offsets of the write operations of the minidump data), so when you are reading the minidump using named pipes, you simply are writting the minidump data in incorrect order, which effectively produces a corrupted minidump file.
 
 ### Other Ways
 
@@ -249,19 +244,18 @@ Below are links to a couple of other cool solutions to the same problem.
 
 Custom `MiniDumpWriteDump` implementation, based on the one from ReactOS:
 
-{% embed url="https://github.com/rookuu/BOFs/tree/main/MiniDumpWriteDump" %}
+[github.com/rookuu/BOFs/tree/main/MiniDumpWriteDump](https://github.com/rookuu/BOFs/tree/main/MiniDumpWriteDump)
 
 Hooking `dbgcore.dll!Win32FileOutputProvider::WriteAll` to intercept the minidump data before it's written to disk:
 
-{% embed url="https://adepts.of0x.cc/hookson-hootoff/" %}
+[adepts.of0x.cc/hookson-hootoff](https://adepts.of0x.cc/hookson-hootoff/)
 
 ## MiniDumpWriteDump + PssCaptureSnapshot
 
 `PssCaptureSnapshot` is another Windows API that lets us dump lsass process using `MiniDumpWriteDump` that may help us sneak past some AVs/EDRs for now.
 
-{% hint style="info" %}
-The benefit of using `PssCaptureSnapshot` is that when `MiniDumpWriteDump` is called from your malware, it will not be reading lsass process memory directly and instead will do so from the process's snapshot.
-{% endhint %}
+> [!INFO]
+> The benefit of using `PssCaptureSnapshot` is that when `MiniDumpWriteDump` is called from your malware, it will not be reading lsass process memory directly and instead will do so from the process's snapshot.
 
 Below is the modified dumper code that uses the `PssCaptureSnapshot` to obtain a snapshot of the lsass process. The handle that is returned by the `PssCaptureSnapshot` is then used in the `MiniDumpWriteDump` call instead of the lsass process handle. This is done via the minidump callback:
 
@@ -331,11 +325,11 @@ int main() {
 }
 ```
 
-![](../../.gitbook/assets/capture-snapshot-lsass.gif)
+![[capture-snapshot-lsass.gif]]
 
 Note that this is the way `procdump.exe` works when `-r` flag is specified:&#x20;
 
-![procdump help](<../../.gitbook/assets/image (358).png>)
+![[image (358).png|procdump help]]
 
 To confirm, if we execute procdump like so:
 
@@ -345,16 +339,16 @@ procdump -accepteula -r -ma lsass.exe lsass.dmp
 
 ...and inspect the APIs that are being called under the hood, we will see that `procdump` is indeed dynamically resolving the `PssCaptureSnapshot` address inside the `kernel32.dll`:
 
-![](<../../.gitbook/assets/image (359).png>)
+![[image (359).png]]
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump" %}
+[docs.microsoft.com/en-us/windows/desktop/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump](https://docs.microsoft.com/en-us/windows/desktop/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot" %}
+[docs.microsoft.com/en-us/windows/desktop/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot](https://docs.microsoft.com/en-us/windows/desktop/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot)
 
-{% embed url="https://docs.microsoft.com/en-us/previous-versions/windows/desktop/proc_snap/export-a-process-snapshot-to-a-file" %}
+[docs.microsoft.com/en-us/previous-versions/windows/desktop/proc_snap/export-a-process-snapshot-to-a-file](https://docs.microsoft.com/en-us/previous-versions/windows/desktop/proc_snap/export-a-process-snapshot-to-a-file)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/win32/api/processsnapshot/nf-processsnapshot-psscapturesnapshot" %}
+[docs.microsoft.com/en-us/windows/win32/api/processsnapshot/nf-processsnapshot-psscapturesnapshot](https://docs.microsoft.com/en-us/windows/win32/api/processsnapshot/nf-processsnapshot-psscapturesnapshot)
 
-{% embed url="https://github.com/m0rv4i/SafetyDump/blob/master/SafetyDump/Program.cs" %}
+[github.com/m0rv4i/SafetyDump/blob/master/SafetyDump/Program.cs](https://github.com/m0rv4i/SafetyDump/blob/master/SafetyDump/Program.cs)

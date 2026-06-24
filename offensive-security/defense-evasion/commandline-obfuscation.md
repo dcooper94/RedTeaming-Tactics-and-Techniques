@@ -15,7 +15,7 @@ C:\Users\mantvydas>cmd %a% %b%
 
 Note though that the commandline logging \(dynamic detection\) still works as the commandline needs to be expanded before it can get executed, but static detection could be bypassed:
 
-![](../../.gitbook/assets/environment-variables.png)
+![[environment-variables.png]]
 
 ## Double quotes
 
@@ -25,7 +25,7 @@ C:\Users\mantvydas>c""m"d"
 
 Note how double quotes can actually make both static and dynamic detection a bit more difficult:
 
-![](../../.gitbook/assets/double-quotes.png)
+![[double-quotes.png]]
 
 ## Carets
 
@@ -35,7 +35,7 @@ C:\Users\mantvydas>n^e^t u^s^er
 
 Commandline logging, same as with using environment variables, is not affected, however static detection could be affected:
 
-![](../../.gitbook/assets/carets.png)
+![[carets.png]]
 
 ## Garbage delimiters
 
@@ -47,7 +47,7 @@ PS C:\Users\mantvydas> cmd /c "set x=calc & echo %x% | cmd"
 
 The above sets en environment variable x to `calc` and then prints it and pipes it to the standard input of the cmd:
 
-![](../../.gitbook/assets/garbage1.png)
+![[garbage1.png]]
 
 Introducing garbage delimiters `@` into the equation:
 
@@ -57,7 +57,7 @@ PS C:\Users\mantvydas> cmd /c "set x=c@alc & echo %x:@=% | cmd"
 
 The above does the same as the earlier example, except that it introduces more filth into the command \(`c@alc`\). You can see from the below screenshot that Windows does not recognize such a command `c@alc`, but the second attempt when the `%x:@=%` removes the extraneous `@` symbol from the string, gets executed successfully:
 
-![](../../.gitbook/assets/garbage2.png)
+![[garbage2.png]]
 
 If it is confusing, the below should help clear it up:
 
@@ -65,7 +65,7 @@ If it is confusing, the below should help clear it up:
 PS C:\Users\mantvydas> cmd /c "set x=c@alc & echo %x:@=mantvydas% | cmd"
 ```
 
-![](../../.gitbook/assets/garbage3.png)
+![[garbage3.png]]
 
 In the above, the value `mantvydas` got inserted in the `c@alc` in place of @, suggesting that `%x:@=%` \(`:@=` to be precise\) is just a string replacement capability in the cmd.exe utility.
 
@@ -88,18 +88,17 @@ Cmd.exe also has a substring capability. See below:
 
 Note that this is only good for bypassing static detection:
 
-![](../../.gitbook/assets/substring1.png)
+![[substring1.png]]
 
 ## Batch FOR, DELIMS + TOKENS
 
 We can use a builtin batch looping to extract the Powershell string from environment variables in order to launch it and bypass static detection that looks for a string "powershell" in program invocations:
 
-{% code title="@cmd" %}
 ```csharp
+// @cmd
 set pSM 
 PSModulePath=C:\Users\mantvydas\Documents\WindowsPowerShell\Modules;....
 ```
-{% endcode %}
 
 Note how the `WindowsPowerShell` string is present in the `PSModule` environment variable - this mean we can extract it like so:
 
@@ -114,7 +113,7 @@ What the above command does:
 3. Prints out the 7th token, which happens to be the `PowerShell`
 4. Which effectively launches PowerShell
 
-![](../../.gitbook/assets/batch-powershell.png)
+![[batch-powershell.png]]
 
 ## Comma, semicolon
 
@@ -125,7 +124,7 @@ C:\Users\mantvydas>cmd,/c;hostname
 PC-MANTVYDAS
 ```
 
-![](../../.gitbook/assets/comasemicoma.png)
+![[comasemicoma.png]]
 
 ## FORCoding
 
@@ -136,12 +135,12 @@ PS C:\Users\mantvydas> cmd /V /C "set unique=nets /ao&&FOR %A IN (0 1 2 3 2 6 2 
 que:~%A,1!&& IF %A==1337 CALL %final:~-12%"
 ```
 
-![](../../.gitbook/assets/forcoding.png)
+![[forcoding.png]]
 
 In verbose python this could look something like this:
 
-{% code title="forcoding.py" %}
 ```python
+// forcoding.py
 import os
 
 dictionary = "nets -ao"
@@ -154,13 +153,12 @@ for index in indexes:
     final += dictionary[index]
 os.system(final)
 ```
-{% endcode %}
 
-![](../../.gitbook/assets/forcoding-python%20%281%29.png)
+![[forcoding-python%20%281%29.png]]
 
 ## References
 
-{% embed url="https://www.youtube.com/watch?v=mej5L9PE1fs" %}
+[www.youtube.com/watch?v=mej5L9PE1fs](https://www.youtube.com/watch?v=mej5L9PE1fs)
 
-{% embed url="https://www.fireeye.com/blog/threat-research/2018/03/dosfuscation-exploring-obfuscation-and-detection-techniques.html" %}
+[www.fireeye.com/blog/threat-research/2018/03/dosfuscation-exploring-obfuscation-and-detection-techniques.html](https://www.fireeye.com/blog/threat-research/2018/03/dosfuscation-exploring-obfuscation-and-detection-techniques.html)
 

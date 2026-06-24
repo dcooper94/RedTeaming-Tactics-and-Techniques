@@ -18,19 +18,19 @@ What's nice about this technique is that we do not need to allocate RWX memory p
 
 First, in order to get `AddressOfEntryPoint`, we need to get the image base address of the target process - notepad.exe:
 
-![](../../.gitbook/assets/image%20%28123%29.png)
+![[image%20%28123%29.png]]
 
 We then need to parse out the NT and Optional Headers and find the AddressEntryPoint \(Relative Virtual Address\) of the notepad.exe which in my case was at 0001bf90:
 
-![](../../.gitbook/assets/image%20%2844%29.png)
+![[image%20%2844%29.png]]
 
 Knowing notepad's image base address and an RVA of the AddressEntryPoint, we can get its Virtual Address \(by adding the two up\) and hijack the executable by overwriting the very first instructions found at that address with our shellcode:
 
-![bytes at AddressOfEntryPoint get overwritten with shellcode](../../.gitbook/assets/overwrite-entrypoint.gif)
+![[overwrite-entrypoint.gif|bytes at AddressOfEntryPoint get overwritten with shellcode]]
 
 Resuming the suspended process executes our shellcode which results in a meterpreter session:
 
-![](../../.gitbook/assets/overwrite-entrypoint-catch-meterpreter.gif)
+![[overwrite-entrypoint-catch-meterpreter.gif]]
 
 ## Code
 

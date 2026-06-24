@@ -10,7 +10,7 @@ description: >-
 
 Firstly, let's use an [injector](../../offensive-security/code-injection-process-injection/process-injection.md) program we wrote earlier to inject some shellcode into a process that will give us a reverse shell. In this case, we are injecting the shellcode into explorer.exe:
 
-![](../../.gitbook/assets/injected-threads-explorer-injected.png)
+![[injected-threads-explorer-injected.png]]
 
 ## Detecting Injection
 
@@ -22,7 +22,7 @@ $a = Get-InjectedThread; $a
 
 Looks like the injected thread was successfully detected:
 
-![](../../.gitbook/assets/injected-threads-get-injected-thread.png)
+![[injected-threads-get-injected-thread.png]]
 
 ## Cross-checking Shellcode
 
@@ -32,27 +32,27 @@ Lets check the payload found in the injected thread:
 ($a.Bytes | ForEach-Object tostring x2) -join "\x"
 ```
 
-![](../../.gitbook/assets/injected-threads-shellcode2.png)
+![[injected-threads-shellcode2.png]]
 
 and cross-verify it with the shellcode specified in our injector binary. We see they match as expected:
 
-![](../../.gitbook/assets/injected-threads-shellcode.png)
+![[injected-threads-shellcode.png]]
 
 ## Inspecting with WinDBG
 
 In order to inspect the newly created thread that executes the above shellcode with WinDBG, we need to know the injected thread id. For this, we use Process Explorer and note the newly created thread's ID which is `2112`. Note the `ThreadId` is also shown in the output of Get-InjectedThread powershell script:
 
-![](../../.gitbook/assets/injected-threads-threadid.png)
+![[injected-threads-threadid.png]]
 
 We can get all the threads for a process being debugged in WinDBG with `~` command:
 
-![](../../.gitbook/assets/injected-threads-threadid-windbg.png)
+![[injected-threads-threadid-windbg.png]]
 
 Additionally, in order to inspect the bytes stored/executed in the injected thread, we need to get the thread's `StartAddress` which can be retrieved with  `~.` command when in the context of the thread of interest.
 
 Below graphic shows the injected thread's contents with WinDBG:
 
-![Injected thread id + StartAddress + content bytes](../../.gitbook/assets/injected-threads-inspection.png)
+![[injected-threads-inspection.png|Injected thread id + StartAddress + content bytes]]
 
 The above also highlights the thread `0x1494 = 5268` ID. That thread is then inspected for its `StartAddress`, which happened to be `0x03730000 = 57868288`.&#x20;
 
@@ -68,12 +68,12 @@ One of the things Get-InjectedThreads does in order to detect code injection is:
 
 Below graphic shows details of the memory region containing the injected thread using WinDBG and Get-InjectedThreads. Note the Type/MemoryType and State/MemoryState in WinDBG/Get-InjectedThreads outputs respectively:
 
-![](../../.gitbook/assets/injected-threads-address.png)
+![[injected-threads-address.png]]
 
 ## References
 
-{% embed url="https://posts.specterops.io/defenders-think-in-graphs-too-part-1-572524c71e91" %}
+[posts.specterops.io/defenders-think-in-graphs-too-part-1-572524c71e91](https://posts.specterops.io/defenders-think-in-graphs-too-part-1-572524c71e91)
 
-{% embed url="https://blog.xpnsec.com/undersanding-and-evading-get-injectedthread/" %}
+[blog.xpnsec.com/undersanding-and-evading-get-injectedthread](https://blog.xpnsec.com/undersanding-and-evading-get-injectedthread/)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/api/winnt/ns-winnt-_memory_basic_information" %}
+[docs.microsoft.com/en-us/windows/desktop/api/winnt/ns-winnt-_memory_basic_information](https://docs.microsoft.com/en-us/windows/desktop/api/winnt/ns-winnt-_memory_basic_information)

@@ -1,5 +1,6 @@
 ---
 description: Defense Evasion
+tags: [#defense-evasion]
 ---
 
 
@@ -20,7 +21,7 @@ By default, the encoder takes a list of words from MIT, but you can also create 
 It calculates each hexadecimal value from 0x00 to 0xFF and associates a word with it. Then, each byte of your shellcode is converted to hexadecimal and encoded with the corresponding word.
 You can do the exact opposite in C# to get your shellcode.
 
-![](../../.gitbook/assets/dictionnary_association.png)
+![[dictionnary_association.png]]
 
 
 ## Source code
@@ -96,5 +97,5 @@ if __name__ == "__main__":
 
 ## References
 
-{% embed url="https://github.com/ProcessusT/Dictofuscation" %}
+[github.com/ProcessusT/Dictofuscation](https://github.com/ProcessusT/Dictofuscation)
 

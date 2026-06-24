@@ -8,15 +8,14 @@ description: Discovery
 
 Let's run some of the popular enumeration commands on the victim system:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 net user
 net user administrator
 whoami /user
 whoami /all
 ...
 ```
-{% endcode %}
 
 ## Hunting and Observations
 
@@ -24,8 +23,8 @@ Having command line logging can help in identifying a cluster of enumeration com
 
 For this lab, I exported 8600+ command lines from various processes and wrote a dirty powershell script that ingests those command lines and inspects them for a couple of classic windows enumeration commands that are executed in the span of 2 minutes and spits them out:
 
-{% code title="hunt.ps1" %}
 ```csharp
+// hunt.ps1
 function hunt() {
     [CmdletBinding()]Param()
     $commandlines = Import-Csv C:\Users\mantvydas\Downloads\cmd-test.csv
@@ -45,7 +44,6 @@ function hunt() {
     }
 }
 ```
-{% endcode %}
 
 Invoking the script to start the hunt:
 
@@ -55,17 +53,17 @@ Invoking the script to start the hunt:
 
 Below are some of the findings which may warrant further investigation of the suspect host:
 
-![](../../.gitbook/assets/enumeration-hunt-5.png)
+![[enumeration-hunt-5.png]]
 
-![](../../.gitbook/assets/enumeration-hunt-4.png)
+![[enumeration-hunt-4.png]]
 
-![](../../.gitbook/assets/enumeration-hunt-3.png)
+![[enumeration-hunt-3.png]]
 
-![](../../.gitbook/assets/enumeration-hunt-2.png)
+![[enumeration-hunt-2.png]]
 
-![](../../.gitbook/assets/enumeration-hunt-1.png)
+![[enumeration-hunt-1.png]]
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1087" %}
+[attack.mitre.org/wiki/Technique/T1087](https://attack.mitre.org/wiki/Technique/T1087)
 

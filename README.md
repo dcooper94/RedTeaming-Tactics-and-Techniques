@@ -14,27 +14,24 @@ At ired.team, I explore some of the common offensive security techniques involvi
 
 Most of these techniques are discovered by other security researchers and I do not claim their ownership. I try to reference the sources I use the best I can, but if you think I've missed something, please get in touch and I will fix it immediately.
 
-{% hint style="warning" %}
-* Do not take everything or anything in these notes for **granted.**
-* Do not expect the notes to be exhaustive or covering the techniques or the artifacts they produce in full.
-* Expect mistakes in the notes.
-* Always consult additional resources.
-{% endhint %}
+> [!WARNING]
+> * Do not take everything or anything in these notes for **granted.**
+> * Do not expect the notes to be exhaustive or covering the techniques or the artifacts they produce in full.
+> * Expect mistakes in the notes.
+> * Always consult additional resources.
 
-{% hint style="danger" %}
-**Warning**\
-[ired.team](https://ired.team) Red Teaming Experiments GitBook is created by [@spotheplanet](https://twitter.com/spotheplanet). \
-Cloning it and presenting it as your own is illegal and strictly forbidden, don't do it.
-{% endhint %}
+> [!DANGER]
+> **Warning**\
+> [ired.team](https://ired.team) Red Teaming Experiments GitBook is created by [@spotheplanet](https://twitter.com/spotheplanet). \
+> Cloning it and presenting it as your own is illegal and strictly forbidden, don't do it.
 
-{% hint style="success" %}
-**Support and Donations**
-
-If you appreciate ired.team and would like to show support, you can do it via my:
-
-* [Patreon](http://patreon.com/iredteam)
-* paypal mantvydo@gmail.com
-{% endhint %}
+> [!SUCCESS]
+> **Support and Donations**
+> 
+> If you appreciate ired.team and would like to show support, you can do it via my:
+> 
+> * [Patreon](http://patreon.com/iredteam)
+> * paypal mantvydo@gmail.com
 
 ## The Goal
 
@@ -52,5 +49,5 @@ The goal of this project is simple - read other researchers work, execute some c
 
 Follow me on twitter:
 
-{% embed url="https://twitter.com/spotheplanet" %}
+[twitter.com/spotheplanet](https://twitter.com/spotheplanet)
 

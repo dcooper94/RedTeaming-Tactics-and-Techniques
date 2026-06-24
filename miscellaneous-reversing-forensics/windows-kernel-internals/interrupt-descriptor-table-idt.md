@@ -8,11 +8,10 @@
 * IDT is a list of IDT descriptor entries which are 8 or 16 bytes in size depending on the architecture&#x20;
 * Pointer to IDT is stored in an `IDTR` register for each physical processor or in other words, each processor has its own `IDTR `register pointing to its own Interrupt Descriptor Table
 
-{% hint style="info" %}
-Offsets across different screenshots and windbg output may differ due to the fact that I rebooted the debugee a couple of times during the time these notes were taken.
-
-The notes are based on debugging a kernel of a 64 bit Windows, running in a VM with 1 CPU.
-{% endhint %}
+> [!INFO]
+> Offsets across different screenshots and windbg output may differ due to the fact that I rebooted the debugee a couple of times during the time these notes were taken.
+> 
+> The notes are based on debugging a kernel of a 64 bit Windows, running in a VM with 1 CPU.
 
 ## IDT Location
 
@@ -22,11 +21,11 @@ We can check where the Interrupt Descriptor Table is located in kernel by readin
 r idtr
 ```
 
-![](<../../.gitbook/assets/image (295).png>)
+![[image (295).png]]
 
 As noted later, the command `!idt` allows us to dump the Interrupt Descriptor Table contents and it also confirms that the IDT is located at ``fffff803`536dda00`` as shown below:
 
-![idtr register contains the same value seen when dumping IDT with !idt](<../../.gitbook/assets/image (294).png>)
+![[image (294).png|idtr register contains the same value seen when dumping IDT with !idt]]
 
 ## Dumping IDT
 
@@ -60,7 +59,7 @@ Below shows the IDT dumping and ISR code execution in action:
 
     `i8042prt!I8042KeyboardInterruptService` indeed handles keyboard interrupts
 
-![](../../.gitbook/assets/keyboard-interrupt.gif)
+![[keyboard-interrupt.gif]]
 
 Below is a heavily simplified diagram illustrating all of the above events taking place:
 
@@ -68,7 +67,7 @@ Below is a heavily simplified diagram illustrating all of the above events takin
 * IDT table using index `0x0a` is looked up ([IDT address + 0xa0 \* 0x10](interrupt-descriptor-table-idt.md#idt-entry-for-the-keyboard-interrupt-0xa0)) and the [ISR Entry Point is resolved](interrupt-descriptor-table-idt.md#isr-for-the-keyboard-interrupt-a0) and code jumps to it
 * after some hoops, the code is eventually redirected to the keyboard driver where the interrupt gets handled in `i8042prt!I8042KeyboardInterruptService`
 
-![](<../../.gitbook/assets/image (314).png>)
+![[image (314).png]]
 
 ## IDT Entry
 
@@ -99,7 +98,7 @@ As an example, let's inspect the IDT entry for the keyboard interrupt which is l
 !idt a0
 ```
 
-![](<../../.gitbook/assets/image (297).png>)
+![[image (297).png]]
 
 From earlier, we also know that the IDT resides at `fffff803536dd000`:
 
@@ -137,18 +136,18 @@ ntdll!_KIDTENTRY64
 
 Based on the above IDT entry for the keyboard interrupt, the below [re-enforces](interrupt-descriptor-table-idt.md#idt-entry) that the combination of Offset(High|Middle|Low) form the virtual address of the Interrupt Service Routine (ISR) entry point - the code that will be executed when `a0` interrupt is triggered by the keyboard:
 
-![](<../../.gitbook/assets/image (300).png>)
+![[image (300).png]]
 
 Below shows the instructions at ``fffff803`5156e700`` (ISR entry point) to be executed by the CPU once interrupt `a0` is triggered:
 
 * FFFFFFFFFFFFFF**A0** will be pushed on the stack&#x20;
 * jump to ``fffff803`5156ea40`` will happen
 
-![](<../../.gitbook/assets/image (304).png>)
+![[image (304).png]]
 
 ...and eventually, the `i8042prt!I8042KeyboardInterruptService` will be hit and below confirms it - firstly, the breakpoint is hit for ``fffff803`5156e700`` and `i8042prt!I8042KeyboardInterruptService` is hit immediately after:
 
-![](<../../.gitbook/assets/image (305).png>)
+![[image (305).png]]
 
 ## \_KINTERRUPT
 
@@ -172,7 +171,7 @@ dt nt!_KINTERRUPT ffffd4816353ea00
 
 This allows us to confirm that the `ServiceRoutine` is again pointing correctly to `i8042prt!I8042KeyboardInterruptService` inside the keyboard driver:&#x20;
 
-![](<../../.gitbook/assets/image (293).png>)
+![[image (293).png]]
 
 ## Finding \_KINTERRUPT
 
@@ -250,24 +249,24 @@ dt @$pcr nt!_KPCR Prcb.InterruptObject[a0]
 
 Below confirms that the `_KINTERRUPT` for the interrupt `a0` we found manually matches that given by the `!idt` command:
 
-![](<../../.gitbook/assets/image (301).png>)
+![[image (301).png]]
 
 ## References
 
-{% embed url="https://nagareshwar.securityxploded.com/2014/03/20/code-injection-and-api-hooking-techniques/" %}
+[nagareshwar.securityxploded.com/2014/03/20/code-injection-and-api-hooking-techniques](https://nagareshwar.securityxploded.com/2014/03/20/code-injection-and-api-hooking-techniques/)
 
-{% embed url="https://www.linux.com/tutorials/kernel-interrupt-overview/" %}
+[www.linux.com/tutorials/kernel-interrupt-overview](https://www.linux.com/tutorials/kernel-interrupt-overview/)
 
-{% embed url="https://en.wikipedia.org/wiki/Interrupt_handler" %}
+[en.wikipedia.org/wiki/Interrupt_handler](https://en.wikipedia.org/wiki/Interrupt_handler)
 
-{% embed url="https://relearex.wordpress.com/2017/12/27/hooking-series-part-ii-interrupt-descriptor-table-hooking/" %}
+[relearex.wordpress.com/2017/12/27/hooking-series-part-ii-interrupt-descriptor-table-hooking](https://relearex.wordpress.com/2017/12/27/hooking-series-part-ii-interrupt-descriptor-table-hooking/)
 
-{% embed url="https://wiki.osdev.org/Interrupt_Descriptor_Table" %}
+[wiki.osdev.org/Interrupt_Descriptor_Table](https://wiki.osdev.org/Interrupt_Descriptor_Table)
 
-{% embed url="https://www.codemachine.com/article_interruptdispatching.html" %}
+[www.codemachine.com/article_interruptdispatching.html](https://www.codemachine.com/article_interruptdispatching.html)
 
-{% embed url="https://www.linux.com/tutorials/kernel-interrupt-overview/" %}
+[www.linux.com/tutorials/kernel-interrupt-overview](https://www.linux.com/tutorials/kernel-interrupt-overview/)
 
-{% embed url="https://rayanfam.com/topics/fooling-windows-about-cpu/" %}
+[rayanfam.com/topics/fooling-windows-about-cpu](https://rayanfam.com/topics/fooling-windows-about-cpu/)
 
-{% embed url="https://resources.infosecinstitute.com/hooking-idt/#gref" %}
+[resources.infosecinstitute.com/hooking-idt/#gref](https://resources.infosecinstitute.com/hooking-idt/#gref)

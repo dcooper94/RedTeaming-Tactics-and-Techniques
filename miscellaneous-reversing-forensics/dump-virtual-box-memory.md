@@ -19,29 +19,27 @@ cd "C:\Program Files\Oracle\VirtualBox\"
 
 ## Enable Debug Mode
 
-{% code title="linux host" %}
 ```bash
+// linux host
 mantvydas@~: virtualbox --startvm 'yourVMName or VM UUID' --dbg
 ```
-{% endcode %}
 
 ## Dump VM Memory
 
 Launch the VirtualBox debug console by navigating to "Debug" menu an select "Command Line":
 
-![](../.gitbook/assets/vbox-menu.png)
+![[vbox-menu.png]]
 
 Once you select "Command Line", you will be presented with a console that looks like this:
 
-![memory dump will be a raw file dumped to /home/youruser directory](../.gitbook/assets/vbox-debug.png)
+![[vbox-debug.png|memory dump will be a raw file dumped to /home/youruser directory]]
 
 To create a memory dump, issue the below command \(also highlighted in the above graphic\):
 
-{% code title="VM@virtualbox" %}
 ```text
+// VM@virtualbox
 VBoxDbg> .pgmphystofile 'w7-nc-shell.bin'
 ```
-{% endcode %}
 
 ## Persistence
 

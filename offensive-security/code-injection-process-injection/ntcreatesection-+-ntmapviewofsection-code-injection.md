@@ -26,7 +26,7 @@ fNtCreateSection(&sectionHandle, SECTION_MAP_READ | SECTION_MAP_WRITE | SECTION_
 
 We can see the section got created and we obtained its handle 0x88:
 
-![](<../../.gitbook/assets/image (184).png>)
+![[image (184).png]]
 
 Let's create an RW view of the section in our local process and obtain its address which will get stored in `localSectionAddress`:
 
@@ -34,11 +34,11 @@ Let's create an RW view of the section in our local process and obtain its addre
 fNtMapViewOfSection(sectionHandle, GetCurrentProcess(), &localSectionAddress, NULL, NULL, NULL, &size, 2, NULL, PAGE_READWRITE);
 ```
 
-![](<../../.gitbook/assets/image (185).png>)
+![[image (185).png]]
 
 Let's create another view of the same section in a target process (notepad.exe PID 6572 in our case), but this time with RX protection. The memory address of the view will get stored in `remoteSectionAddress` variable:
 
-![](<../../.gitbook/assets/image (186).png>)
+![[image (186).png]]
 
 We can now copy the shellcode into our `localSectionAddress`, which will get automatically mirrored/reflected in the `remoteSectionAddress` as it's a view of the same section shared between our local and target processes:
 
@@ -48,7 +48,7 @@ memcpy(localSectionAddress, buf, sizeof(buf));
 
 Below shows how the `localSectionAddress` gets filled with the shellcode and at the same time the `remoteSectionAddress` at `0x000002614ed50000` inside notepad (on the right) gets filled with the same shellcode:
 
-![](../../.gitbook/assets/populating-section-with-shellcode.gif)
+![[populating-section-with-shellcode.gif]]
 
 We can now create a remote thread inside the notepad.exe and make the `remoteSectionAddress` its start address in order to trigger the shellcode:
 
@@ -56,7 +56,7 @@ We can now create a remote thread inside the notepad.exe and make the `remoteSec
 fRtlCreateUserThread(targetHandle, NULL, FALSE, 0, 0, 0, remoteSectionAddress, NULL, &targetThreadHandle, NULL);
 ```
 
-![](../../.gitbook/assets/rtlcreateuserthreadshell.gif)
+![[rtlcreateuserthreadshell.gif]]
 
 ## Code
 
@@ -106,10 +106,10 @@ int main()
 
 ## References
 
-{% embed url="http://undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FNT%20Objects%2FSection%2FNtCreateSection.html" %}
+[undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FNT%20Objects%2FSection%2FNtCreateSection.html](http://undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FNT%20Objects%2FSection%2FNtCreateSection.html)
 
-{% embed url="https://undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FExecutable%20Images%2FRtlCreateUserThread.html" %}
+[undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FExecutable%20Images%2FRtlCreateUserThread.html](https://undocumented.ntinternals.net/index.html?page=UserMode%2FUndocumented%20Functions%2FExecutable%20Images%2FRtlCreateUserThread.html)
 
-{% embed url="https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/section-objects-and-views" %}
+[docs.microsoft.com/en-us/windows-hardware/drivers/kernel/section-objects-and-views](https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/section-objects-and-views)
 
-{% embed url="https://www.forrest-orr.net/post/malicious-memory-artifacts-part-i-dll-hollowing" %}
+[www.forrest-orr.net/post/malicious-memory-artifacts-part-i-dll-hollowing](https://www.forrest-orr.net/post/malicious-memory-artifacts-part-i-dll-hollowing)

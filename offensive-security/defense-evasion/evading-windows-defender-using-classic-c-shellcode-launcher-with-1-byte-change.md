@@ -8,7 +8,7 @@ In this lab I'm using Windows 10 (1803) as a victim system, Kali running Cobalt 
 
 As you probably know, default / out of the box payloads are usually caught by antivirus vendors immedialy. No exception is the Cobalt Strike's default stageless beacon which gets flagged by Windows Defender on Windows 10:
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-11 13-02-28.png>)
+![[Screenshot from 2019-01-11 13-02-28.png]]
 
 Can we do something about it?
 
@@ -16,7 +16,7 @@ Can we do something about it?
 
 Let's generate a Cobalt Strike shellcode for our listener in C:
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-11 14-35-25.png>)
+![[Screenshot from 2019-01-11 14-35-25.png]]
 
 Note that the first byte of the shellcode is `\xfc`.
 
@@ -30,12 +30,12 @@ Let's put the shellcode we got into the launcher, but with a small twist:
 * Build the executable
 * Profit?
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-11 14-32-50.png>)
+![[Screenshot from 2019-01-11 14-32-50.png]]
 
 Below is the source code if you want to test it in your environment:
 
-{% code title="shellcodelauncher.cpp" %}
 ```cpp
+// shellcodelauncher.cpp
 #include "stdafx.h"
 #include "Windows.h"
 
@@ -54,31 +54,29 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 ```
-{% endcode %}
 
 ## Execution
 
 On the left - Windows 10 with Windows Defender turned on and on the right is Cobalt Strike receiving the beacon checkin once our shellcode is invoked:
 
-![](<../../.gitbook/assets/Peek 2019-01-11 14-45.gif>)
+![[Peek 2019-01-11 14-45.gif]]
 
-{% hint style="danger" %}
-This is a quick and dirty proof of concept and hence the console window is visible for a brief moment, meaning a target user can suspect nefarious activity.
-{% endhint %}
+> [!DANGER]
+> This is a quick and dirty proof of concept and hence the console window is visible for a brief moment, meaning a target user can suspect nefarious activity.
 
 Below shows that the beacon that called back is stable and working as expected:
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-11 14-47-10.png>)
+![[Screenshot from 2019-01-11 14-47-10.png]]
 
 Below is another quick demo showing that the latest Windows updates were installed at the time of testing the POC on 11th Jan, 2019:
 
-![](<../../.gitbook/assets/Peek 2019-01-11 15-02.gif>)
+![[Peek 2019-01-11 15-02.gif]]
 
 ## Default Payload
 
 Below shows that if the Cobalt Strike shellcode was injected as is, it immediately gets flagged:
 
-![](<../../.gitbook/assets/Peek 2019-01-11 16-50.gif>)
+![[Peek 2019-01-11 16-50.gif]]
 
 ## Conclusion
 
@@ -86,10 +84,9 @@ Although not completely stealthy - the console window is visible for a brief mom
 
 ## Subliminal Inspiration
 
-{% embed url="https://twitter.com/curi0usjack/status/1083470829290164227?s=12" %}
+[twitter.com/curi0usjack/status/1083470829290164227?s=12](https://twitter.com/curi0usjack/status/1083470829290164227?s=12)
 
-{% hint style="info" %}
-**Update**\
-[@curi0usJack](https://twitter.com/curi0usJack) informed me that [@HackingDave](https://twitter.com/HackingDave) had found the same Windows Defender bypass technique as seen here [https://github.com/trustedsec/unicorn/commit/40569caff60cc533a5b8d0ad68d8c822aa0fb932#diff-97dd53d8ebb9afbc90da38a12a3ff1a4L844](https://github.com/trustedsec/unicorn/commit/40569caff60cc533a5b8d0ad68d8c822aa0fb932#diff-97dd53d8ebb9afbc90da38a12a3ff1a4L844) as part of his `Unicorn` project - very nice work! I will be definitely checking out the tool and its capabilities!
-{% endhint %}
+> [!INFO]
+> **Update**\
+> [@curi0usJack](https://twitter.com/curi0usJack) informed me that [@HackingDave](https://twitter.com/HackingDave) had found the same Windows Defender bypass technique as seen here [https://github.com/trustedsec/unicorn/commit/40569caff60cc533a5b8d0ad68d8c822aa0fb932#diff-97dd53d8ebb9afbc90da38a12a3ff1a4L844](https://github.com/trustedsec/unicorn/commit/40569caff60cc533a5b8d0ad68d8c822aa0fb932#diff-97dd53d8ebb9afbc90da38a12a3ff1a4L844) as part of his `Unicorn` project - very nice work! I will be definitely checking out the tool and its capabilities!
 

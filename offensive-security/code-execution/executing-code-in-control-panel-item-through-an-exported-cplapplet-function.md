@@ -8,8 +8,8 @@ Once the DLL is compiled and renamed to .CPL, it can simply be double clicked an
 
 ## Code
 
-{% code title="item.cpl" %}
 ```cpp
+// item.cpl
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "stdafx.h"
 #include <Windows.h>
@@ -45,39 +45,37 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     return TRUE;
 }
 ```
-{% endcode %}
 
 Once the DLL is compiled, we can see our exported function `Cplapplet`:
 
-![](<../../.gitbook/assets/image (200).png>)
+![[image (200).png]]
 
 ## Demo
 
 Below shows that double-clicking the .cpl item is enough to launch it:
 
-![](../../.gitbook/assets/cplexecution.gif)
+![[cplexecution.gif]]
 
-![](<../../.gitbook/assets/image (204).png>)
+![[image (204).png]]
 
 CPL file can also be launched with `control.exe <pathtothe.cpl>` like so:
 
-![](<../../.gitbook/assets/image (202).png>)
+![[image (202).png]]
 
 or with rundll32:
 
-{% code title="attacker@target" %}
 ```
+// attacker@target
 rundll32 shell32, Control_RunDLL \\VBOXSVR\Experiments\cpldoubleclick
 \cpldoubleclick\Debug\cpldoubleclick.cpl
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/image (203).png>)
+![[image (203).png]]
 
 ## References
 
-{% embed url="https://www.fireeye.com/blog/threat-research/2019/10/staying-hidden-on-the-endpoint-evading-detection-with-shellcode.html" %}
+[www.fireeye.com/blog/threat-research/2019/10/staying-hidden-on-the-endpoint-evading-detection-with-shellcode.html](https://www.fireeye.com/blog/threat-research/2019/10/staying-hidden-on-the-endpoint-evading-detection-with-shellcode.html)
 
-{% embed url="https://github.com/fireeye/DueDLLigence/blob/master/DueDLLigence/DueDLLigence.cs" %}
+[github.com/fireeye/DueDLLigence/blob/master/DueDLLigence/DueDLLigence.cs](https://github.com/fireeye/DueDLLigence/blob/master/DueDLLigence/DueDLLigence.cs)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/win32/shell/using-cplapplet" %}
+[docs.microsoft.com/en-us/windows/win32/shell/using-cplapplet](https://docs.microsoft.com/en-us/windows/win32/shell/using-cplapplet)

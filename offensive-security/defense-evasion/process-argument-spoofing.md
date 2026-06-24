@@ -4,7 +4,7 @@ Process Argument Spoofing is a technique that allows attackers to stomping the c
 
 This causes unrevealing the real cmdline them to monitoring tools like [Process Monitor](https://learn.microsoft.com/en-us/sysinternals/downloads/procmon)
 
-![](../../.gitbook/assets/arg-spoofing.png)
+![[arg-spoofing.png]]
 
 This technique can be coupled with [PPID Spoofing](parent-process-id-ppid-spoofing.md) to obtain a complete "fake" command.
 
@@ -18,7 +18,7 @@ To summarize:
 4. Patch the buffer of CommandLine in ProcessParameters structure (`PEB->ProcessParameters.CommandLine.Buffer`) with "fake" argument by using [WriteProcessMemory](https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-writeprocessmemory) function.
 5. Continue process execution with new parameters using [ResumeThread](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-resumethread) function.
 
-![](../../.gitbook/assets/arg-spoofing-schema.svg)
+![[arg-spoofing-schema.svg]]
 
 ### Simple code sample
 
@@ -121,11 +121,11 @@ For process argument spoofing, we can use [Event Tracing for Windows (ETW)](../.
 
 It's possible to search for the PID and see through several event logs that the `calc.exe` binary has been executed and not powershell helper.
 
-![](../../.gitbook/assets/etw-arg-spoofing.png)
+![[etw-arg-spoofing.png]]
 
 However, we can see with the [ETW Explorer](https://github.com/zodiacon/EtwExplorer) tool that none of the tasks monitor the command arguments to get the precise command executed:
 
-![](../../.gitbook/assets/etwexplorer-no-arg-monitor.png)
+![[etwexplorer-no-arg-monitor.png]]
 
 ### Kernel Callbacks
 

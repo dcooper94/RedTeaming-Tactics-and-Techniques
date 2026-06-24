@@ -6,7 +6,7 @@ This lab shows how to setup a reverse HTTP proxy `Modlishka` that can be used in
 
 Let's start off by building a new DigitalOcean droplet, the smallest is more than enough:
 
-![](<../../.gitbook/assets/Annotation 2019-06-25 214151.png>)
+![[Annotation 2019-06-25 214151.png]]
 
 Once logged on, install certbot and download modlishka binary itself:
 
@@ -16,16 +16,16 @@ wget https://github.com/drk1wi/Modlishka/releases/download/v.1.1.0/Modlishka-lin
 chmod +x Modlishka-linux-amd64 ; ls -lah
 ```
 
-![](<../../.gitbook/assets/Annotation 2019-06-25 214300.png>)
+![[Annotation 2019-06-25 214300.png]]
 
 ## Modlishka Configuration
 
 Let's create a configuration file for modlishka:
 
-![](<../../.gitbook/assets/Annotation 2019-06-25 214425.png>)
+![[Annotation 2019-06-25 214425.png]]
 
-{% code title="modlishka.json" %}
 ```javascript
+// modlishka.json
 {
   //domain that you will be tricking your victim of visiting
   "proxyDomain": "redteam.me",
@@ -53,7 +53,6 @@ Let's create a configuration file for modlishka:
   "certPool": ""
 }
 ```
-{% endcode %}
 
 ## Wildcard Certificates
 
@@ -65,15 +64,15 @@ certbot certonly --manual --preferred-challenges=dns --server https://acme-v02.a
 
 This will generate a challenge code as shown below:
 
-![](<../../.gitbook/assets/Annotation 2019-06-25 214749.png>)
+![[Annotation 2019-06-25 214749.png]]
 
 We need to create a DNS TXT record in the DNS management console for redteam.me, which in my case is in Digital Ocean:
 
-![](<../../.gitbook/assets/Annotation 2019-06-25 214849.png>)
+![[Annotation 2019-06-25 214849.png]]
 
 Once the DNS TXT record is created, continue with the certificate generation:
 
-![](<../../.gitbook/assets/Annotation 2019-06-25 214924.png>)
+![[Annotation 2019-06-25 214924.png]]
 
 Once certificates are generated, we need to convert them to a format suitable to be embedded into JSON objects:
 
@@ -82,21 +81,21 @@ awk '{printf "%s\\n", $0}' /etc/letsencrypt/live/redteam.me/fullchain.pem
 awk '{printf "%s\\n", $0}' /etc/letsencrypt/live/redteam.me/privkey.pem
 ```
 
-![](<../../.gitbook/assets/Annotation 2019-06-25 215107.png>)
+![[Annotation 2019-06-25 215107.png]]
 
 Once that is done, copy over the contents of the certs into the config - `fullchain.pem` into the `cert` and `privkey.pem` into the `certKey`:
 
-![](<../../.gitbook/assets/Annotation 2019-06-25 215155.png>)
+![[Annotation 2019-06-25 215155.png]]
 
 ## More DNS Records
 
 Let's create an A record for the root host `@` that simply points to the droplet's IP:
 
-![](<../../.gitbook/assets/Annotation 2019-06-25 215308.png>)
+![[Annotation 2019-06-25 215308.png]]
 
 This is very important - we need a `CNAME` record for any host/subdomain `*` pointing to `@`
 
-![](<../../.gitbook/assets/Annotation 2019-06-25 215702.png>)
+![[Annotation 2019-06-25 215702.png]]
 
 ## Launching Modlishka
 
@@ -108,8 +107,8 @@ We are now ready to start the test by launching modlishka and giving it the modl
 
 Below shows how by visiting a redteam.me, I get presented with contents of gmail.com - indicating that Modlishka and the MITM works. Again, it is important to call it out - we did not create any copies or templates of the targeted website - the victim is actually browsing gmail, it's just that it is being served through Modlishka where the traffic is inspected and passwords are captured:
 
-![](../../.gitbook/assets/modlishka.gif)
+![[modlishka.gif]]
 
 ## References
 
-{% embed url="https://github.com/drk1wi/Modlishka" %}
+[github.com/drk1wi/Modlishka](https://github.com/drk1wi/Modlishka)

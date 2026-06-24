@@ -8,7 +8,7 @@ This is a quick lab to familiarize with the technique, while using the PoC by [J
 
 The below is a simplified diagram showing how the technique works and how I tested it in my lab:
 
-![Source and Target hosts communicating using ShadowMove technique](<../../.gitbook/assets/image (748).png>)
+![[image (748).png|Source and Target hosts communicating using ShadowMove technique]]
 
 Let's see what we have in the above diagram:
 
@@ -19,9 +19,8 @@ Let's see what we have in the above diagram:
 5. On the source host, `ShadowMove.exe` enumerates all handles `nc.exe` has opened and looks for handles to `\Device\Afd`, which are used for network socket communications. Once found, the handle is used to create a duplicate socket with `WSADuplicateSocketW` and `WSASocket` API calls. Once the shared socket is created, `getpeername` is used to check if the destination address of the socket is that of target host's IP address, which in our case is `192.168.56.102`.
 6. Once the shared socket is created based on the `\Device\Afd` handle pointing to the target host, as found in step 5, `ShadowMove.exe` can now write to that socket with `send` and read from it with `recv` API calls.
 
-{% hint style="warning" %}
-It's important to stress once more, the ShadowMove.exe **does not** **create any TCP connections to the target host.** Instead, it reuses the existing connected socket to `192.168.56.102:80 ` between the source and target host, that was established by the nc.exe process on the source system - and this is the key point of this lateral movement technique.
-{% endhint %}
+> [!WARNING]
+> It's important to stress once more, the ShadowMove.exe **does not** **create any TCP connections to the target host.** Instead, it reuses the existing connected socket to `192.168.56.102:80 ` between the source and target host, that was established by the nc.exe process on the source system - and this is the key point of this lateral movement technique.
 
 ## Code
 
@@ -253,10 +252,10 @@ Once we have compiled the above code, we can test the technique as it was descri
 * Target system (top right) writes back to the same socket `hello from target to shadowmove`, which is received by `shadowmove.exe` on the source system (bottom left).
 * In the bottom right, we see a `ProcessHacker` that shows that at no point in time `shadowmove.exe` establishes no TCP connections.
 
-![Demo: ShadowMove Lateral Movement in Action](<../../.gitbook/assets/shadowmove-lateral-movement (1).gif>)
+![[shadowmove-lateral-movement (1).gif|Demo: ShadowMove Lateral Movement in Action]]
 
 ## References
 
 [https://www.usenix.org/system/files/sec20summer\_niakanlahiji\_prepub.pdf](https://www.usenix.org/system/files/sec20summer\_niakanlahiji\_prepub.pdf)
 
-{% embed url="https://adepts.of0x.cc/shadowmove-hijack-socket/" %}
+[adepts.of0x.cc/shadowmove-hijack-socket](https://adepts.of0x.cc/shadowmove-hijack-socket/)

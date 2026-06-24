@@ -21,13 +21,13 @@ The purpose of this lab is to:
 
 To re-inforce the fact that bootloaders reside in the first sector of a bootable device, see below screenshot of a hex dump of the first sector of a HDD, that has Windows 10 installed on it. As a reminder, note the last 2 bytes `0xAA55` that indicate, that this sector contains a bootloader and the medium is bootable:
 
-![512 bytes of bootloader in the 1st sector of a HDD](<../../.gitbook/assets/image (782).png>)
+![[image (782).png|512 bytes of bootloader in the 1st sector of a HDD]]
 
 ## First Bootloader&#x20;
 
 Let's create our first bootable sector that will be 512 bytes in size, using assembly code written in [NASM](https://www.nasm.us/):
 
-![](<../../.gitbook/assets/image (758).png>)
+![[image (758).png]]
 
 Key aspects of the above code:
 
@@ -44,11 +44,10 @@ Given the above, `times 510 - ($-$$) db 0` reads as - pad the binary with 00 byt
 
 Visually, our first booloader binary, once compiled, should have the structure like the graphic on the left:
 
-![Our bootloader on the left and proper bootloader structure on the right](<../../.gitbook/assets/image (789).png>)
+![[image (789).png|Our bootloader on the left and proper bootloader structure on the right]]
 
-{% hint style="info" %}
-In the above screenshot on the right, we can see the structure of how a real-life bootloader should look like, but for this lab, we're going to ignore it.
-{% endhint %}
+> [!INFO]
+> In the above screenshot on the right, we can see the structure of how a real-life bootloader should look like, but for this lab, we're going to ignore it.
 
 Again, note that the total size of the bootloader is 512 bytes:
 
@@ -58,8 +57,8 @@ Again, note that the total size of the bootloader is 512 bytes:
 
 If we compile the following bootloader code:
 
-{% code title="bootloader-dev.asm" %}
 ```csharp
+// bootloader-dev.asm
 ; Instruct NASM to generate code that is to be run on CPU that is running in 16 bit mode
 bits 16
 
@@ -74,7 +73,6 @@ times 510 - ($-$$) db 0
 ; Bootloader magic number
 dw 0xaa55
 ```
-{% endcode %}
 
 ...with NASM like so:
 
@@ -84,7 +82,7 @@ nasm -f bin bootloader-dev.asm -o bootloader.bin
 
 ...and dump the bytes of `bootloader.bin`, we can confirm that our bootloader file structure is as follows - 2 bytes for the `jmp loop` instruction (`eb fe`) at offset 0, followed by 510 null bytes and 2 magic bytes `0x55aa` at the end, making up a total of 512 bytes:
 
-![](<../../.gitbook/assets/image (764).png>)
+![[image (764).png]]
 
 ## Emulate the Bootloader
 
@@ -97,13 +95,13 @@ qemu-system-x86_64.exe C:\labs\bootloader\bootloader.bin
 
 Below shows how our bootloader is executed from the hard disk and goes into an infinite loop:
 
-![First valid bootloader running in Qemu](../../.gitbook/assets/emulate-bootloader.gif)
+![[emulate-bootloader.gif|First valid bootloader running in Qemu]]
 
 ## Bootloader Location in Memory
 
 As mentioned previously, BIOS reads in the boot sector (512 bytes), containing the bootloader, from a bootable device into computer memory. It's known that bootloader gets stored at the memory location `0x7c00` as shown in the below graphic:
 
-![Source: https://www.cs.bham.ac.uk/\~exr/lectures/opsys/10\_11/lectures/os-dev.pdf](<../../.gitbook/assets/image (769).png>)
+![[image (769).png|Source: https://www.cs.bham.ac.uk/\~exr/lectures/opsys/10\_11/lectures/os-dev.pdf]]
 
 We can confirm that the bootloader code is placed at `0x7c00` by performing two simple tests.
 
@@ -111,8 +109,8 @@ We can confirm that the bootloader code is placed at `0x7c00` by performing two 
 
 Let's take a look at the below code:
 
-{% code title="bootloader-x.asm" %}
 ```csharp
+// bootloader-x.asm
 bits 16
 
 ; Define a label X that is a memory offset of the start of our code.
@@ -136,11 +134,9 @@ int 0x10
 times 510 - ($-$$) db 0
 dw 0xaa55
 ```
-{% endcode %}
 
-{% hint style="info" %}
-Note the line 12 with instrunctions `add bx, 0x7c00` is commented out - we will uncomment it in Test 2 and confirm that the bootloader is indeed loaded at `0x7c00`.
-{% endhint %}
+> [!INFO]
+> Note the line 12 with instrunctions `add bx, 0x7c00` is commented out - we will uncomment it in Test 2 and confirm that the bootloader is indeed loaded at `0x7c00`.
 
 ...which does the following:
 
@@ -149,20 +145,19 @@ Note the line 12 with instrunctions `add bx, 0x7c00` is commented out - we will 
 * Dereference `bx` (take the value from memory address pointed to by the `bx`) and put it in `al`
 * Issue a BIOS interrupt and attempt to print the value of `al` to the screen, which one could expect to be the character `B`, but as we will soon see, will not be the case.
 
-{% hint style="warning" %}
-**Remember**\
-The CPU treats assembly labels (like our label `x`) as offsets from the start of computer memory and not from the start of the memory location where our code is loaded to.
-{% endhint %}
+> [!WARNING]
+> **Remember**\
+> The CPU treats assembly labels (like our label `x`) as offsets from the start of computer memory and not from the start of the memory location where our code is loaded to.
 
 We can compile the above code with `nasm -f bin .\bootloader-x.asm -o bootloader.bin` and launch it with `qemu-system-x86_64.exe C:\labs\bootloader\bootloader.bin` and see the result:
 
-![B character not displayed](<../../.gitbook/assets/image (772).png>)
+![[image (772).png|B character not displayed]]
 
 Note how instead of seeing the character `B`, we actually see a character `S`, which suggests that we are simply reading the wrong memory location and our character `B` is not stored in memory where we thought it was.
 
 For reference, this is a snippet of the hex dump of our `bootloader.bin` we've just compiled:
 
-![](<../../.gitbook/assets/image (777).png>)
+![[image (777).png]]
 
 In the above screenshot, note that the very first byte (offset 0 while it's on disk) is `42`, which is a letter `B` in ASCII - the character our label `x` is pointing to, which we wanted to print to the screen with Test 1, but failed. Let's look at the Test 2.
 
@@ -170,8 +165,8 @@ In the above screenshot, note that the very first byte (offset 0 while it's on d
 
 Test 1 confirmed that we do not know where the character `B` is located in memory. Let's now take the same code we used in the Test 1 and uncomment the instruction `add bx, 0x7c00` in line 12, which adds `0x7c00` to our label `x`:
 
-{% code title="bootloader-x.asm" %}
 ```cpp
+// bootloader-x.asm
 bits 16
 
 ; Define a label X that is a memory offset of the start of our code.
@@ -195,17 +190,16 @@ int 0x10
 times 510 - ($-$$) db 0
 dw 0xaa55
 ```
-{% endcode %}
 
 ...and re-compile the above code with `nasm -f bin .\bootloader-x.asm -o bootloader.bin` and launch it with `qemu-system-x86_64.exe C:\labs\bootloader\bootloader.bin`:
 
-![B character is now displayed](<../../.gitbook/assets/image (771).png>)
+![[image (771).png|B character is now displayed]]
 
 ...we can now see that the character `B` is finally printed to the screen, which confirms that our bootlaoder code (and the character `B`) is located at memory location `0x7c00`.
 
 Indeed, if we inspect the qemu process memory, that has our bootloader loaded and running, search for the bytes `42bb 0000 8a07 b40e cd10 0000` (the starting bytes of our bootloader, as seen in the hex dump on the right hand side highlighted in lime), we can see that our bootloader resides at 44D**07C00**:
 
-![Our bootloader in memory (left) and on disk (right)](<../../.gitbook/assets/image (775).png>)
+![[image (775).png|Our bootloader in memory (left) and on disk (right)]]
 
 Note that in the above screenshot, the character `B` (in red) is our character `B` that we print to the screen, that sits at the start of our bootloader - at offsets `0x0` in a raw binary on the disk and `0x07c00` when it's loaded to memory by the BIOS as a bootloader, or in the case of emulation with qemu - at `0x44d`**`07c00`**.
 
@@ -245,7 +239,7 @@ dw 0xaa55
 
 Compile it, run it and check the results - the `B` character is still printed:
 
-![](<../../.gitbook/assets/image (779).png>)
+![[image (779).png]]
 
 ## Baking Bootloader to USB Key + ASCII Art
 
@@ -298,30 +292,30 @@ dw 0xaa55
 
 ...which we can now compile, dump the bytes to the USB key's (drive `D:\` in my case) boot sector using `dd` utility on Linux or `HxD` on Windows:
 
-![Bootloader.bin bytes written to the boot sector of our USB key D:\\](<../../.gitbook/assets/baking-bootloader-to-usb (2).gif>)
+![[baking-bootloader-to-usb (2).gif|Bootloader.bin bytes written to the boot sector of our USB key D:\\]]
 
 We can now restart our computer and instruct it to boot from the USB, or reconfigure the BIOS bootable device search order and make USB drives a priority.
 
 Shortly, the BIOS will determine that our USB key contains a bootloader and transfer CPU control to it, at which point, we will be greeted with our ASCII art:
 
-![Our bootloader running from a USB stick](<../../.gitbook/assets/image (787).png>)
+![[image (787).png|Our bootloader running from a USB stick]]
 
 ## References
 
 [https://www.cs.bham.ac.uk/\~exr/lectures/opsys/10\_11/lectures/os-dev.pdf](https://www.cs.bham.ac.uk/\~exr/lectures/opsys/10\_11/lectures/os-dev.pdf)
 
-{% embed url="https://manybutfinite.com/post/how-computers-boot-up/" %}
+[manybutfinite.com/post/how-computers-boot-up](https://manybutfinite.com/post/how-computers-boot-up/)
 
-{% embed url="https://www.ionos.com/digitalguide/server/configuration/what-is-a-bootloader/" %}
+[www.ionos.com/digitalguide/server/configuration/what-is-a-bootloader](https://www.ionos.com/digitalguide/server/configuration/what-is-a-bootloader/)
 
-{% embed url="https://github.com/cfenollosa/os-tutorial" %}
+[github.com/cfenollosa/os-tutorial](https://github.com/cfenollosa/os-tutorial)
 
-{% embed url="http://3zanders.co.uk/2017/10/13/writing-a-bootloader/" %}
+[3zanders.co.uk/2017/10/13/writing-a-bootloader](http://3zanders.co.uk/2017/10/13/writing-a-bootloader/)
 
-{% embed url="http://www.ctyme.com/intr/rb-0096.htm" %}
+[www.ctyme.com/intr/rb-0096.htm](http://www.ctyme.com/intr/rb-0096.htm)
 
-{% embed url="https://en.wikipedia.org/wiki/INT_10H" %}
+[en.wikipedia.org/wiki/INT_10H](https://en.wikipedia.org/wiki/INT_10H)
 
-{% embed url="https://en.wikipedia.org/wiki/BIOS_color_attributes" %}
+[en.wikipedia.org/wiki/BIOS_color_attributes](https://en.wikipedia.org/wiki/BIOS_color_attributes)
 
-{% embed url="https://en.wikibooks.org/wiki/X86_Assembly/Bootloaders" %}
+[en.wikibooks.org/wiki/X86_Assembly/Bootloaders](https://en.wikibooks.org/wiki/X86_Assembly/Bootloaders)

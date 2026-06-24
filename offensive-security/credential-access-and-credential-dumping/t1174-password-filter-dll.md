@@ -1,5 +1,6 @@
 ---
 description: Credential Access
+tags: [#credential-access]
 ---
 
 # Password Filter
@@ -10,15 +11,14 @@ This lab explores a native OS notification of when the user account password get
 
 Password filters are registered in registry and we can see them here:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 reg query "hklm\system\currentcontrolset\control\lsa" /v "notification packages"
 ```
-{% endcode %}
 
 Or via regedit:
 
-![](../../.gitbook/assets/password-filter-regedit.png)
+![[password-filter-regedit.png]]
 
 Building an evil filter DLL based on a great [article](http://carnal0wnage.attackresearch.com/2013/09/stealing-passwords-every-time-they.html) by mubix. He has also kindly provided the code to use, which I modified slightly to make sure that the critical DLL functions were exported correctly in order for this technique to work, since mubix's code did not work for me out of the box. I also had to change the logging statements in order to rectify a couple of compiler issues:
 
@@ -84,46 +84,45 @@ extern "C" __declspec(dllexport) NTSTATUS __stdcall PasswordChangeNotify(
 }
 ```
 
-{% file src="../../.gitbook/assets/evilpwfilter.dll" caption="Password Filter DLL" %}
+
 
 Injecting the evil password filter into the victim system:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 reg add "hklm\system\currentcontrolset\control\lsa" /v "notification packages" /d scecli\0evilpwfilter /t reg_multi_sz
 
 Value notification packages exists, overwrite(Yes/No)? yes
 The operation completed successfully.
 ```
-{% endcode %}
 
-![](../../.gitbook/assets/password-filter-updating-registry.png)
+![[password-filter-updating-registry.png]]
 
 Testing password changes after the reboot - note how the password changes are getting logged:
 
-![](../../.gitbook/assets/password-filter-filter-working.png)
+![[password-filter-filter-working.png]]
 
 ## Observations
 
 Windows event `4614` notifies about new packages loaded by the SAM:
 
-![](../../.gitbook/assets/password-filter-log1.png)
+![[password-filter-log1.png]]
 
 Logging command line can also help in detecting this activity:
 
-![](../../.gitbook/assets/password-filter-cmdline.png)
+![[password-filter-cmdline.png]]
 
 ...especially, if the package has just been recently dropped to disk:
 
-![](../../.gitbook/assets/password-filter-createdtime.png)
+![[password-filter-createdtime.png]]
 
 Also, it may be worth considering checking new DLLs dropped to `%systemroot%\system32` for exported `PasswordChangeNotify`function:
 
-![](../../.gitbook/assets/password-filter.png)
+![[password-filter.png]]
 
 ## References
 
-{% embed url="http://carnal0wnage.attackresearch.com/2013/09/stealing-passwords-every-time-they.html" %}
+[carnal0wnage.attackresearch.com/2013/09/stealing-passwords-every-time-they.html](http://carnal0wnage.attackresearch.com/2013/09/stealing-passwords-every-time-they.html)
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1174" %}
+[attack.mitre.org/wiki/Technique/T1174](https://attack.mitre.org/wiki/Technique/T1174)
 

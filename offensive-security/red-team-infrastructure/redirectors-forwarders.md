@@ -40,19 +40,19 @@ sysctl net.ipv4.ip_forward=1
 
 Checking that the iptables rules were created successfully:
 
-![](../../.gitbook/assets/redirectors-iptables.png)
+![[redirectors-iptables.png]]
 
 ### Testing iptables
 
 Let's simulate a simplified reverse shell from the victim system 10.0.0.11 to the attacking system 10.0.0.2 using our redirector system 10.0.0.5 as a proxy and inspect the traffic crossing over the wire - if the redirector was setup correctly, we should see that systems 10.0.0.11 and 10.0.0.2 will not be communicating directly - all the traffic will be flowing through the box at 10.0.0.5 and 10.0.0.2 \(attacking system\) will not be visible to the victim 10.0.0.11:
 
-![](../../.gitbook/assets/redirector.gif)
+![[redirector.gif]]
 
 Having a closer look at the traffic/conversations between the endpoints, we can clearly see that at no point the victim system 10.0.0.11 communicated directly with the attacking system 10.0.0.2 - all communications were flowing through the redirector host 10.0.0.5 as described earlier:
 
-![](../../.gitbook/assets/redirector-conversations.png)
+![[redirector-conversations.png]]
 
-{% file src="../../.gitbook/assets/redirector.pcapng" caption="Redirector Network Trace" %}
+
 
 ## HTTP Forwarding with SOCAT
 
@@ -64,17 +64,17 @@ Setting up an HTTP redirector with socat:
 socat TCP4-LISTEN:80,fork TCP4:10.0.0.2:80
 ```
 
-![](../../.gitbook/assets/redirector-socat.gif)
+![[redirector-socat.gif]]
 
 ## References
 
-{% embed url="https://github.com/bluscreenofjeff/Red-Team-Infrastructure-Wiki\#https" %}
+[github.com/bluscreenofjeff/Red-Team-Infrastructure-Wiki\#https](https://github.com/bluscreenofjeff/Red-Team-Infrastructure-Wiki\#https)
 
-{% embed url="https://www.frozentux.net/iptables-tutorial/chunkyhtml/x4033.html" %}
+[www.frozentux.net/iptables-tutorial/chunkyhtml/x4033.html](https://www.frozentux.net/iptables-tutorial/chunkyhtml/x4033.html)
 
-{% embed url="http://linux-training.be/networking/ch14.html" %}
+[linux-training.be/networking/ch14.html](http://linux-training.be/networking/ch14.html)
 
-{% embed url="http://technostuff.blogspot.com/2008/10/some-useful-socat-commands.html" %}
+[technostuff.blogspot.com/2008/10/some-useful-socat-commands.html](http://technostuff.blogspot.com/2008/10/some-useful-socat-commands.html)
 
-{% embed url="https://www.thegeekstuff.com/2011/01/iptables-fundamentals/" %}
+[www.thegeekstuff.com/2011/01/iptables-fundamentals](https://www.thegeekstuff.com/2011/01/iptables-fundamentals/)
 

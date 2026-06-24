@@ -1,0 +1,557 @@
+/* ═══════════════════════════════════════════════════════════════
+   RED TEAM OPS — Obsidian Vault Theme
+   Terminal aesthetic | MITRE ATT&CK oriented | Dark/Phosphor
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+
+/* ── Root Variables ─────────────────────────────────────── */
+:root {
+  --bg-primary:    #0a0c0f;
+  --bg-secondary:  #0f1318;
+  --bg-tertiary:   #141920;
+  --bg-hover:      #1a2030;
+  --bg-selection:  #1e3a1e;
+
+  --green-bright:  #00ff41;
+  --green-mid:     #00cc33;
+  --green-dim:     #00882a;
+  --green-muted:   #1a4d1a;
+
+  --red-bright:    #ff003c;
+  --red-mid:       #cc0030;
+  --red-dim:       #880020;
+
+  --amber:         #ffb000;
+  --cyan:          #00d4ff;
+  --purple:        #9d00ff;
+  --white:         #e0e8e0;
+  --muted:         #4a6050;
+  --border:        #1e3020;
+
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  --font-text-size:   15px;
+  --line-height-normal: 1.7;
+
+  /* Obsidian variable overrides */
+  --background-primary:          var(--bg-primary);
+  --background-primary-alt:      var(--bg-secondary);
+  --background-secondary:        var(--bg-secondary);
+  --background-secondary-alt:    var(--bg-tertiary);
+  --background-modifier-hover:   var(--bg-hover);
+  --background-modifier-border:  var(--border);
+  --background-modifier-form-field: var(--bg-tertiary);
+  --background-modifier-error:   #2a0010;
+
+  --text-normal:     var(--white);
+  --text-muted:      var(--muted);
+  --text-faint:      #2a4030;
+  --text-accent:     var(--green-bright);
+  --text-accent-hover: var(--green-mid);
+  --text-on-accent:  var(--bg-primary);
+  --text-error:      var(--red-bright);
+  --text-highlight-bg: var(--bg-selection);
+
+  --interactive-accent:        var(--green-bright);
+  --interactive-accent-hover:  var(--green-mid);
+  --interactive-normal:        var(--bg-tertiary);
+  --interactive-hover:         var(--bg-hover);
+
+  --link-color:         var(--green-bright);
+  --link-color-hover:   var(--green-mid);
+  --link-unresolved-color: var(--red-dim);
+  --link-external-color: var(--cyan);
+
+  --tag-color:          var(--green-bright);
+  --tag-background:     var(--green-muted);
+  --tag-background-hover: #1e5a1e;
+  --tag-border-color:   var(--green-dim);
+
+  --code-background:    #050708;
+  --code-normal:        var(--green-bright);
+  --code-comment:       var(--muted);
+  --code-function:      var(--cyan);
+  --code-important:     var(--red-bright);
+  --code-keyword:       var(--amber);
+  --code-operator:      var(--green-bright);
+  --code-property:      #7ec8e3;
+  --code-string:        #ce9178;
+  --code-tag:           var(--red-mid);
+  --code-value:         #b5cea8;
+
+  --heading-formatting: var(--red-bright);
+  --h1-color: var(--red-bright);
+  --h2-color: var(--amber);
+  --h3-color: var(--green-bright);
+  --h4-color: var(--cyan);
+  --h5-color: var(--white);
+  --h6-color: var(--muted);
+
+  --table-header-background: var(--bg-tertiary);
+  --table-header-background-hover: var(--bg-hover);
+  --table-row-background-hover: var(--bg-hover);
+  --table-border-color: var(--border);
+
+  --scrollbar-thumb-bg: var(--green-muted);
+
+  --radius-s: 2px;
+  --radius-m: 4px;
+  --radius-l: 6px;
+}
+
+/* ── Global Font + Cursor ───────────────────────────────── */
+body, .markdown-source-view, .markdown-preview-view,
+.workspace-leaf-content, .view-content {
+  font-family: var(--font-mono) !important;
+  font-size: var(--font-text-size);
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--green-muted); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--green-dim); }
+
+/* ── Left Sidebar / File Explorer ──────────────────────── */
+.nav-folder-title, .nav-file-title {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--green-dim);
+  border-radius: 0;
+}
+
+.nav-folder-title:hover, .nav-file-title:hover {
+  color: var(--green-bright);
+  background: var(--bg-hover);
+}
+
+.nav-file-title.is-active {
+  color: var(--green-bright);
+  background: var(--bg-tertiary);
+  border-left: 2px solid var(--green-bright);
+}
+
+.nav-folder-title-content {
+  color: var(--amber);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.tree-item-icon { color: var(--green-dim); }
+.nav-folder-children { border-left: 1px solid var(--border); margin-left: 12px; }
+
+/* ── Tab Bar ────────────────────────────────────────────── */
+.workspace-tab-header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.workspace-tab-header.is-active {
+  background: var(--bg-primary);
+  color: var(--green-bright);
+  border-bottom: 2px solid var(--green-bright);
+}
+
+/* ── Title Bar / Header ─────────────────────────────────── */
+.view-header-title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--green-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Headings ───────────────────────────────────────────── */
+.markdown-preview-view h1,
+.markdown-source-view .cm-header-1 {
+  color: var(--red-bright) !important;
+  font-size: 1.6em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--red-dim);
+  padding-bottom: 4px;
+  margin-bottom: 12px;
+}
+
+.markdown-preview-view h2,
+.markdown-source-view .cm-header-2 {
+  color: var(--amber) !important;
+  font-size: 1.3em;
+  font-weight: 600;
+  border-left: 3px solid var(--amber);
+  padding-left: 8px;
+}
+
+.markdown-preview-view h3,
+.markdown-source-view .cm-header-3 {
+  color: var(--green-bright) !important;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.markdown-preview-view h4 { color: var(--cyan) !important; }
+.markdown-preview-view h5 { color: var(--white) !important; }
+.markdown-preview-view h6 { color: var(--muted) !important; }
+
+/* ── Inline Code ────────────────────────────────────────── */
+.markdown-preview-view code,
+.markdown-source-view .cm-inline-code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--green-bright);
+  background: #050a05;
+  border: 1px solid var(--green-muted);
+  border-radius: 2px;
+  padding: 1px 5px;
+}
+
+/* ── Code Blocks ────────────────────────────────────────── */
+pre {
+  background: #030405 !important;
+  border: 1px solid var(--green-muted) !important;
+  border-left: 3px solid var(--green-bright) !important;
+  border-radius: 4px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+pre::before {
+  content: '$ ';
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  color: var(--green-dim);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  opacity: 0.5;
+}
+
+pre code {
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+  color: var(--green-bright) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  line-height: 1.6;
+}
+
+/* syntax highlighting inside fenced blocks */
+.token.keyword { color: var(--amber) !important; }
+.token.string { color: #ce9178 !important; }
+.token.comment { color: var(--muted) !important; font-style: italic; }
+.token.function { color: var(--cyan) !important; }
+.token.number { color: #b5cea8 !important; }
+.token.operator { color: var(--green-bright) !important; }
+.token.class-name { color: var(--purple) !important; }
+.token.variable { color: var(--white) !important; }
+
+/* ── Links ──────────────────────────────────────────────── */
+.markdown-preview-view a {
+  color: var(--green-bright);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--green-muted);
+}
+
+.markdown-preview-view a:hover {
+  color: var(--white);
+  border-bottom-color: var(--green-bright);
+}
+
+.markdown-preview-view a.external-link::after {
+  content: ' ↗';
+  font-size: 0.75em;
+  color: var(--cyan);
+}
+
+/* Unresolved links (red — attention needed) */
+.markdown-preview-view a.is-unresolved {
+  color: var(--red-dim);
+  border-bottom-color: var(--red-dim);
+}
+
+/* ── Tags ───────────────────────────────────────────────── */
+.tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--green-bright) !important;
+  background: var(--green-muted) !important;
+  border: 1px solid var(--green-dim) !important;
+  border-radius: 2px;
+  padding: 1px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tag:hover {
+  background: #1e5a1e !important;
+  color: var(--white) !important;
+}
+
+/* ── Tables ─────────────────────────────────────────────── */
+.markdown-preview-view table {
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  width: 100%;
+}
+
+.markdown-preview-view table thead tr {
+  background: var(--bg-tertiary);
+  border-bottom: 2px solid var(--green-dim);
+}
+
+.markdown-preview-view table thead th {
+  color: var(--amber);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 8px 12px;
+}
+
+.markdown-preview-view table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.markdown-preview-view table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.markdown-preview-view table tbody td {
+  padding: 6px 12px;
+  color: var(--white);
+}
+
+/* ── Blockquotes ────────────────────────────────────────── */
+.markdown-preview-view blockquote {
+  border-left: 3px solid var(--green-dim);
+  background: var(--bg-tertiary);
+  color: var(--muted);
+  margin: 12px 0;
+  padding: 8px 16px;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Obsidian Callouts (converted from GitBook hints) ───── */
+.callout {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  border-radius: 4px;
+  padding: 12px 16px;
+  border-left-width: 4px;
+  margin: 12px 0;
+}
+
+.callout[data-callout="warning"] {
+  background: #1a1500;
+  border-left-color: var(--amber);
+  --callout-icon: lucide-alert-triangle;
+  --callout-color: 255, 176, 0;
+}
+
+.callout[data-callout="danger"] {
+  background: #1a0008;
+  border-left-color: var(--red-bright);
+  --callout-icon: lucide-skull;
+  --callout-color: 255, 0, 60;
+}
+
+.callout[data-callout="info"] {
+  background: #001520;
+  border-left-color: var(--cyan);
+  --callout-icon: lucide-info;
+  --callout-color: 0, 212, 255;
+}
+
+.callout[data-callout="success"] {
+  background: #001500;
+  border-left-color: var(--green-bright);
+  --callout-icon: lucide-check-circle;
+  --callout-color: 0, 255, 65;
+}
+
+.callout[data-callout="note"] {
+  background: var(--bg-tertiary);
+  border-left-color: var(--green-dim);
+  --callout-color: 0, 136, 42;
+}
+
+.callout[data-callout="opsec"] {
+  background: #1a0000;
+  border-left-color: var(--red-bright);
+  --callout-icon: lucide-shield-alert;
+  --callout-color: 255, 0, 60;
+}
+
+.callout[data-callout="detection"] {
+  background: #001a1a;
+  border-left-color: var(--cyan);
+  --callout-icon: lucide-eye;
+  --callout-color: 0, 212, 255;
+}
+
+.callout[data-callout="tool"] {
+  background: #0f0020;
+  border-left-color: var(--purple);
+  --callout-icon: lucide-wrench;
+  --callout-color: 157, 0, 255;
+}
+
+.callout-title {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+/* ── Search / Quick Switcher ────────────────────────────── */
+.prompt {
+  background: var(--bg-secondary);
+  border: 1px solid var(--green-dim);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+}
+
+.prompt-input {
+  color: var(--green-bright);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  caret-color: var(--green-bright);
+}
+
+.suggestion-item.is-selected {
+  background: var(--bg-hover);
+  border-left: 2px solid var(--green-bright);
+}
+
+/* ── Status Bar ─────────────────────────────────────────── */
+.status-bar {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--green-dim);
+  letter-spacing: 0.04em;
+}
+
+.status-bar-item { color: var(--green-dim); }
+
+/* ── Graph View ─────────────────────────────────────────── */
+.graph-view.color-fill { color: var(--green-dim); }
+.graph-view.color-fill-tag { color: var(--amber); }
+.graph-view.color-fill-attachment { color: var(--muted); }
+.graph-view.color-arrow { color: var(--green-muted); }
+.graph-view.color-circle { color: var(--green-bright); }
+.graph-view.color-line { color: var(--border); }
+.graph-view.color-text { color: var(--green-dim); }
+.graph-view.color-fill-unresolved { color: var(--red-dim); }
+
+/* ── Frontmatter / Properties ───────────────────────────── */
+.metadata-container {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+}
+
+.metadata-property-key { color: var(--amber); }
+.metadata-property-value { color: var(--white); }
+
+/* ── Checkboxes ─────────────────────────────────────────── */
+input[type="checkbox"] { accent-color: var(--green-bright); }
+
+.task-list-item-checkbox {
+  border-color: var(--green-dim);
+  border-radius: 2px;
+}
+
+.task-list-item.is-checked {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+/* ── Bold / Italic / Highlight ──────────────────────────── */
+strong, .cm-strong { color: var(--red-bright) !important; }
+em, .cm-em { color: var(--cyan) !important; }
+mark { background: #3a2800 !important; color: var(--amber) !important; }
+
+/* ── Horizontal Rule ────────────────────────────────────── */
+.markdown-preview-view hr {
+  border: none;
+  border-top: 1px solid var(--green-muted);
+  margin: 20px 0;
+}
+
+.markdown-preview-view hr::before {
+  content: '──── ◈ ────';
+  display: block;
+  text-align: center;
+  color: var(--green-muted);
+  font-size: 12px;
+  margin-top: -10px;
+  background: var(--bg-primary);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 8px;
+}
+
+/* ── Sidebar Ribbon ─────────────────────────────────────── */
+.side-dock-ribbon {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+}
+
+.side-dock-ribbon-action { color: var(--muted); }
+.side-dock-ribbon-action:hover { color: var(--green-bright); }
+.side-dock-ribbon-action.is-active { color: var(--green-bright); }
+
+/* ── Pane resize handle ─────────────────────────────────── */
+.workspace-leaf-resize-handle { background: var(--border); }
+
+/* ── Drag over / active pane ────────────────────────────── */
+.workspace-leaf.mod-active .view-header {
+  border-bottom: 1px solid var(--green-dim);
+}
+
+/* ── Folding / indent guides ────────────────────────────── */
+.cm-indent-marker { border-left: 1px solid var(--border) !important; }
+
+/* ── Selection ──────────────────────────────────────────── */
+::selection {
+  background: var(--bg-selection);
+  color: var(--white);
+}
+
+/* ── Blinking cursor ────────────────────────────────────── */
+.cm-cursor {
+  border-left-color: var(--green-bright) !important;
+  border-left-width: 2px !important;
+}
+
+/* ══════════════════════════════════════════════
+   SPECIAL: Terminal-style pre blocks with titles
+   (output by the GitBook conversion script)
+   ══════════════════════════════════════════════ */
+.code-block-wrap {
+  position: relative;
+  margin: 12px 0;
+}
+
+/* MITRE ATT&CK badge on headings that contain T#### */
+.markdown-preview-view h1[id*="t1"],
+.markdown-preview-view h2[id*="t1"],
+.markdown-preview-view h3[id*="t1"] {
+  letter-spacing: 0.03em;
+}

@@ -1,5 +1,6 @@
 ---
 description: Code execution with embedded Internet Explorer Object
+tags: [#code-execution]
 ---
 
 # Phishing: Embedded Internet Explorer
@@ -8,23 +9,23 @@ In this phishing lab I am just playing around with the POCs researched, coded an
 
 ## Execution
 
-![](../../../.gitbook/assets/phishing-iex-video.gif)
+![[phishing-iex-video.gif]]
 
-{% file src="../../../.gitbook/assets/WebBrowser.docx" %}
+
 WebBrowser.docx
-{% endfile %}
 
-{% file src="../../../.gitbook/assets/poc.ps1" %}
+
+
 phishing-iex-embedded.ps1
-{% endfile %}
+
 
 ## Observations
 
-![](../../../.gitbook/assets/phishing-iex-ancestry.png)
+![[phishing-iex-ancestry.png]]
 
 As with other phishing documents, we can unzip the .docx and do a simple hexdump/strings on the `oleObject1.bin` to look for any suspicious strings referring to some sort of file/code execution:
 
-![](../../../.gitbook/assets/phishing-iex-olebin.png)
+![[phishing-iex-olebin.png]]
 
 The CLSID object that makes this technique work is a `Shell.Explorer.1` object, as seen here:
 
@@ -32,14 +33,14 @@ The CLSID object that makes this technique work is a `Shell.Explorer.1` object, 
 Get-ChildItem 'registry::HKEY_CLASSES_ROOT\CLSID\{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}'
 ```
 
-![](../../../.gitbook/assets/phishing-explorer-obj.png)
+![[phishing-explorer-obj.png]]
 
 As an analyst, one should inspect the .bin file and look for the {EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B} bytes inside, signifying the `Shell.Explorer.1` object being embedded in the .bin file:
 
-![](../../../.gitbook/assets/phishing-clsid.png)
+![[phishing-clsid.png]]
 
 ## References
 
-{% embed url="https://securify.nl/blog/SFY20180801/click-me-if-you-can_-office-social-engineering-with-embedded-objects.html" %}
+[securify.nl/blog/SFY20180801/click-me-if-you-can_-office-social-engineering-with-embedded-objects.html](https://securify.nl/blog/SFY20180801/click-me-if-you-can_-office-social-engineering-with-embedded-objects.html)
 
 \

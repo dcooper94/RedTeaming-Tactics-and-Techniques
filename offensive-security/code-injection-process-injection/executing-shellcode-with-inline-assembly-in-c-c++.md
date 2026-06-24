@@ -12,8 +12,8 @@ choco install mingw
 
 Create a simple C program that includes the shellcode. In my case, I'm simply adding 4 NOP instructions and prior to that, I am printing out the string `spotless`, so I can easily identify the shellcode location when debugging the program:
 
-{% code title="inline-shellcode.c" %}
 ```cpp
+// inline-shellcode.c
 #include <Windows.h>
 #include <stdio.h>
 
@@ -24,7 +24,6 @@ int main() {
 	return 0;
 }
 ```
-{% endcode %}
 
 Let's compile and link the code:
 
@@ -34,8 +33,8 @@ gcc -c .\inline-shellcode.c -o main.o; g++.exe .\main.o -o .\main.exe
 
 Debugging the code via xdbg, we can see where the string `spotless` is going to be printed out and straight after it, we have the 4 NOP instructions:
 
-![](<../../.gitbook/assets/image (107).png>)
+![[image (107).png]]
 
 ## References
 
-{% embed url="https://github.com/Mr-Un1k0d3r/Shellcoding" %}
+[github.com/Mr-Un1k0d3r/Shellcoding](https://github.com/Mr-Un1k0d3r/Shellcoding)

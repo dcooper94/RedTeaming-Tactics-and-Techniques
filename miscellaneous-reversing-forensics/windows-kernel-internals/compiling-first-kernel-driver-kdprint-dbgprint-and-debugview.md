@@ -4,18 +4,18 @@
 
 Select Kernel Mode Driver, Emtpy (KMDF) from templates:
 
-![](<../../.gitbook/assets/image (500).png>)
+![[image (500).png]]
 
 ## Create a driver.c
 
 Create a new `driver.c` file under `Source Files`:
 
-![](<../../.gitbook/assets/image (501).png>)
+![[image (501).png]]
 
 ## Add Driver Code
 
-{% code title="driver.c" %}
 ```c
+// driver.c
 #include <ntddk.h>
 #include <wdf.h>
 
@@ -51,7 +51,6 @@ NTSTATUS EvtDriverDeviceAdd(_In_ WDFDRIVER Driver,_Inout_ PWDFDEVICE_INIT Device
     return status;
 }
 ```
-{% endcode %}
 
 ## Enable DbgPrint Monitoring for WinDBG
 
@@ -61,11 +60,11 @@ Change the debug output verbosity:
 ed kd_default_mask 0xf
 ```
 
-![](<../../.gitbook/assets/image (505).png>)
+![[image (505).png]]
 
 [Starting the driver](loading-a-windows-kernel-driver-osr-driver-loader-debugging-with-source-code.md) allows us to see the debug output in WinDBG:
 
-![](<../../.gitbook/assets/image (506).png>)
+![[image (506).png]]
 
 ## Enable DbgPrint Monitoring for DbgView
 
@@ -77,17 +76,17 @@ Computer\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Deb
 
 Add a new DWORD value `DEFAULT` and set its Data field to `0xf`:
 
-![](<../../.gitbook/assets/image (509).png>)
+![[image (509).png]]
 
 If we load the driver now and start it, we can see the debug output in DbgView too:
 
-![](<../../.gitbook/assets/image (508).png>)
+![[image (508).png]]
 
 ## Requested Control is Not Valid for This Service
 
 The below error message is seen if you attempt to stop the WDF driver via OSR Driver Loader or the native sc.exe, even if you have defined the driver unloading routine:
 
-![](<../../.gitbook/assets/image (511).png>)
+![[image (511).png]]
 
 I could not find a solution to this, but WDM driver has no such issue - see the code below.
 
@@ -118,10 +117,10 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 
 Below shows how our driver is loaded and unloaded via OSR Loader while DbgView prints our DbgPrint output defined in the above `DriverEntry` and `DriverUnload` routines:
 
-![](<../../.gitbook/assets/image (510).png>)
+![[image (510).png]]
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/windows-hardware/drivers/gettingstarted/writing-a-very-small-kmdf--driver" %}
+[docs.microsoft.com/en-us/windows-hardware/drivers/gettingstarted/writing-a-very-small-kmdf--driver](https://docs.microsoft.com/en-us/windows-hardware/drivers/gettingstarted/writing-a-very-small-kmdf--driver)
 
-{% embed url="http://www.osronline.com/article.cfm%5earticle=295.htm" %}
+[www.osronline.com/article.cfm%5earticle=295.htm](http://www.osronline.com/article.cfm%5earticle=295.htm)

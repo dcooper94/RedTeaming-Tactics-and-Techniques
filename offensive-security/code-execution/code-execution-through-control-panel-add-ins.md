@@ -2,9 +2,8 @@
 
 It's possible to force explorer.exe to load your DLL that is compiled as a Control Panel Item and is registered as a Control Panel Add-in.
 
-{% hint style="info" %}
-This technique could also be considered for persistence.
-{% endhint %}
+> [!INFO]
+> This technique could also be considered for persistence.
 
 ## Execution
 
@@ -52,15 +51,15 @@ Let's now register our control panel item as an add-in (defenders beware of thes
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Control Panel\CPLs" /v spotless /d "C:\labs\cplAddin\cplAddin\x64\Release\cplAddin2.dll" /f
 ```
 
-![](<../../.gitbook/assets/image (573).png>)
+![[image (573).png]]
 
 Now, whenever the Control Panel is opened, our DLL will be injected into explorer.exe and our code will execute:
 
-![](../../.gitbook/assets/control-panel-item-addin.gif)
+![[control-panel-item-addin.gif]]
 
 Below shows that our DLL is injected into explorer.exe:
 
-![](<../../.gitbook/assets/image (574).png>)
+![[image (574).png]]
 
 ## Detection
 

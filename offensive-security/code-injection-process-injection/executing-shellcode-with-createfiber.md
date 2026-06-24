@@ -46,13 +46,13 @@ int main()
 
 Running the code executes the shellcode us a reverse shell:
 
-![](../../.gitbook/assets/shellcode-fibers.gif)
+![[shellcode-fibers.gif]]
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/windows/win32/procthread/fibers" %}
+[docs.microsoft.com/en-us/windows/win32/procthread/fibers](https://docs.microsoft.com/en-us/windows/win32/procthread/fibers)
 
-{% embed url="https://nullprogram.com/blog/2019/03/28/" %}
+[nullprogram.com/blog/2019/03/28](https://nullprogram.com/blog/2019/03/28/)
 
-{% embed url="http://dronesec.pw/blog/2019/08/12/code-execution-via-fiber-local-storage/" %}
+[dronesec.pw/blog/2019/08/12/code-execution-via-fiber-local-storage](http://dronesec.pw/blog/2019/08/12/code-execution-via-fiber-local-storage/)
 

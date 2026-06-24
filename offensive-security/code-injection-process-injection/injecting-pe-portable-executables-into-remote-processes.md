@@ -30,17 +30,17 @@ High level process of the technique:
 
 Below shows how we've injected the PE into the notepad \(PID 11068\) and executed its function `InjectionEntryPoint` which printed out the name of a module the code was running from, proving that the PE injection was succesful:
 
-![](../../.gitbook/assets/pe-injection.gif)
+![[pe-injection.gif]]
 
 ## Code
 
-{% embed url="https://gist.github.com/mantvydasb/229d58d0686cacb7fe52135cf8ee0f1d" %}
+[gist.github.com/mantvydasb/229d58d0686cacb7fe52135cf8ee0f1d](https://gist.github.com/mantvydasb/229d58d0686cacb7fe52135cf8ee0f1d)
 
 ## References
 
-{% embed url="https://www.andreafortuna.org/2018/09/24/some-thoughts-about-pe-injection/" %}
+[www.andreafortuna.org/2018/09/24/some-thoughts-about-pe-injection](https://www.andreafortuna.org/2018/09/24/some-thoughts-about-pe-injection/)
 
-{% embed url="https://blog.sevagas.com/PE-injection-explained" %}
+[blog.sevagas.com/PE-injection-explained](https://blog.sevagas.com/PE-injection-explained)
 
-{% embed url="https://www.malwaretech.com/2013/11/portable-executable-injection-for.html" %}
+[www.malwaretech.com/2013/11/portable-executable-injection-for.html](https://www.malwaretech.com/2013/11/portable-executable-injection-for.html)
 

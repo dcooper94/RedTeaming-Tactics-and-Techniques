@@ -14,12 +14,11 @@ The purpose of this lab was for me to play around with:
 * Programatically searching process memory space for byte patterns
 * Ghidra / WinDBG
 
-{% hint style="warning" %}
-Not an OPSEC safe technique. Can be flagged for at least the following:
-
-* LSASS loading unusual DLLs
-* `WriteProcessMemory` API usage
-{% endhint %}
+> [!WARNING]
+> Not an OPSEC safe technique. Can be flagged for at least the following:
+> 
+> * LSASS loading unusual DLLs
+> * `WriteProcessMemory` API usage
 
 ## Overview
 
@@ -51,7 +50,7 @@ Let's find the `EPROCESS` structure for the lsass.exe:
 !process 0 0 lsass.exe
 ```
 
-![](<../../.gitbook/assets/image (450).png>)
+![[image (450).png]]
 
 We can now switch the WinDBG to lsass.exe process's context:
 
@@ -59,15 +58,15 @@ We can now switch the WinDBG to lsass.exe process's context:
 .process /i /p /r ffffda8291281080
 ```
 
-![](<../../.gitbook/assets/image (451).png>)
+![[image (451).png]]
 
 Listing modules loaded by lsass with command `lm` shows that we do not have symbols for msv1\_0.dll loaded:
 
-![](<../../.gitbook/assets/image (452).png>)
+![[image (452).png]]
 
 ...although the module itself is loaded:
 
-![Note that addresses differ due to a reboot](<../../.gitbook/assets/image (455).png>)
+![[image (455).png|Note that addresses differ due to a reboot]]
 
 Let's load the missing symbols:
 
@@ -78,7 +77,7 @@ lm
 
 We can confirm the symbols are now loaded:
 
-![](<../../.gitbook/assets/image (453).png>)
+![[image (453).png]]
 
 Let's now set a breakpoint for `msv1_0!SpAcceptCredentials`:
 
@@ -86,15 +85,15 @@ Let's now set a breakpoint for `msv1_0!SpAcceptCredentials`:
 bp msv1_0!SpAcceptCredentials
 ```
 
-![](<../../.gitbook/assets/image (454).png>)
+![[image (454).png]]
 
 Finally, let's see if we can hit the breakpoint by trying to authenticate for a new logon session with a `runas` command:
 
-![](../../.gitbook/assets/msv1\_0-spacceptcredentials-breakpoint.gif)
+![[msv1\_0-spacceptcredentials-breakpoint.gif]]
 
 While we are at it, let's take a look at the start of the `msv1_0!SpAcceptCredentials` routine before we patch it later - we will be replacing the first 12 bytes (mov rax + 8 byte address to hookedSpAccecptedCredentials routine + jmp rax) of this routine with a jump to our `hookedSpAccecptedCredentials` routine, that will be intercepting any new credentials passed to it:
 
-![](<../../.gitbook/assets/image (458).png>)
+![[image (458).png]]
 
 ## Inspecting `SpAcceptCredentials` Arguments
 
@@ -111,7 +110,7 @@ Considering that we know the following:
 
 ...we can now inspect the values and structures passed as shown below:&#x20;
 
-![PSECPKG\_PRIMARY\_CRED structure and SpAcceptCredentials prototype](<../../.gitbook/assets/image (449).png>)
+![[image (449).png|PSECPKG\_PRIMARY\_CRED structure and SpAcceptCredentials prototype]]
 
 Note how we can identify the username `spotless`, domain name - `WS02` (my local machine name in this case) and the password in plaintext `123456`.
 
@@ -143,7 +142,7 @@ kd> dS r8+8+10+10
 
 Additionally, below shows that the value contained in the register `r8` holds a new logon session id that was created as part of a successful authentication via `runas` command:
 
-![](<../../.gitbook/assets/image (438).png>)
+![[image (438).png]]
 
 ## Signaturing `SpAcceptCredentials`&#x20;
 
@@ -155,21 +154,20 @@ In order to do it, we need to find a sequence of bytes in the `SpAcceptCredentia
 48 83 ec 20 49 8b d9 49 8b f8 8b f1 48
 ```
 
-{% hint style="info" %}
-My msv1\_0.dll is from x64 Windows 10, 1809
-{% endhint %}
+> [!INFO]
+> My msv1\_0.dll is from x64 Windows 10, 1809
 
 If we check the `msv1_0.dll` in Ghidra, we indeed find our signature - 16 bytes into the `SpAcceptCredentials` function start:
 
-![](<../../.gitbook/assets/image (437).png>)
+![[image (437).png]]
 
 We can also confirm the bytes are present when `SpAcceptCredentials` breakpoint is hit, as expected:
 
-![](<../../.gitbook/assets/image (460).png>)
+![[image (460).png]]
 
 We will pass this signature later to our memory hunting routine `GetPatternMemoryAddress(..., signature, ...)` in our DLL, that will be injected into the lsass where it will identify the memory address of `SpAcceptCredentials` routine inside the lsass.exe process:
 
-![The signature will be passed on to the routine GetPatternMemoryAddress ](<../../.gitbook/assets/image (463).png>)
+![[image (463).png|The signature will be passed on to the routine GetPatternMemoryAddress ]]
 
 ## HUH - Hooking: Under the Hood
 
@@ -177,7 +175,7 @@ Before we start looking under the hood of lsass.exe, there are a couple of other
 
 Our compiled and injected DLL will immediately call `installSpAccecptedCredentialsHook` once lsass.exe loads our malicious DLL with `LoadLibrary`:
 
-![](<../../.gitbook/assets/image (465).png>)
+![[image (465).png]]
 
 `installSpAccecptedCredentialsHook` will:
 
@@ -186,11 +184,11 @@ Our compiled and injected DLL will immediately call `installSpAccecptedCredentia
 * read and store the first 12 bytes of `SpAccecptedCredentials` in memory - these bytes will be used to restore the function to its original state / unpatch it - line 89
 * overwrite the first 12 bytes of `SpAccecptedCredentials` with a jump to our rogue function `hookedSpAccecptedCredentials` that will intercept any new user logon credentials - line 92-95
 
-![](<../../.gitbook/assets/image (466).png>)
+![[image (466).png]]
 
 Assuming we've compiled the DLL, let's inject it into lsass. I will simply inject it with Process Hacker:
 
-![](../../.gitbook/assets/msv1\_0-spacceptcredentials-hooking.gif)
+![[msv1\_0-spacceptcredentials-hooking.gif]]
 
 Let's now have a quick look inside the lsass.exe via WinDBG when `msv1_0!SpAcceptCredentials` is called.&#x20;
 
@@ -227,45 +225,45 @@ PEB at 0000004dbca27000
     WindowTitle:  'C:\WINDOWS\system32\lsass.exe'
 ```
 
-![](<../../.gitbook/assets/image (464).png>)
+![[image (464).png]]
 
 If we disassemble `msv1_0!SpAcceptCredentials`, we will notice that the first few bytes of the routine are now different, compared to those we saw earlier before the DLL injection - this confirms the hook was installed:
 
-![routine start before and after the hook was installed](<../../.gitbook/assets/image (467).png>)
+![[image (467).png|routine start before and after the hook was installed]]
 
 The first instructions of the hooked function now are:
 
-![](<../../.gitbook/assets/image (468).png>)
+![[image (468).png]]
 
 These instructions came from the below code in our DLL.&#x20;
 
 `mov rax` instruction, where rax is the address of our `hookedSpAccecptedCredentials`:
 
-![](<../../.gitbook/assets/image (471).png>)
+![[image (471).png]]
 
 and `jmp rax`:
 
-![](<../../.gitbook/assets/image (472).png>)
+![[image (472).png]]
 
 Now, if we remember that our malicious module's `memssp-dll.dll` base address was `7FF9CB391000h` and its size was `5e2cbfd1`, it means that our module is mapped in the range `[7FF9CB391000h, 7FF9CB391000+5e2cbfd1]` => ``[0x7FF9CB391000, 0x00007ffa`2965cfd1]``:
 
-![](<../../.gitbook/assets/image (469).png>)
+![[image (469).png]]
 
 This means that `7FF9CB391000h` as seen in the first instruction of the hooked `SpAcceptCredentials` routine, is part of our malicious module since it falls in the range ``[0x7FF9CB391000, 0x00007ffa`2965cfd1]``:
 
-![](<../../.gitbook/assets/image (470).png>)
+![[image (470).png]]
 
 Moving forward - note that after the trampoline to our rogue function, I've set the breakpoint on instruction `rbx, r9` at `7ff9b6955344`:
 
-![](<../../.gitbook/assets/image (473).png>)
+![[image (473).png]]
 
 If we hit the breakpoint `msv1_0!SpAcceptCredentials` and and continue running, we immediately hit that second breakpoint at `7ff9b6955344`, however, note that our trampoline `mov rax, jmp rax` is now gone:
 
-![](../../.gitbook/assets/msv1\_0-spacceptcredentials-unhooking.gif)
+![[msv1\_0-spacceptcredentials-unhooking.gif]]
 
 This is because `hookedSpAccecptedCredentials` (previously stored in rax) unhooked `SpAccecptedCredentials` by writing back 12 original bytes of `SpAccecptedCredentials` before it was hooked, to the start of `SpAccecptedCredentials` (orange) and redirected the code back to the start of `SpAccecptedCredentials` (lime), so that a new user logon session can be created:
 
-![](<../../.gitbook/assets/image (475).png>)
+![[image (475).png]]
 
 Highlighted in blue is the code that actually intercepts the credentials and writes them to disk. Code in white is responsible for re-hooking the `SpAccecptedCredentials` in a new delayed thread, so that the `originalSpAcceptCredentials` can finish executing without crashing the system.
 
@@ -273,11 +271,11 @@ Highlighted in blue is the code that actually intercepts the credentials and wri
 
 Below shows how user `spotless` on a machine `WS02` authenticates successfully and its credentials are written to `c:\temp\credentials.txt`:
 
-![](../../.gitbook/assets/msv1\_0-spacceptcredentials.gif)
+![[msv1\_0-spacceptcredentials.gif]]
 
 Note that msv1\_0 exports a function `LsaApLogonUserEx2` that we could have hooked to intercept credentials since it is also passed a structure `PSECPKG_PRIMARY_CRED` when a user  attempts to authenticate. This lab, however, was focused on the exercise of finding the required function address by scanning the target process memory rather than resolving it via Windows APIs:
 
-![](../../.gitbook/assets/LsaApLogonUserEx2.gif)
+![[LsaApLogonUserEx2.gif]]
 
 ## SymFromName
 
@@ -295,12 +293,12 @@ SymInitialize(GetCurrentProcess(), "C:\\programdata\\dbg\\sym", TRUE);
 SymFromName(GetCurrentProcess(), symbolName, symbol);
 ```
 
-![](<../../.gitbook/assets/image (484).png>)
+![[image (484).png]]
 
 ## Code
 
-{% code title="SpAcceptCredentialsHook.dll" %}
 ```cpp
+// SpAcceptCredentialsHook.dll
 #include "stdafx.h"
 #include <iostream>
 #include <Windows.h>
@@ -415,8 +413,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	return TRUE;
 }
 ```
-{% endcode %}
 
 ## References
 
-{% embed url="https://blog.xpnsec.com/exploring-mimikatz-part-2/" %}
+[blog.xpnsec.com/exploring-mimikatz-part-2](https://blog.xpnsec.com/exploring-mimikatz-part-2/)

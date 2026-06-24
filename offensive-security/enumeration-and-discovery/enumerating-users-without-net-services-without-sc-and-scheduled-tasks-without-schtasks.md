@@ -12,25 +12,25 @@ Of course, marketing department is unlikely to run mmc snap-ins either, so bewar
 
 Launch mmc.exe, click File &gt; Add\remove snap-in &gt; Local users and Groups:
 
-![](../../.gitbook/assets/snapin.gif)
+![[snapin.gif]]
 
 ## Enumerating Services
 
 Same could be done for enumerating services running on the system:
 
-![](../../.gitbook/assets/snapins.PNG)
+![[snapins.PNG]]
 
 Note that `services.msc` could give you the same view.
 
 ## Enumerating Scheduled Tasks
 
-![](../../.gitbook/assets/tasksch.PNG)
+![[tasksch.PNG]]
 
 Persistence anyone? Note that `taskschd.msc` could give you the same view:
 
-![](../../.gitbook/assets/scheduler-new-task.PNG)
+![[scheduler-new-task.PNG]]
 
 ## Shares and Sessions
 
-![](../../.gitbook/assets/sessions+shares.PNG)
+![[sessions+shares.PNG]]
 

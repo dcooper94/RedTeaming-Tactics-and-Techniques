@@ -1,5 +1,6 @@
 ---
 description: Defense Evasion
+tags: [#defense-evasion]
 ---
 
 # Installing Root Certificate
@@ -8,37 +9,35 @@ description: Defense Evasion
 
 Adding a certificate with a native windows binary:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 certutil.exe -addstore -f -user Root C:\Users\spot\Downloads\certnew.cer
 ```
-{% endcode %}
 
-![](../../.gitbook/assets/certs-certutil.png)
+![[certs-certutil.png]]
 
 Checking to see the certificate got installed:
 
-![](../../.gitbook/assets/certs-installed.png)
+![[certs-installed.png]]
 
 Adding the certificate with powershell:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 Import-Certificate -FilePath C:\Users\spot\Downloads\certnew.cer -CertStoreLocation Cert:\CurrentUser\Root\
 ```
-{% endcode %}
 
-![](../../.gitbook/assets/certs-add-with-ps.png)
+![[certs-add-with-ps.png]]
 
 ## Observations
 
 Advanced poweshell logging to the rescue:
 
-![](../../.gitbook/assets/certs-ps-logging.png)
+![[certs-ps-logging.png]]
 
 Commandline logging:
 
-![](../../.gitbook/assets/certs-logs.png)
+![[certs-logs.png]]
 
 The CAs get installed to:
 
@@ -48,9 +47,9 @@ Computer\HKEY_CURRENT_USER\Software\Microsoft\SystemCertificates\Root\Certificat
 
 ..so it is worth monitoring registry changes there:
 
-![](../../.gitbook/assets/certs-registry.png)
+![[certs-registry.png]]
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1130" %}
+[attack.mitre.org/wiki/Technique/T1130](https://attack.mitre.org/wiki/Technique/T1130)
 

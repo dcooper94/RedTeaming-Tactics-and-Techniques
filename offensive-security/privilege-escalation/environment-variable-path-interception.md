@@ -7,18 +7,18 @@ It's possible to abuse `$PATH` environment variable to elevate privileges if the
 
 Below is an example, showing how c:\temp precedes c:\windows\system32:
 
-![](<../../.gitbook/assets/image (485).png>)
+![[image (485).png]]
 
 Let's make sure c:\temp is (M)odifiable by low privileged users:
 
-![](<../../.gitbook/assets/image (488).png>)
+![[image (488).png]]
 
 Let's now drop our malicious file (calc.exe in this case) into c:\temp and call it cmd.exe:
 
-![](<../../.gitbook/assets/image (486).png>)
+![[image (486).png]]
 
 Now, the next time a high privileged user invokes cmd.exe, our malicious cmd.exe will be invoked from the c:\temp:
 
-![](<../../.gitbook/assets/image (487).png>)
+![[image (487).png]]
 
 This can be very easily abused in environments where software deployment packages call powershell, cmd, cscript and other similar system binaries with `NT SYSTEM` privileges to carry out their tasks.

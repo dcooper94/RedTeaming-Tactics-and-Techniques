@@ -1,9 +1,8 @@
 # Windows Kernel Drivers 101
 
-{% hint style="info" %}
-**Work In Progress**  
-This living document captures some of the Kernel Driver and OS related concepts that I encounter as I study Windows kernel driver development.
-{% endhint %}
+> [!INFO]
+> **Work In Progress**  
+> This living document captures some of the Kernel Driver and OS related concepts that I encounter as I study Windows kernel driver development.
 
 ## Driver Types
 
@@ -65,7 +64,7 @@ There are many different types of drivers, but I am mostly interested in `Sofwar
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/packet-driven-i-o-with-reusable-irps" %}
+[docs.microsoft.com/en-us/windows-hardware/drivers/kernel/packet-driven-i-o-with-reusable-irps](https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/packet-driven-i-o-with-reusable-irps)
 
 
 

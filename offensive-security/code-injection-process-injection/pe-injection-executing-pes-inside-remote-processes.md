@@ -6,9 +6,8 @@ description: Code Injection
 
 This is a quick lab of a simplified way of injecting an entire portable executabe (PE) into another running process.
 
-{% hint style="warning" %}
-Note that in order to inject more complex PEs, additional DLLs in the target process may need to be loaded and Import Address Table fixed and for this, refer to my other lab [Reflective DLL Injection](reflective-dll-injection.md#resolving-import-address-table).
-{% endhint %}
+> [!WARNING]
+> Note that in order to inject more complex PEs, additional DLLs in the target process may need to be loaded and Import Address Table fixed and for this, refer to my other lab [Reflective DLL Injection](reflective-dll-injection.md#resolving-import-address-table).
 
 ## Overview
 
@@ -36,21 +35,21 @@ Inside the current process, that's doing the self-injection of its PE:
 
 Getting `sizeOfImage` of the current process (local process) that will be injecting itself into a target process and allocating a new memory block in the local process:
 
-![](<../../.gitbook/assets/image (206).png>)
+![[image (206).png]]
 
 In my case, the new memory block got allocated at address `0x000001813acc0000`. Let's copy the current process's image in there:
 
-![](<../../.gitbook/assets/image (207).png>)
+![[image (207).png]]
 
 Let's allocate a new block of memory in the target process. In my case it got allocated at `0x000001bfc0c20000`:
 
-![](<../../.gitbook/assets/image (208).png>)
+![[image (208).png]]
 
 Calculate the delta between `0x000001bfc0c20000` and `0x000001813acc0000` and perform [image base relocations](process-hollowing-and-pe-image-relocations.md#relocation). Once that's done, we can move over our rebased PE from `0x000001813acc0000` to `0x000001bfc0c20000` in the remote process using `WriteProcessMemory`.&#x20;
 
 Below shows that our imaged has now been moved to the remote process:
 
-![](<../../.gitbook/assets/image (209).png>)
+![[image (209).png]]
 
 Finally, we can create a remote thread and point it to the `InjectionEntryPoint` function inside the remote process:
 
@@ -58,13 +57,13 @@ Finally, we can create a remote thread and point it to the `InjectionEntryPoint`
 CreateRemoteThread(targetProcess, NULL, 0, (LPTHREAD_START_ROUTINE)((DWORD_PTR)InjectionEntryPoint + deltaImageBase), NULL, 0, NULL);
 ```
 
-![New thread getting created inside notepad.exe](../../.gitbook/assets/newthread.gif)
+![[newthread.gif|New thread getting created inside notepad.exe]]
 
 ## Demo
 
 Below shows how we've injected the PE into the notepad (PID 11068) and executed its function `InjectionEntryPoint` which printed out the name of a module the code was running from, proving that the PE injection was succesful:
 
-![](../../.gitbook/assets/pe-injection.gif)
+![[pe-injection.gif]]
 
 ## Code
 
@@ -141,8 +140,8 @@ int main()
 
 ## References
 
-{% embed url="https://www.andreafortuna.org/2018/09/24/some-thoughts-about-pe-injection/" %}
+[www.andreafortuna.org/2018/09/24/some-thoughts-about-pe-injection](https://www.andreafortuna.org/2018/09/24/some-thoughts-about-pe-injection/)
 
-{% embed url="https://blog.sevagas.com/PE-injection-explained" %}
+[blog.sevagas.com/PE-injection-explained](https://blog.sevagas.com/PE-injection-explained)
 
-{% embed url="https://www.malwaretech.com/2013/11/portable-executable-injection-for.html" %}
+[www.malwaretech.com/2013/11/portable-executable-injection-for.html](https://www.malwaretech.com/2013/11/portable-executable-injection-for.html)

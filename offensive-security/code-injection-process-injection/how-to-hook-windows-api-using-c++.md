@@ -21,24 +21,24 @@ For this lab, I will write a simple C++ program that will work follows:
 
 Pop the message box before the function is hooked - just to make sure it works and to prove that no functions are hooked so far -  it's the first instruction of the program:
 
-![](<../../.gitbook/assets/Annotation 2019-06-30 185043.png>)
+![[Annotation 2019-06-30 185043.png]]
 
 Get the memory address of the `MessageBoxA` function:
 
-![](<../../.gitbook/assets/Annotation 2019-06-30 185215.png>)
+![[Annotation 2019-06-30 185215.png]]
 
 If we dissasemble the bytes at that address, we can definitely see that there is code for `MessageBoxA`:
 
-![](<../../.gitbook/assets/Annotation 2019-06-30 185320.png>)
+![[Annotation 2019-06-30 185320.png]]
 
 Note the first 6 bytes `8b ff 55 8b ec 6a`(mind the endian-ness). We need to save these bytes for future when we want to unhook `MessageBoxA`:
 
-![](../../.gitbook/assets/originalbytes.gif)
+![[originalbytes.gif]]
 
 Let's now build the patch (hook) bytes:\
 
 
-![](<../../.gitbook/assets/Annotation 2019-06-30 190323.png>)
+![[Annotation 2019-06-30 190323.png]]
 
 ...that will translate into the following assembly instructions:
 
@@ -51,26 +51,26 @@ ret
 
 We can now patch the `MessageBoxA` - memory pane in the bottom right shows the patch being written to the beginning of `MessageBoxA` function and the top right shows the beginning of the same function is re-written with a `push 3e1474h; ret` instructions:
 
-![](../../.gitbook/assets/patchingMessageBoxa.gif)
+![[patchingMessageBoxa.gif]]
 
 If we disassemble the address `3e1474h`, we can see it contains a jmp to our `HookedMessageBox`:
 
-![](<../../.gitbook/assets/image (1).png>)
+![[image (1).png]]
 
 The `HookedMessageBox` intercepts and prints out the arguments supplied to `MessageBoxA`, then unhooks ~~`MessageBoxA`~~ by swaping back the first 6 bytes to the original bytes of the `MessageBoxA` function and then calls the `MessageBoxA` with the supplied arguments:
 
-![](<../../.gitbook/assets/image (2).png>)
+![[image (2).png]]
 
 ## Demo
 
 Once the function is hooked, we can call the `MessageBoxA(NULL, "hi", "hi", MB_OK);` which will invoke the `HookedMessageBox`, print the intercepted values and display the original message box:
 
-![](<../../.gitbook/assets/hookedmessagebox (1).gif>)
+![[hookedmessagebox (1).gif]]
 
 ## Code
 
-{% code title="api-hooking.cpp" %}
 ```cpp
+// api-hooking.cpp
 #include "pch.h"
 #include <iostream>
 #include <Windows.h>
@@ -122,8 +122,7 @@ int main()
 	return 0;
 }
 ```
-{% endcode %}
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-messageboxa" %}
+[docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-messageboxa](https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-messageboxa)

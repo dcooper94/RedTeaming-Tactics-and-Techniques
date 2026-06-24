@@ -8,7 +8,7 @@ This is a living document that captures notes related to anything and all neo4j 
 show databases 
 ```
 
-![](<../.gitbook/assets/image (732).png>)
+![[image (732).png]]
 
 ## Create New Database
 
@@ -16,7 +16,7 @@ show databases
 create database spotless
 ```
 
-![](<../.gitbook/assets/image (731).png>)
+![[image (731).png]]
 
 ## Switch Database
 
@@ -24,7 +24,7 @@ create database spotless
 :use spotless
 ```
 
-![](<../.gitbook/assets/image (733).png>)
+![[image (733).png]]
 
 ## Import Data from CSV and Define Relationships Between Nodes
 
@@ -38,8 +38,8 @@ Below is a sample CSV file with 3 columns, that represents Windows authenticatio
 | `DestinationComputer` | A computer that SourceComputer authenticated to                               |
 | `DestinationUserName` | A user name that was used to logon from SourceComputer to DestinationComputer |
 
-{% code title="lateral-movement.csv" %}
 ```scala
+// lateral-movement.csv
 "SourceComputer","DestinationComputer","DestinationUserName"
 "WS01","WS02","administrator"
 "WS01","WS03","administrator"
@@ -57,11 +57,9 @@ Below is a sample CSV file with 3 columns, that represents Windows authenticatio
 "WS03","WS02","james"
 "WS01","WS02","james"
 ```
-{% endcode %}
 
-{% hint style="info" %}
-The file needs to be saved to the `import` folder of your database folder. In my case, the path is C:\Users\User\AppData\Local\Neo4j\Relate\Data\dbmss\dbms-8320b8a8-e54d-4742-a432-c8014b5968ec\import\lateral-movement.csv
-{% endhint %}
+> [!INFO]
+> The file needs to be saved to the `import` folder of your database folder. In my case, the path is C:\Users\User\AppData\Local\Neo4j\Relate\Data\dbmss\dbms-8320b8a8-e54d-4742-a432-c8014b5968ec\import\lateral-movement.csv
 
 ### Importing Nodes from CSV and Creating Relationships
 
@@ -72,9 +70,9 @@ MERGE (b:Computer {Computer:line.DestinationComputer} )
 MERGE (a) -[:LOGGED_IN {loggedAs:line.DestinationUserName}]-> (b)
 ```
 
-![](<../.gitbook/assets/image (735).png>)
+![[image (735).png]]
 
-![](<../.gitbook/assets/image (736).png>)
+![[image (736).png]]
 
 ## Clean Database
 
@@ -88,7 +86,7 @@ match (a) -[r] -> () delete a, r; match (a) delete a
 MATCH p=()-[r:LOGGED_IN]->(m:Computer) where m.Computer CONTAINS "WS" RETURN p LIMIT 25
 ```
 
-![](<../.gitbook/assets/image (737).png>)
+![[image (737).png]]
 
 ## Match Nodes WHERE Relationship Contains "james"
 
@@ -96,7 +94,7 @@ MATCH p=()-[r:LOGGED_IN]->(m:Computer) where m.Computer CONTAINS "WS" RETURN p L
 MATCH p=()-[r:LOGGED_IN]->() where (r.loggedAs contains "james") RETURN p LIMIT 25
 ```
 
-![](<../.gitbook/assets/image (741).png>)
+![[image (741).png]]
 
 ## Match Nodes with 3 Hops Between Them
 
@@ -104,4 +102,4 @@ MATCH p=()-[r:LOGGED_IN]->() where (r.loggedAs contains "james") RETURN p LIMIT 
 MATCH p=()-[r:LOGGED_IN*3]->() RETURN p LIMIT 25
 ```
 
-![](<../.gitbook/assets/image (740).png>)
+![[image (740).png]]

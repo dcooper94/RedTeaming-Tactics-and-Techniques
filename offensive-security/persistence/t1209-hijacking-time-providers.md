@@ -1,5 +1,6 @@
 ---
 description: Persistence
+tags: [#persistence]
 ---
 
 # Hijacking Time Providers
@@ -12,7 +13,7 @@ If an attacker can replace the `w32time.dll` with his malicious DLL or modify th
 
 In this lab, we will just swap out the `w32time.dll` with our own. It contains a metasploit reverse shell payload:
 
-![](../../.gitbook/assets/time-registry.png)
+![[time-registry.png]]
 
 Starting the w32time service:
 
@@ -33,28 +34,27 @@ SERVICE_NAME: w32time
 
 Attacker receiving a reverse shell:
 
-{% code title="attacker@local" %}
 ```csharp
+// attacker@local
 root@~# nc -lvvp 443
 listening on [any] 443 ...
 10.0.0.2: inverse host lookup failed: Unknown host
 connect to [10.0.0.5] from (UNKNOWN) [10.0.0.2] 64634
 ```
-{% endcode %}
 
 ## Observations
 
 The shell is running as a child of svchost which is expected as this is where all the services originate from:
 
-![](../../.gitbook/assets/time-ancestry.png)
+![[time-ancestry.png]]
 
 Note that the code is running under the context of `LOCAL SERVICE`:
 
-![](../../.gitbook/assets/time-context.png)
+![[time-context.png]]
 
 This time and time again shows that binaries running off of svchost.exe, especially if they are rundll32 and are making network connections, should be investigated further.
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1209" %}
+[attack.mitre.org/wiki/Technique/T1209](https://attack.mitre.org/wiki/Technique/T1209)
 

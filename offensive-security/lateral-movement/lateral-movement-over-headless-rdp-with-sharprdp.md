@@ -10,19 +10,19 @@ Executing a binary on a remote machine dc01 from a compromised system with offen
 SharpRDP.exe computername=dc01 command=calc username=offense\administrator password=123456
 ```
 
-![](<../../.gitbook/assets/image (476).png>)
+![[image (476).png]]
 
 ## Observations
 
 Defenders may want to look for mstscax.dll module being loaded by suspicious binaries on a compromised host from which SharpRDP is being executed:
 
-![](<../../.gitbook/assets/image (477).png>)
+![[image (477).png]]
 
 Also, weird binaries making connections to port 3389:
 
-![](<../../.gitbook/assets/image (478).png>)
+![[image (478).png]]
 
 ## References
 
-{% embed url="https://posts.specterops.io/revisiting-remote-desktop-lateral-movement-8fb905cb46c3?gi=fe80458d82a5" %}
+[posts.specterops.io/revisiting-remote-desktop-lateral-movement-8fb905cb46c3?gi=fe80458d82a5](https://posts.specterops.io/revisiting-remote-desktop-lateral-movement-8fb905cb46c3?gi=fe80458d82a5)
 

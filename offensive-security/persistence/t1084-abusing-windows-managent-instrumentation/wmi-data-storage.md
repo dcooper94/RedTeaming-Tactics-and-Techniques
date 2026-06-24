@@ -42,7 +42,7 @@ Qualifiers : {CIMTYPE}
 
 Checking WMI Explorer shows the new `Evil` class has been created under the `root\cimv2` namepace - note the `EvilProperty` can also be observed:
 
-![](../../../.gitbook/assets/wmi-data-storage-newclass.png)
+![[wmi-data-storage-newclass.png]]
 
 ### Storing Payload
 
@@ -64,7 +64,7 @@ $evilClass.Properties.Add('EvilProperty', $encodedCommand)
 
 Below is the same as above, just in a screenshot:
 
-![](../../../.gitbook/assets/wim-setting-payload.png)
+![[wim-setting-payload.png]]
 
 ### Real Execution
 
@@ -74,11 +74,11 @@ powershell.exe -enc $evilClass.Properties['EvilProperty'].Value
 
 Executing the payload stored in the property of a WMI class's property - note that the backdoor user has been successfully added:
 
-![](../../../.gitbook/assets/wmi-payload-executed.png)
+![[wmi-payload-executed.png]]
 
 If we commit the `$evilClass` with its `.Put()` method, our payload will get stored permanently in the WMI Class. Note how a new "Evil" class' properties member shows the payload we have commited:
 
-![](../../../.gitbook/assets/wmi-payload-commited.png)
+![[wmi-payload-commited.png]]
 
 ## Observations
 
@@ -86,9 +86,9 @@ Using the WMI Explorer, we can inspect the class' definition which is stored in`
 
 The file contains all the classes and other relevant information about those classes. In our case, we can see the `EvilProperty` with our malicious payload inside:
 
-![](../../../.gitbook/assets/wmi-evil-mof.png)
+![[wmi-evil-mof.png]]
 
 When inspecting the OBJECTS.DATA with a hex editor, it is possible \(although not very practical nor user friendly\) to find the same data - note that the screenshot is referring to the state of the Evil class at the very beginning of its creation as this is when I took the screenshot:
 
-![](../../../.gitbook/assets/wmi-objects-data.png)
+![[wmi-objects-data.png]]
 

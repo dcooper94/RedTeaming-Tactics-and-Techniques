@@ -1,0 +1,14 @@
+{
+  "editor:toggle-source": [{ "modifiers": ["Mod", "Shift"], "key": "E" }],
+  "graph:open": [{ "modifiers": ["Mod", "Shift"], "key": "G" }],
+  "global-search:open": [{ "modifiers": ["Mod", "Shift"], "key": "F" }],
+  "switcher:open": [{ "modifiers": ["Mod"], "key": "P" }],
+  "command-palette:open": [{ "modifiers": ["Mod", "Shift"], "key": "P" }],
+  "backlink:open": [{ "modifiers": ["Mod", "Shift"], "key": "B" }],
+  "outline:open": [{ "modifiers": ["Mod", "Shift"], "key": "O" }],
+  "editor:fold-all": [{ "modifiers": ["Mod", "Shift"], "key": "." }],
+  "editor:unfold-all": [{ "modifiers": ["Mod", "Shift"], "key": "," }],
+  "app:open-settings": [{ "modifiers": ["Mod"], "key": "," }],
+  "note-composer:merge-file": [{ "modifiers": ["Mod", "Shift"], "key": "M" }],
+  "editor:insert-template": [{ "modifiers": ["Mod", "Shift"], "key": "T" }]
+}

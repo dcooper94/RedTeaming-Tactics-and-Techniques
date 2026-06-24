@@ -1,5 +1,6 @@
 ---
 description: Lateral Movement, Tunnelling, Firewall Evasion
+tags: [#lateral-movement]
 ---
 
 # From Beacon to Interactive RDP Session
@@ -10,11 +11,11 @@ This is a quick note showing how to get an interactive Remote Desktop Session (R
 
 Say we have compromised a box and we have a beacon running on it:
 
-![](<../../.gitbook/assets/image (183).png>)
+![[image (183).png]]
 
 The same compromised machine is listening on 3389, meaning it accepts incoming RDP connections:
 
-![](<../../.gitbook/assets/image (182).png>)
+![[image (182).png]]
 
 Most often you will not be able to reach the machine via RDP from the outside due to corporate and host firewalls, however not all is lost - the machine is still reachable over RDP via sock proxy capability that the beacon provides.
 
@@ -24,32 +25,30 @@ Using the beacon we control, let's create a socks proxy on port 7777. This will 
 socks 7777
 ```
 
-![](<../../.gitbook/assets/image (180).png>)
+![[image (180).png]]
 
 ## Proxychains
 
 With the socks proxy create, we can now jump onto any linux box (Kali in my case) and configure proxychains to point it to the teamserver and the port we've just exposed:
 
-![](<../../.gitbook/assets/image (181).png>)
+![[image (181).png]]
 
 We can now connect to the compromised box via RDP using xfreerdp:
 
-{% code title="attacker@kali" %}
 ```
+// attacker@kali
 proxychains xfreerdp /v:127.0.0.1:3389 /u:spotless
 ```
-{% endcode %}
 
 Below illustrates a successful RDP connection was established although the user on the other end (me) killed the session:
 
-![](<../../.gitbook/assets/image (179).png>)
+![[image (179).png]]
 
-{% hint style="warning" %}
-**If you are getting...**\
-`Error: CredSSP initialize failed, do you have correct kerberos ticket initialized?`\
-`Failed to connect, CredSSP required by server`
+> [!WARNING]
+> **If you are getting...**\
+> `Error: CredSSP initialize failed, do you have correct kerberos ticket initialized?`\
+> `Failed to connect, CredSSP required by server`
+> 
+> Suggestion is to use `xfreerdp` instead of `rdesktop` and the issue will go away.
 
-Suggestion is to use `xfreerdp` instead of `rdesktop` and the issue will go away.
-{% endhint %}
-
-![CredSSP error using rdesktop](<../../.gitbook/assets/image (178).png>)
+![[image (178).png|CredSSP error using rdesktop]]

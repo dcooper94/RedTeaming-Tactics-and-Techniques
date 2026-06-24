@@ -23,16 +23,16 @@ A high level process of the token stealing that will be carried out in this lab 
 
 Below is the C++ code implementing the above process. Note the variable `PID_TO_IMPERSONATE` that has a value of `3060` This is a process ID that we want to impersonate/steal the token from, since it is running as a domain admin and makes it for a good target:
 
-![A victim cmd.exe process that is running under the context of DC admin offense\administrator](../../.gitbook/assets/tokens-victim-3060.png)
+![[tokens-victim-3060.png|A victim cmd.exe process that is running under the context of DC admin offense\administrator]]
 
 Note the line 16, which specifies the executable that should be launched with an impersonated token, which in our case effectively is a simple netcat reverse shell calling back to the attacking system:
 
-![](../../.gitbook/assets/tokens-shell-c++.png)
+![[tokens-shell-c++.png]]
 
 This is the code if you want to compile and try it yourself:
 
-{% code title="tokens.cpp" %}
 ```cpp
+// tokens.cpp
 #include "stdafx.h"
 #include <windows.h>
 #include <iostream>
@@ -59,27 +59,25 @@ int main(int argc, char * argv[]) {
     return 0;
 }
 ```
-{% endcode %}
 
 ## Execution
 
 Launching `Tokens.exe` from the powershell console spawns a reverse shell that the attacker catches. Note how the `powershell.exe` - the parent process of `Tokens.exe` and `Tokens.exe` itself are running under `PC-Mantvydas\mantvydas`, but the newly spawned shell is running under `OFFENSE\Administrator` - this is because of the successful token theft:
 
-![](../../.gitbook/assets/token-shell-impersonated.png)
+![[token-shell-impersonated.png]]
 
 The logon for OFFESNE\administrator in the above test was of logon type 2 (interactive logon, meaning I launched a new process on the victim system using a `runas /user:administrator@offense cmd` command).&#x20;
 
 Another quick test that I wanted to do was a theft of an access token that was present in the system due to a network logon (i.e psexec, winexec, pth-winexe, etc), so I spawned a cmd shell remotely from the attacking machine to the victim machine using:
 
-{% code title="attacker@local" %}
 ```
+// attacker@local
 pth-winexe //10.0.0.2 -U offense/administrator%pass cmd
 ```
-{% endcode %}
 
 which created a new process on the victim system with a PID of 4780:
 
-![](../../.gitbook/assets/tokens-winexe.png)
+![[tokens-winexe.png]]
 
 Enumerating all the access tokens on the victim system with PowerSploit:
 
@@ -89,52 +87,52 @@ Invoke-TokenManipulation -ShowAll | ft -Wrap -Property domain,username,tokentype
 
 ...gives the below. Note the available token (highlighted) - it is the cmd.exe from above screenshot and its logon type is as expected - 3 - a network logon:
 
-![](../../.gitbook/assets/tokens-all.png)
+![[tokens-all.png]]
 
 This token again can be stolen the same way we did it earlier. Let's change the PID in `Tokens.cpp` of the process we want to impersonate to `4780`:
 
-![](../../.gitbook/assets/tokens-new-pid.png)
+![[tokens-new-pid.png]]
 
 Running the compiled code invokes a new process with the newly stolen token:
 
-![](../../.gitbook/assets/tokens-new-shell.png)
+![[tokens-new-shell.png]]
 
 note the cmd.exe has a PID 5188 - if we rerun the `Invoke-TokenManipulation`, we can see the new process is using the access token with logon type 3:
 
-![](<../../.gitbook/assets/token-new-logon-3 (1).png>)
+![[token-new-logon-3 (1).png]]
 
 ## Observations
 
 Imagine you were investigating the host we stole the tokens from, because it exhibited some anomalous behaviour. In this particularly contrived example, since `Tokens.exe` was written to the disk on the victim system, you could have a quick look at its dissasembly and conclude it is attempting to manipulate access tokens - note that we can see the victim process PID and the CMDLINE arguments:
 
-![](<../../.gitbook/assets/token-disasm (1).png>)
+![[token-disasm (1).png]]
 
 As suggested by the above, you should think about API monitoring if you want to detect these token manipulations on endpoints, but beware - this can be quite noisy.&#x20;
 
 Windows event logs of IDs `4672` and `4674` may be helpful for you as a defender also - below shows a network logon of a `pth-winexe //10.0.0.2 -U offense/administrator%pass cmd` and then later, a netcat reverse shell originating from the same logon session:
 
-![](../../.gitbook/assets/token-logs.png)
+![[token-logs.png]]
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1134" %}
+[attack.mitre.org/wiki/Technique/T1134](https://attack.mitre.org/wiki/Technique/T1134)
 
-{% embed url="https://digital-forensics.sans.org/blog/2012/03/21/protecting-privileged-domain-accounts-access-tokens" %}
+[digital-forensics.sans.org/blog/2012/03/21/protecting-privileged-domain-accounts-access-tokens](https://digital-forensics.sans.org/blog/2012/03/21/protecting-privileged-domain-accounts-access-tokens)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/SecGloss/p-gly#-security-primary-token-gly" %}
+[docs.microsoft.com/en-us/windows/desktop/SecGloss/p-gly#-security-primary-token-gly](https://docs.microsoft.com/en-us/windows/desktop/SecGloss/p-gly#-security-primary-token-gly)
 
-{% embed url="https://technet.microsoft.com/pt-pt/library/cc783557%28v=ws.10%29.aspx?f=255&MSPPError=-2147217396" %}
+[technet.microsoft.com/pt-pt/library/cc783557%28v=ws.10%29.aspx?f=255&MSPPError=-2147217396](https://technet.microsoft.com/pt-pt/library/cc783557%28v=ws.10%29.aspx?f=255&MSPPError=-2147217396)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/secauthz/access-tokens" %}
+[docs.microsoft.com/en-us/windows/desktop/secauthz/access-tokens](https://docs.microsoft.com/en-us/windows/desktop/secauthz/access-tokens)
 
-{% embed url="https://clymb3r.wordpress.com/2013/11/03/powershell-and-token-impersonation/" %}
+[clymb3r.wordpress.com/2013/11/03/powershell-and-token-impersonation](https://clymb3r.wordpress.com/2013/11/03/powershell-and-token-impersonation/)
 
-{% embed url="https://msdn.microsoft.com/en-us/library/windows/desktop/aa446671(v=vs.85).aspx" %}
+[msdn.microsoft.com/en-us/library/windows/desktop/aa446671(v=vs.85).aspx](https://msdn.microsoft.com/en-us/library/windows/desktop/aa446671(v=vs.85).aspx)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/api/winbase/nf-winbase-createprocesswithtokenw" %}
+[docs.microsoft.com/en-us/windows/desktop/api/winbase/nf-winbase-createprocesswithtokenw](https://docs.microsoft.com/en-us/windows/desktop/api/winbase/nf-winbase-createprocesswithtokenw)
 
-{% embed url="https://msdn.microsoft.com/en-us/library/windows/desktop/aa446617(v=vs.85).aspx" %}
+[msdn.microsoft.com/en-us/library/windows/desktop/aa446617(v=vs.85).aspx](https://msdn.microsoft.com/en-us/library/windows/desktop/aa446617(v=vs.85).aspx)
 
-{% embed url="https://www.youtube.com/watch?v=Ed_2BKn3QR8" %}
+[www.youtube.com/watch?v=Ed_2BKn3QR8](https://www.youtube.com/watch?v=Ed_2BKn3QR8)
 
 [https://www.blackhat.com/docs/eu-17/materials/eu-17-Atkinson-A-Process-Is-No-One-Hunting-For-Token-Manipulation.pdf](https://www.blackhat.com/docs/eu-17/materials/eu-17-Atkinson-A-Process-Is-No-One-Hunting-For-Token-Manipulation.pdf)

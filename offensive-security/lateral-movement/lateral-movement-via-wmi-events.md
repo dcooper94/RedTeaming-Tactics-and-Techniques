@@ -4,9 +4,9 @@ This is a quick lab to familiariaze with a lateral movement technique using WMI 
 
 See my other lab related to persistence using WMI events:
 
-{% content-ref url="../persistence/t1084-abusing-windows-managent-instrumentation/" %}
+
 [t1084-abusing-windows-managent-instrumentation](../persistence/t1084-abusing-windows-managent-instrumentation/)
-{% endcontent-ref %}
+
 
 ## Walkthrough
 
@@ -93,7 +93,7 @@ namespace wmisubscription_lateralmovement
 
 Once `connect` method is called, a couple of connections from the attacking machine (top right) are initiated to the target machine `192.168.56.105` (bottom right) over port TCP 135 (traffic receiver is svchost.exe as it's hosting the RPC service through which we are communicating):
 
-![](<../../.gitbook/assets/image (655).png>)
+![[image (655).png]]
 
 After the code has executed, it will have created the WMI event filters, consumers and bind them on the target host `192.168.56.105`.
 
@@ -112,7 +112,7 @@ Get-WmiObject -Class __FilterToConsumerBinding -Namespace root\subscription
 
 Below shows output of the `evilSpotlessFilter` WMI filter we created on the target system:
 
-![](<../../.gitbook/assets/image (656).png>)
+![[image (656).png]]
 
 ## Demo
 
@@ -122,11 +122,11 @@ Below shows the WMI events based lateral movement technique in action:
 * In the top right corner - ther is a ProcMon that is set to capture when a new `mspaint.exe` process starts. In our case, it should start once there is a new logon session created on the system (remember, because of the `evilSpotlessFilter`)
 * In the bottom right corner there is a powershell console initiating a new logon session with `runas.exe`. Once the authentication succeeds, a new logon session is created, cmd.exe is spawned and the WMI event filter `evilSpotlessFilter` is triggered and WMI event consumer `evilSpotlessConsumer` kicks off the `mspaint.exe`:
 
-![](../../.gitbook/assets/wmi-events-lateralmovement.gif)
+![[wmi-events-lateralmovement.gif]]
 
 ## References
 
-{% embed url="https://www.mdsec.co.uk/2020/09/i-like-to-move-it-windows-lateral-movement-part-1-wmi-event-subscription/" %}
+[www.mdsec.co.uk/2020/09/i-like-to-move-it-windows-lateral-movement-part-1-wmi-event-subscription](https://www.mdsec.co.uk/2020/09/i-like-to-move-it-windows-lateral-movement-part-1-wmi-event-subscription/)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/win32/wmisdk/commandlineeventconsumer" %}
+[docs.microsoft.com/en-us/windows/win32/wmisdk/commandlineeventconsumer](https://docs.microsoft.com/en-us/windows/win32/wmisdk/commandlineeventconsumer)
 

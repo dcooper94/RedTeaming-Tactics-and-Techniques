@@ -2,7 +2,7 @@
 
 Below is a graphical representation of the key components of Identity Access Mangement in AWS:
 
-![](<../../.gitbook/assets/image (730).png>)
+![[image (730).png]]
 
 * Organization / root / management account can have multiple other accounts
 * An account can have Users, Groups, Roles and Policies

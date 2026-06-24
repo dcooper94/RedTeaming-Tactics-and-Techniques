@@ -19,8 +19,8 @@ Related notes [Preventing 3rd Party DLLs from Injecting into your Malware](preve
 
 We can enable the ACG mitigation policy for a local process with the following code:
 
-{% code title="mitigationpolicy.cpp" %}
 ```cpp
+// mitigationpolicy.cpp
 #include <iostream>
 #include <Windows.h>
 
@@ -31,11 +31,10 @@ int main()
 	SetProcessMitigationPolicy(ProcessDynamicCodePolicy, &dcp, sizeof(dcp));
 }
 ```
-{% endcode %}
 
 We can check the ACG policy is applied with Process Hacker:
 
-![mitigationpolicy.exe is running with ACG policy enabled](<../../.gitbook/assets/image (490).png>)
+![[image (490).png|mitigationpolicy.exe is running with ACG policy enabled]]
 
 ## Injecting a DLL into ACG Enabled Process
 
@@ -43,15 +42,15 @@ Now that we have a process that is running with Arbitrary Code Guard enabled, we
 
 Below shows how our malicious `injectorDllShellcode.dll` is being injected into the ACG enabled process `mitigationpolicy.exe`, but never gets loaded - **Load Image** event in Procmon is missing and the reverse shell is never returned:
 
-![ACG prevents dynamic code execution, shellcode not executed](../../.gitbook/assets/acg-on.gif)
+![[acg-on.gif|ACG prevents dynamic code execution, shellcode not executed]]
 
 To prove that the DLL works - below is a gif showing how the `mitigationpolicy.exe` is launched with the ACG policy switched off:
 
-![shellcode is executed and reverse shell is returned](../../.gitbook/assets/acg-off.gif)
+![[acg-off.gif|shellcode is executed and reverse shell is returned]]
 
 ...procmon shows that `injectorDllShellcode.dll` was loaded this time:
 
-![](<../../.gitbook/assets/image (492).png>)
+![[image (492).png]]
 
 ## Injecting Shellcode into ACG Enabled Process
 
@@ -59,16 +58,15 @@ Although the ACG in `mitigationpolicy.exe` neutralized our malicious `injectorDl
 
 Repeating:
 
-{% hint style="warning" %}
-Remotes processes (i.e EDRs) could use `VirtualAllocEx` and `WriteProcessMemory`to write and execute shellcode in an ACG enabled process rendering ACG useless.
-{% endhint %}
+> [!WARNING]
+> Remotes processes (i.e EDRs) could use `VirtualAllocEx` and `WriteProcessMemory`to write and execute shellcode in an ACG enabled process rendering ACG useless.
 
 Below shows that indeed it's still possible for a remote process to inject shellcode to a process protected with ACG:
 
 * mitigationpolicy.exe is my program running with `ProcessDynamicCodePolicy` enabled
 * injector.exe (remote process in this context) is a shellcode injector that will inject shellcode into ACG enabled mitigationpolicy.exe with PID 7752
 
-![once injector is run against mitigationpolicy.exe, shellcode is executed](<../../.gitbook/assets/image (491).png>)
+![[image (491).png|once injector is run against mitigationpolicy.exe, shellcode is executed]]
 
 At first, I was confused as to why this was possible, but [@\_xpn\_](https://twitter.com/\_xpn\_) suggested that ACG's primary purpose was to: "...stop exploit chains where the first step of ROP was to set a page RWX and then write further shellcode to that page..." and suddenly it all made sense.
 
@@ -76,12 +74,12 @@ At first, I was confused as to why this was possible, but [@\_xpn\_](https://twi
 
 After posting these notes on twitter, I got some replies that I wanted to highlight here:
 
-![](<../../.gitbook/assets/image (494).png>)
+![[image (494).png]]
 
 ## Code
 
-{% tabs %}
-{% tab title="mitigationpolicy.exe" %}
+
+
 ```cpp
 #include <iostream>
 #include <Windows.h>
@@ -100,9 +98,9 @@ int main()
 	return 0;
 }
 ```
-{% endtab %}
 
-{% tab title="injectorDllShellcode.dll" %}
+
+
 ```cpp
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
@@ -164,9 +162,9 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
 
 ```
-{% endtab %}
 
-{% tab title="injector.exe" %}
+
+
 ```cpp
 #include <iostream>
 #include <Windows.h>
@@ -221,11 +219,11 @@ int main(int argc, char *argv[]) {
 }
 
 ```
-{% endtab %}
-{% endtabs %}
+
+
 
 ## References
 
-{% embed url="https://blog.xpnsec.com/protecting-your-malware/" %}
+[blog.xpnsec.com/protecting-your-malware](https://blog.xpnsec.com/protecting-your-malware/)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessmitigationpolicy" %}
+[docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessmitigationpolicy](https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setprocessmitigationpolicy)

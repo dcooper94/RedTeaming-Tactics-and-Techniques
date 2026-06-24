@@ -1,5 +1,6 @@
 ---
 description: Credential Access, Keylogger
+tags: [#credential-access]
 ---
 
 # Pulling Web Application Passwords by Hooking HTML Input Fields
@@ -22,7 +23,7 @@ The technique is useful and can be executed when:
 
 Password fields in web applications are `input` fields with attribute `type` set to `password` as shown below:
 
-![HTML markup snippet from github.com](<../../.gitbook/assets/image (417).png>)
+![[image (417).png|HTML markup snippet from github.com]]
 
 All HTML elements can respond to various types of events and execute code when those occur. For example, input fields can respond to events such `onFocus` (when an element gets focus), `onBlur` (when an element loses focus) and many other events amongst which are various keyboard events `onKeyPress`, `onKeyDown`, and `onKeyUp`.&#x20;
 
@@ -36,9 +37,8 @@ Below is a simple JavaScript/jQuery code that hooks HTML `password` fields:
 t=""; $('input[type="password"]').onkeypress = function (e) { t+=e.key; console.log(t); localStorage.setItem("pw", t); } 
 ```
 
-{% hint style="info" %}
-The above code only captures the password field, but username could be captured the same way.
-{% endhint %}
+> [!INFO]
+> The above code only captures the password field, but username could be captured the same way.
 
 The above code needs to be executed in the context of the target web application you want to capture the password for. Once the above code snippet is executed, it performs the following:
 
@@ -47,9 +47,8 @@ The above code needs to be executed in the context of the target web application
   * the function prints out captured keys into the browser's console view for this demo's purposes
   * the function stores the captured password in browser's `localStorage` key `pw`
 
-{% hint style="warning" %}
-If the user closes the browser or even a tab with the web application you are targeting before the password was captured, the hooks will be cleared and the binding / hooking processes will need to be repeated again.
-{% endhint %}
+> [!WARNING]
+> If the user closes the browser or even a tab with the web application you are targeting before the password was captured, the hooks will be cleared and the binding / hooking processes will need to be repeated again.
 
 ## Demo
 
@@ -60,7 +59,7 @@ Below shows the hooking in action inside the Chrome dev tools (can be done the s
 * Dummy password is being printed to the dev console
 * Dummy password is saved into application's localStorage `pw` key
 
-![](<../../.gitbook/assets/hooking-web-password-fields (1).gif>)
+![[hooking-web-password-fields (1).gif]]
 
 ## Reading Captured Password
 
@@ -74,7 +73,7 @@ You could again RDP into the compromised system, open up Chrome dev tools (F12) 
 localStorage.pw
 ```
 
-![Password that was captured earlier](<../../.gitbook/assets/image (407).png>)
+![[image (407).png|Password that was captured earlier]]
 
 ...or simply navigate to the dev console and open Application > LocalStorage section as shown in the above gif.
 
@@ -84,24 +83,22 @@ The `localStorage` information is also stored on the disk. For Chrome, the files
 
 Below shows `password` (lime) for github.com (blue) stored in `localStorage` key `pw` (orange):
 
-![009691.log](<../../.gitbook/assets/image (419).png>)
+![[image (419).png|009691.log]]
 
-{% hint style="info" %}
-Use an obscure, but descriptive localStorage key to store the captured password in. It will make it easier for you to retrieve the stored password later.
-{% endhint %}
+> [!INFO]
+> Use an obscure, but descriptive localStorage key to store the captured password in. It will make it easier for you to retrieve the stored password later.
 
 ### Exfiltration
 
 The initial code could be easily adapted to exfiltrate the password to an attacker controlled web server on each key press, taking away the need to RDP to the target system or fiddling with localStorage files.
 
-{% hint style="info" %}
-Use encrypted communications when transferring the password out of the compromised environment.
-{% endhint %}
+> [!INFO]
+> Use encrypted communications when transferring the password out of the compromised environment.
 
 ## Detection
 
 For a start, the .log file (009691.log in my case) in C:\Users\spotless\AppData\Local\Google\Chrome\User Data\Default\Local Storage\leveldb, contains the actual hooking code we inserted into Chrome's dev console for the target web application:&#x20;
 
-![](<../../.gitbook/assets/image (421).png>)
+![[image (421).png]]
 
 ...suggesting that one could monitor C:\Users\\\<user>\AppData\Local\Google\Chrome\User Data\Default\Local Storage\leveldb for \*.log files that contain jQuery/vanilla JavaScript `password` field selector and keywords `onkeypress`, `onkeyup`, `onkeydown`.&#x20;

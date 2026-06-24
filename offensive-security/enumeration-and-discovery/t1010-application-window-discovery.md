@@ -6,25 +6,23 @@ description: Discovery
 
 Retrieving running application window titles:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 get-process | where-object {$_.mainwindowtitle -ne ""} | Select-Object mainwindowtitle
 ```
-{% endcode %}
 
-![](../../.gitbook/assets/window-titles.png)
+![[window-titles.png]]
 
 A COM method that also includes the process path and window location coordinates:
 
-{% code title="attacker@victim" %}
 ```csharp
+// attacker@victim
 [activator]::CreateInstance([type]::GetTypeFromCLSID("13709620-C279-11CE-A49E-444553540000")).windows()
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Annotation 2019-06-18 224603.png>)
+![[Annotation 2019-06-18 224603.png]]
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1010" %}
+[attack.mitre.org/wiki/Technique/T1010](https://attack.mitre.org/wiki/Technique/T1010)
 

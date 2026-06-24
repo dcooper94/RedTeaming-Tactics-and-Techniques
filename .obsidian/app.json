@@ -1,0 +1,20 @@
+{
+  "foldIndent": true,
+  "showLineNumber": true,
+  "spellcheck": false,
+  "defaultViewMode": "source",
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "current",
+  "newLinkFormat": "relative",
+  "useMarkdownLinks": false,
+  "attachmentFolderPath": ".gitbook/assets",
+  "promptDelete": true,
+  "legacyEditor": false,
+  "livePreview": true,
+  "strictLineBreaks": false,
+  "showFrontmatter": true,
+  "readableLineLength": true,
+  "tabSize": 4,
+  "vimMode": false,
+  "enabledCssSnippets": ["red-team-theme"]
+}

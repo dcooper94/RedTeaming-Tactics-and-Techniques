@@ -34,21 +34,20 @@ This lab assumes that the attacker has already gained a meterpreter shell from t
 
 Metasploit's post-exploitation module `windows/manage/reflective_dll_inject` configured:
 
-![](<../../.gitbook/assets/reflective-dll-options (1).png>)
+![[reflective-dll-options (1).png]]
 
-{% hint style="info" %}
-`Reflective_dll.x64.dll` is the DLL compiled from Steven Fewer's [reflective dll injection](https://github.com/stephenfewer/ReflectiveDLLInjection) project on github.
-{% endhint %}
+> [!INFO]
+> `Reflective_dll.x64.dll` is the DLL compiled from Steven Fewer's [reflective dll injection](https://github.com/stephenfewer/ReflectiveDLLInjection) project on github.
 
 After executing the post exploitation module, the below graphic shows how the notepad.exe executes the malicious payload that came from a reflective DLL that was sent over the wire from the attacker's system:
 
-![](../../.gitbook/assets/reflective-dll-gif.gif)
+![[reflective-dll-gif.gif]]
 
 ## Observations
 
 Once the metasploit's post-exploitation module is run, the procmon accurately registers that notepad created a new thread:
 
-![](../../.gitbook/assets/reflective-dll-injection-new-thread.png)
+![[reflective-dll-injection-new-thread.png]]
 
 Let's see if we can locate where the contents of `reflective_dll.x64.dll` are injected into the victim process when the metasploit's post-exploitation module executes.
 
@@ -62,7 +61,7 @@ For that, lets debug notepad in WinDBG and set up a breakpoint for `MessageBoxA`
 
 The breakpoint is hit:
 
-![](../../.gitbook/assets/reflective-dll-bp-hit.png)
+![[reflective-dll-bp-hit.png]]
 
 At this point, we can inspect the stack with `kv` and see the call trace. A couple of points to note here:
 
@@ -72,11 +71,11 @@ At this point, we can inspect the stack with `kv` and see the call trace. A coup
 * inspecting the EIP pointer (`r eip`) where the code execution is paused at the moment, we see that it is the same `0000000077331304` address, which means that the earlier mentioned instruction `call qword ptr [00000000031e9208]` is the actual call to `USER32!MessageBoxA`
 * This means that prior to the above mentioned instruction, there must be references to the variables that are passed to the `MessageBoxA` function:
 
-![](../../.gitbook/assets/reflective-dll-injection-mem-analysis.png)
+![[reflective-dll-injection-mem-analysis.png]]
 
 If we inspect the `00000000031e103e` 0x30 bytes earlier, we can see some suspect memory addresses and the call instruction almost immediatley after that:
 
-![](../../.gitbook/assets/reflective-dll-injection-variables.png)
+![[reflective-dll-injection-variables.png]]
 
 Upon inspecting those two addresses - they are indeed holding the values the `MessageBoxA` prints out upon successful DLL injection into the victim process:
 
@@ -87,15 +86,15 @@ Upon inspecting those two addresses - they are indeed holding the values the `Me
 00000000`031e92e8  "Hello from DllMain!"
 ```
 
-![](../../.gitbook/assets/reflective-dll-injection-strings.png)
+![[reflective-dll-injection-strings.png]]
 
 Looking at the output of the `!address` function and correlating it with the addresses the variables are stored at, it can be derived that the memory region allocated for the evil dll is located in the range `031e0000 - 031f7000`:
 
-![](../../.gitbook/assets/reflective-dll-injection-range.png)
+![[reflective-dll-injection-range.png]]
 
 Indeed, if we look at the `031e0000`, we can see the executable header (MZ) and the strings fed into the `MessageBoxA` API can be also found further into the binary:
 
-![](../../.gitbook/assets/reflective-dll-strings.gif)
+![[reflective-dll-strings.gif]]
 
 ## Detecting Reflective DLL Injection with Volatility
 
@@ -109,7 +108,7 @@ volatility -f /mnt/memdumps/w7-reflective-dll.bin malfind --profile Win7SP1x64
 
 Note how in our case, volatility discovered the reflective dll injection we inspected manually above with WindDBG:
 
-![](../../.gitbook/assets/reflective-dll-volatility.png)
+![[reflective-dll-volatility.png]]
 
 ## Implementing Reflective DLL Injection
 
@@ -141,25 +140,25 @@ In order to load the depending libraries, we need to parse the DLL headers and:
 
 Before proceeding, note that my test DLL I will be using for this POC is just a simple MessageBox that gets called once the DLL is loaded into the process:
 
-![](<../../.gitbook/assets/image (199).png>)
+![[image (199).png]]
 
 Below shows the first Import Descriptor of my test DLL. The first descriptor suggests that the DLL imports User32.dll and its function MessageBoxA. On the left, we can see a correctly resolved library name that is about to be loaded into the memory process with `LoadLibrary`:
 
-![](<../../.gitbook/assets/image (196).png>)
+![[image (196).png]]
 
 Below shows that the user32.dll gets loaded successfully:
 
-![](../../.gitbook/assets/user32.gif)
+![[user32.gif]]
 
 After the Import Descriptor is read and its corresponding library is loaded, we need to loop through all the thunks (data structures describing functions the library imports), resolve their addresses using `GetProcAddress` and put them into the IAT so that the DLL can reference them when needed:
 
-![](<../../.gitbook/assets/image (197).png>)
+![[image (197).png]]
 
-![](<../../.gitbook/assets/image (198).png>)
+![[image (198).png]]
 
 Once we have looped through all the Import Decriptors and their thunks, the IAT is considered resolved and we can now execute the DLL. Below shows a successfully loaded and executed DLL that pops a message box:
 
-![](../../.gitbook/assets/reflectivedll-messagebox.gif)
+![[reflectivedll-messagebox.gif]]
 
 ### Code
 
@@ -296,10 +295,10 @@ int main()
 
 ## References
 
-{% embed url="https://github.com/stephenfewer/ReflectiveDLLInjection" %}
+[github.com/stephenfewer/ReflectiveDLLInjection](https://github.com/stephenfewer/ReflectiveDLLInjection)
 
-{% embed url="https://github.com/volatilityfoundation/volatility/wiki/Command-Reference-Mal" %}
+[github.com/volatilityfoundation/volatility/wiki/Command-Reference-Mal](https://github.com/volatilityfoundation/volatility/wiki/Command-Reference-Mal)
 
-{% embed url="https://www.joachim-bauch.de/tutorials/loading-a-dll-from-memory/" %}
+[www.joachim-bauch.de/tutorials/loading-a-dll-from-memory](https://www.joachim-bauch.de/tutorials/loading-a-dll-from-memory/)
 
-{% embed url="https://github.com/nettitude/SimplePELoader/" %}
+[github.com/nettitude/SimplePELoader](https://github.com/nettitude/SimplePELoader/)

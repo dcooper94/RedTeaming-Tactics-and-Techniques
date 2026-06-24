@@ -18,7 +18,7 @@ Firstly, some LAB setup - we need to create a child domain controller as well as
 
 After installing a child domain `red.offense.local` of a parent domain `offense.local`, Active Directory Domains and Trusts show the parent-child relationship between the domains as well as their default trusts:
 
-![](../../.gitbook/assets/domains-trusts1.png)
+![[domains-trusts1.png]]
 
 Trusts between the two domains could be checked from powershell by issuing:
 
@@ -28,7 +28,7 @@ Get-ADTrust -Filter *
 
 The first console shows the domain trust relationship from `offense.local` perspective and the second one from `red.offense.local`. Note the direction is `BiDirectional` which means that members can authenticate from one domain to another when they want to access shared resources:
 
-![](../../.gitbook/assets/domains-trusts2.png)
+![[domains-trusts2.png]]
 
 Similar, but very simplified information could be gleaned from a native Windows binary:
 
@@ -36,7 +36,7 @@ Similar, but very simplified information could be gleaned from a native Windows 
 nltest /domain_trusts
 ```
 
-![](../../.gitbook/assets/domains-nltest.png)
+![[domains-nltest.png]]
 
 Powershell way of checking trust relationships:
 
@@ -44,7 +44,7 @@ Powershell way of checking trust relationships:
 ([System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()).GetAllTrustRelationships()
 ```
 
-![](../../.gitbook/assets/domains-trusts-powershell.png)
+![[domains-trusts-powershell.png]]
 
 ### Forests
 
@@ -52,23 +52,23 @@ After installing a new DC `dc-blue` in a new forest, let's setup a one way trust
 
 First of, setting up conditional DNS forwarders on both DCs:
 
-![](../../.gitbook/assets/domain-trust-conditional-forwarders.png)
+![[domain-trust-conditional-forwarders.png]]
 
 Adding a new trust by making `dc-mantvydas` a trusted domain:
 
-![](../../.gitbook/assets/domain-trust-one-way-incoming.png)
+![[domain-trust-one-way-incoming.png]]
 
 Setting the trust type to `Forest`:
 
-![](../../.gitbook/assets/domain-trusts-forest.png)
+![[domain-trusts-forest.png]]
 
 Incoming trust for `dc-mantvydas.offense.local` is now created:
 
-![](../../.gitbook/assets/domain-trust-one-way-incoming-created.png)
+![[domain-trust-one-way-incoming-created.png]]
 
 Testing nltest output:
 
-![](../../.gitbook/assets/domain-trusts-nltest.png)
+![[domain-trusts-nltest.png]]
 
 ### Forests Test
 
@@ -76,27 +76,27 @@ Now that the trust relationship is set, it is easy to check if it was done corre
 
 Note how the user on `dc-mantvydas.offense.local` is not able to share a folder to `defense\administrator` (because `offense.local` does not trust `defense.local`):
 
-![](../../.gitbook/assets/domain-trusts-notfound.png)
+![[domain-trusts-notfound.png]]
 
 However, `dc-blue.defense.local`, trusts `offense.local`, hence is able to share a resource to one of the members of `offense.local` - forest trust relationships work as intended:
 
-![](<../../.gitbook/assets/domain-trusts-shared (1).png>)
+![[domain-trusts-shared (1).png]]
 
 ## Back to Empire: From DA to EA
 
 Assume we got our first agent back from the computer `PC-MANTVYDAS$`:
 
-![](../../.gitbook/assets/empire-1st-agent.png)
+![[empire-1st-agent.png]]
 
 ### Credential Dumping
 
 Since the agent is running within a high integrity process, let's dump credentials - some interesting credentials can be observed for a user in `red.offense.local` domain:
 
-![](../../.gitbook/assets/empire-mimikatz.png)
+![[empire-mimikatz.png]]
 
 Listing the processes with `ps`, we can see a number of process running under the `red\spotless` account. Here is one:
 
-![](<../../.gitbook/assets/empire-ps (1).png>)
+![[empire-ps (1).png]]
 
 The domain user is of interest, so we would use a `usemodule situational_awareness/network/powerview/get_user` command to enumerate the red\spotless user and see if it is a member of any interesting groups, however my empire instance did not seem to return any results for this command. For this lab, assume it showed that the user red\spotless is a member of `Administrators` group on the `red.offense.local` domain.
 
@@ -104,7 +104,7 @@ The domain user is of interest, so we would use a `usemodule situational_awarene
 
 Let's steal the token of a process with PID 4900 that runs with `red\spotless` credentials:
 
-![](../../.gitbook/assets/empire-stealtoken.png)
+![[empire-stealtoken.png]]
 
 ### DC Recon
 
@@ -114,7 +114,7 @@ After assuming privileges of the member red\spotless, let's get the Domain Contr
 shell [DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().DomainControllers | ForEach-Object { $_.Name }
 ```
 
-![](../../.gitbook/assets/empire-get-dcname.png)
+![[empire-get-dcname.png]]
 
 Check if we have admin access to the `DC-RED`:
 
@@ -122,7 +122,7 @@ Check if we have admin access to the `DC-RED`:
 shell dir \\dc-red.red.offense.local\c$
 ```
 
-![](../../.gitbook/assets/empire-dir-childdc.png)
+![[empire-dir-childdc.png]]
 
 We are lucky, the user is a domain admin as can be seen from the above screenshot.
 
@@ -134,11 +134,11 @@ Let's get an agent from `DC-RED` - note that the credentials are coming from the
 usemodule lateral_movement/invoke_wmi
 ```
 
-![](../../.gitbook/assets/empire-lateral-childdc.png)
+![[empire-lateral-childdc.png]]
 
 We now have the agent back, let's just confirm it:
 
-![](../../.gitbook/assets/empire-childdc-recon.png)
+![[empire-childdc-recon.png]]
 
 ### Checking Trust Relationships
 
@@ -148,7 +148,7 @@ Once in DC-RED, let's check any domain trust relationships:
 usemodule situational_awareness/network/powerview/get_domain_trust
 ```
 
-![](../../.gitbook/assets/empire-trusts.png)
+![[empire-trusts.png]]
 
 We see that the `red.offense.local` is a child domain of `offense.local` domain, which is automatically trusting and trusted (two way trust/bidirectional) with `offense.local` - read on.
 
@@ -165,7 +165,7 @@ First of, getting a SID of a `krbtgt` user account in `offense.local`:
 (Empire: powershell/management/user_to_sid) > run
 ```
 
-![](../../.gitbook/assets/empire-krbtgt-sid.png)
+![[empire-krbtgt-sid.png]]
 
 After getting a SID of the `offense.local\krbtgt`, we need to get a password hash of the `krbtgt` account in the compromised DC `DC-RED` (we can extract it since we are a domain admin in `red.offense.local`):
 
@@ -175,7 +175,7 @@ After getting a SID of the `offense.local\krbtgt`, we need to get a password has
 (Empire: powershell/credentials/mimikatz/dcsync) > execute
 ```
 
-![](../../.gitbook/assets/empire-krbtgt-hash.png)
+![[empire-krbtgt-hash.png]]
 
 ### Golden Ticket for Root Domain
 
@@ -195,11 +195,11 @@ Note how during `sids` specification, we replaced the last three digits from 502
 set sids S-1-5-21-4172452648-1021989953-2368502130-519
 ```
 
-![](../../.gitbook/assets/empire-golden-ticket.png)
+![[empire-golden-ticket.png]]
 
 The `CredID` property in the dcsync module comes from the Empire's credential store which previously got populated by our mimikatz'ing:
 
-![](../../.gitbook/assets/empire-creds.png)
+![[empire-creds.png]]
 
 We now should be Enterprise Admin in `offense.local`and we can test it by listing the admin share `c$` of the `dc-mantvydas.offense.local:`
 
@@ -207,13 +207,13 @@ We now should be Enterprise Admin in `offense.local`and we can test it by listin
 shell dir \\dc-mantvydas\c$
 ```
 
-![](../../.gitbook/assets/empire-enterprise-admin.png)
+![[empire-enterprise-admin.png]]
 
 ### Agent from Root Domain
 
 For the sake of fun and wrapping this lab up, let's get an agent from the `dc-mantvydas`:
 
-![](../../.gitbook/assets/empire-agent-from-rootdomain.png)
+![[empire-agent-from-rootdomain.png]]
 
 ## Alternative: Exploit writeable Configuration NC
 
@@ -230,14 +230,14 @@ SID filtering prevents the SID history attack, but not this one.
 
 ## References
 
-{% embed url="https://enigma0x3.net/2016/01/28/an-empire-case-study/" %}
+[enigma0x3.net/2016/01/28/an-empire-case-study](https://enigma0x3.net/2016/01/28/an-empire-case-study/)
 
-{% embed url="http://www.harmj0y.net/blog/redteaming/trusts-you-might-have-missed/" %}
+[www.harmj0y.net/blog/redteaming/trusts-you-might-have-missed](http://www.harmj0y.net/blog/redteaming/trusts-you-might-have-missed/)
 
-{% embed url="https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc731404(v%3dws.10)" %}
+[docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc731404(v%3dws.10)](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc731404(v%3dws.10))
 
-{% embed url="https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adtrust?view=winserver2012-ps" %}
+[docs.microsoft.com/en-us/powershell/module/activedirectory/get-adtrust?view=winserver2012-ps](https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adtrust?view=winserver2012-ps)
 
-{% embed url="https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc759554(v=ws.10)" %}
+[docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc759554(v=ws.10)](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc759554(v=ws.10))
 
-{% embed url="https://support.microsoft.com/en-gb/help/243330/well-known-security-identifiers-in-windows-operating-systems" %}
+[support.microsoft.com/en-gb/help/243330/well-known-security-identifiers-in-windows-operating-systems](https://support.microsoft.com/en-gb/help/243330/well-known-security-identifiers-in-windows-operating-systems)

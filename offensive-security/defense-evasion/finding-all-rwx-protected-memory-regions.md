@@ -1,5 +1,6 @@
 ---
 description: Code Injection, Defense Evasion
+tags: [#defense-evasion]
 ---
 
 # Enumerating RWX Protected Memory Regions for Code Injection
@@ -35,7 +36,7 @@ mbi.AllocationProtect == PAGE_EXECUTE_READWRITE
 
 Once the breakpoint is hit, we can see that the memory region 27c727a0000 is RX protected, is private and commited and now contains our shellcode (starting with bytes fc 48 83 e4) :
 
-![](<../../.gitbook/assets/image (222).png>)
+![[image (222).png]]
 
 If you noticed and were wondering...
 
@@ -59,16 +60,15 @@ If you noticed and were wondering...
 
 Let's build the program and run it - we can see we got some meterpreter shells.
 
-![](../../.gitbook/assets/memoryenumerationshell.gif)
+![[memoryenumerationshell.gif]]
 
-{% hint style="warning" %}
-The below provided code is a dirty POC and may crash certain processes and the Visual Studio banner appearing in the above GIF proves it - the shellcode got injected into Visual Studio (devenv.exe) that crashed and restarted itself.
-{% endhint %}
+> [!WARNING]
+> The below provided code is a dirty POC and may crash certain processes and the Visual Studio banner appearing in the above GIF proves it - the shellcode got injected into Visual Studio (devenv.exe) that crashed and restarted itself.
 
 ## Code
 
-{% tabs %}
-{% tab title="rwx-hunter.cpp" %}
+
+
 ```cpp
 #include "pch.h"
 #include <iostream>
@@ -111,9 +111,9 @@ int main()
 	return 0;
 }
 ```
-{% endtab %}
-{% endtabs %}
+
+
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualqueryex" %}
+[docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualqueryex](https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualqueryex)

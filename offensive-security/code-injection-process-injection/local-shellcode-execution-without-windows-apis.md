@@ -4,7 +4,7 @@ It is possible to execute shellcode from a local process without using the well 
 
 To achieve this, we need to use MS Visual C++ and a `section` pragma, alongside the `allocate` declarator specifier, to tell the compiler that we want our shellcode to be allocated inside the `.text` section of our portable executable, which eliminates the need for the program to allocate RWX memory blob for storing the shellcode. Additionally, we need to cast the array containing our shellcode into a function pointer and invoke it - this allows us to skip the `CreateThread` or similar Windows APIs that are usually used for jumping to the shellcode.
 
-![](../../.gitbook/assets/shellcode-without-winapis.gif)
+![[shellcode-without-winapis.gif]]
 
 ## Code
 
@@ -53,10 +53,10 @@ int main()
 
 After compiling the above code and inspecting the `.text` section of the PE, we can see our shellcode right at the beginning:
 
-![](<../../.gitbook/assets/image (608).png>)
+![[image (608).png]]
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/cpp/preprocessor/section?view=vs-2019" %}
+[docs.microsoft.com/en-us/cpp/preprocessor/section?view=vs-2019](https://docs.microsoft.com/en-us/cpp/preprocessor/section?view=vs-2019)
 
-{% embed url="https://docs.microsoft.com/en-us/cpp/cpp/allocate?view=vs-2019" %}
+[docs.microsoft.com/en-us/cpp/cpp/allocate?view=vs-2019](https://docs.microsoft.com/en-us/cpp/cpp/allocate?view=vs-2019)

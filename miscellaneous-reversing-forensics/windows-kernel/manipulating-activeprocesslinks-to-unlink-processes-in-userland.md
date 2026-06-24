@@ -4,9 +4,8 @@ The purpose of this lab is to look into how Windows kernel rootkits hide / unlin
 
 This is going to be a high level overview and no kernel code will be written, instead, kernel memory structures will be manipulated manually with WinDBG.
 
-{% hint style="info" %}
-Lab is performed on Windows 10 Professional x64, 1903.
-{% endhint %}
+> [!INFO]
+> Lab is performed on Windows 10 Professional x64, 1903.
 
 **Update 1**  
 Some replies to my tweet to this post suggested that PatchGuard would normally kick-in and BSOD the OS, which I am sure is the case, although in my lab I experienced no BSODs even though the kernel stayed patched with an unlinked process for 12+ hours.
@@ -17,7 +16,7 @@ I realized that my Windows VM is running in test mode with no integrity checks, 
 **Update 3**  
 Thanks ****[**@**FuzzySec](https://twitter.com/FuzzySec) for clarifying the BSOD/PatchGuard matter!
 
-![](../../.gitbook/assets/image%20%2834%29.png)
+![[image%20%2834%29.png]]
 
 ## Key Structures
 
@@ -33,7 +32,7 @@ Below shows a snippet of the structure and a highlighted a member that is **key*
 dt _eprocess
 ```
 
-![](../../.gitbook/assets/image%20%28190%29.png)
+![[image%20%28190%29.png]]
 
 ### \_LIST\_ENTRY
 
@@ -41,7 +40,7 @@ In programming, there is a data structure known as `doubly-linked list` . It con
 
 Simplified \(head and tail omitted\) graphical representation of the doubly-linked list is shown below:
 
-![](../../.gitbook/assets/image%20%28285%29.png)
+![[image%20%28285%29.png]]
 
 `LIST_ENTRY` is the doubly-linked list equivalent data structure in Windows kernel and is defined as: 
 
@@ -62,7 +61,7 @@ Effectively, this means that when a `cmd /c tasklist` or `get-process` is invoke
 
 Below is a simplified visualization of the above:
 
-![](../../.gitbook/assets/image%20%28455%29.png)
+![[image%20%28455%29.png]]
 
 ## Goal of the Lab
 
@@ -70,7 +69,7 @@ With all of the above information, we can now define what we're trying to do in 
 
 Below is a simplified diagram illustrating how this will be achieved by manually manipulating kernel structures in WinDBG in order to hide the EPROCESS 2 \(white\):
 
-![](../../.gitbook/assets/image%20%28318%29.png)
+![[image%20%28318%29.png]]
 
 * `ActiveProcessLinks.Flink` in EPROCESS 1 will be pointed to EPROCESS 3 `ActiveProcessLinks.Flink`
 * `ActiveProcessLinks.Blink` in EPROCESS 3 will be pointed to EPROCESS 1 `ActiveProcessLinks.Flink`
@@ -83,7 +82,7 @@ Kernel memory manipulations will unlink the EPROCESS 2 from the previous node \(
 
 Let's launch a process that we will try to hide - a notepad.exe in my case:
 
-![](../../.gitbook/assets/image%20%2868%29.png)
+![[image%20%2868%29.png]]
 
 In kernel, we can get more information about our `notepad` process like so:
 
@@ -93,7 +92,7 @@ kd> !process e14 0
 
 Below shows that our notepad's corresponding `EPROCESS` structure is located at `ffffb208f8b304c0`:
 
-![](../../.gitbook/assets/image%20%28471%29.png)
+![[image%20%28471%29.png]]
 
 Checking the EPROCESS structure of our notepad:
 
@@ -103,7 +102,7 @@ kd> dt _eprocess ffffb208f8b304c0
 
 ...we can see the `ActiveProcessLinks`, the doubly-linked list, populated with two pointers \(Flink and Blink\):
 
-![](../../.gitbook/assets/image%20%28294%29.png)
+![[image%20%28294%29.png]]
 
 We can also read those values with `dt _list_entry ffffb208f8b304c0+2f0` or by dumping two 64-bit long values from `ffffb208f8b304c0+2f0`:
 
@@ -121,7 +120,7 @@ Below shows in two different ways \(1. observing `ActiveProcessLinks` from the E
 * FLINK \(green\) is pointing to ``ffffb208`f8d1e7b0`` 
 * BLINK \(blue\) is pointing to ``ffffb208`f8b89370``
 
-![](../../.gitbook/assets/image%20%28282%29.png)
+![[image%20%28282%29.png]]
 
 For curiosity, we can check the process's image name referenced by the notepad's FLINK at ``ffffb208`f8d1e7b0`` - the next EPROCESS node to our notepad's EPROCESS: 
 
@@ -134,7 +133,7 @@ We need to:
 kd> da ffffb208`f8d1e7b0-2f0+450
 ```
 
-![](../../.gitbook/assets/image%20%28431%29.png)
+![[image%20%28431%29.png]]
 
 Let's do the same for the process referenced by the notepad's BLINK to get the previous EPROCESS node to our notepad's EPROCESS:
 
@@ -142,7 +141,7 @@ Let's do the same for the process referenced by the notepad's BLINK to get the p
 kd> da ffffb208`f8b89370-2f0+450
 ```
 
-![](../../.gitbook/assets/image%20%28191%29.png)
+![[image%20%28191%29.png]]
 
 Looks like our notepad EPROCESS is surrounded by two svchost EPROCESS nodes.
 
@@ -172,7 +171,7 @@ PROCESS ffffb208f8b89080
 
 Below shows essentially the same as the above output with some colour-coding: 
 
-![](../../.gitbook/assets/image%20%2813%29.png)
+![[image%20%2813%29.png]]
 
 ...where highlighted in green is the svchost \(0x09cc\) referenced by notepad's FLINK and in blue is the svchost \(0x1464\) referenced by notepad's BLINK.
 
@@ -189,7 +188,7 @@ dt _eprocess ffffb208f8d1e4c0
 
 Green is FLINK and blue is BLINK:
 
-![](../../.gitbook/assets/image%20%28452%29.png)
+![[image%20%28452%29.png]]
 
 ### Svchost 1464 Flink and Blink
 
@@ -204,7 +203,7 @@ kd> dt _eprocess ffffb208f8b89080
 
 Green is FLINK and blue is BLINK:
 
-![](../../.gitbook/assets/image%20%28193%29.png)
+![[image%20%28193%29.png]]
 
 ### Unlinking the Notepad
 
@@ -223,7 +222,7 @@ Below are the two kernel modifications we need to perform in order to hide notep
 
 Below visualizes the above outlined steps:
 
-![](../../.gitbook/assets/image%20%28383%29.png)
+![[image%20%28383%29.png]]
 
 Let's perform the above mentioned kernel modifications:
 
@@ -236,7 +235,7 @@ kd> eq ffffb208`f8d1e7b0+8 ffffb208`f8b89370
 
 Once the kernel memory is modified, we can run a `get-process` or `ps notepad` in powershell and observe that notepad.exe has been successfully hidden:
 
-![notepad not seen when &quot;ps notepad&quot; is executed, although notepad is still running in the foreground](../../.gitbook/assets/image%20%28467%29.png)
+![[image%20%28467%29.png|notepad not seen when &quot;ps notepad&quot; is executed, although notepad is still running in the foreground]]
 
 ...although it can still be looked up by its PID in the kernel:
 
@@ -244,15 +243,14 @@ Once the kernel memory is modified, we can run a `get-process` or `ps notepad` i
 !process e14 0
 ```
 
-![](../../.gitbook/assets/image%20%28366%29.png)
+![[image%20%28366%29.png]]
 
 Below is another quick demo showing how notepad.exe disappears from the Windows Task Manager once the kernel memory is tampered and the debugger is resumed. Additionally, `ps notepad` returns nothing, although notepad is visible in the taskbar and underneath the Windows Task Manager:
 
-![](../../.gitbook/assets/hide-process.gif)
+![[hide-process.gif]]
 
-{% hint style="info" %}
-In the above demo, memory offsets of structures are different due to a system reboot since the initial write up.
-{% endhint %}
+> [!INFO]
+> In the above demo, memory offsets of structures are different due to a system reboot since the initial write up.
 
 ## Detection
 
@@ -260,7 +258,7 @@ In order to detect unlinked processes exhibited by malware on systems without Pa
 
 ## References
 
-{% embed url="https://www.aldeid.com/wiki/LIST\_ENTRY" %}
+[www.aldeid.com/wiki/LIST\_ENTRY](https://www.aldeid.com/wiki/LIST\_ENTRY)
 
-{% embed url="https://www.hackerearth.com/practice/notes/doubly-linked-list-data-structure-in-c/" %}
+[www.hackerearth.com/practice/notes/doubly-linked-list-data-structure-in-c](https://www.hackerearth.com/practice/notes/doubly-linked-list-data-structure-in-c/)
 

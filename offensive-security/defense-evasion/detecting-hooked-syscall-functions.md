@@ -4,17 +4,17 @@ It's possible to enumerate which Windows API calls are hooked by an EDR using in
 
 ## Related Notes
 
-{% content-ref url="../code-injection-process-injection/how-to-hook-windows-api-using-c++.md" %}
+
 [how-to-hook-windows-api-using-c++.md](../code-injection-process-injection/how-to-hook-windows-api-using-c++.md)
-{% endcontent-ref %}
 
-{% content-ref url="bypassing-cylance-and-other-avs-edrs-by-unhooking-windows-apis.md" %}
+
+
 [bypassing-cylance-and-other-avs-edrs-by-unhooking-windows-apis.md](bypassing-cylance-and-other-avs-edrs-by-unhooking-windows-apis.md)
-{% endcontent-ref %}
 
-{% content-ref url="../code-injection-process-injection/api-monitoring-and-hooking-for-offensive-tooling.md" %}
+
+
 [api-monitoring-and-hooking-for-offensive-tooling.md](../code-injection-process-injection/api-monitoring-and-hooking-for-offensive-tooling.md)
-{% endcontent-ref %}
+
 
 ## Walkthrough
 
@@ -22,7 +22,7 @@ It's possible to enumerate which Windows API calls are hooked by an EDR using in
 
 Below shows the stub for for `NtReadVirtualMemory` on a system with no EDR present, meaning the syscall `NtReadVirtualMemory` is not hooked:
 
-![](<../../.gitbook/assets/image (712).png>)
+![[image (712).png]]
 
 We can see the `NtReadVirtualMemory` syscall stub starts with instructions:
 
@@ -32,9 +32,8 @@ We can see the `NtReadVirtualMemory` syscall stub starts with instructions:
 ...
 ```
 
-{% hint style="info" %}
-The above applies to most routines starting with `Zw`, i.e `ZwReadVirtualMemory` too.
-{% endhint %}
+> [!INFO]
+> The above applies to most routines starting with `Zw`, i.e `ZwReadVirtualMemory` too.
 
 ...which translates to the following 4 opcodes:
 
@@ -42,7 +41,7 @@ The above applies to most routines starting with `Zw`, i.e `ZwReadVirtualMemory`
 4c 8b d1 b8
 ```
 
-![](<../../.gitbook/assets/image (713).png>)
+![[image (713).png]]
 
 `4c 8b d1 b8` - are important for this lab - we will come back to this in a moment in a section [Checking for Hooks](detecting-hooked-syscall-functions.md#checking-for-hooks).
 
@@ -50,7 +49,7 @@ The above applies to most routines starting with `Zw`, i.e `ZwReadVirtualMemory`
 
 Below shows an example of how `NtReadVirtualMemory` syscall stub looks like when it's hooked by an EDR:
 
-![](<../../.gitbook/assets/image (711).png>)
+![[image (711).png]]
 
 Note that in this case, the first instruction is a `jmp` instruction, redirecting the code execution somewhere else (another module in the process's memory):
 
@@ -64,10 +63,9 @@ jmp 0000000047980084
 e9 0f 64 f8 c7
 ```
 
-{% hint style="info" %}
-`e9` - opcode for near jump\
-`0f64f8c7`- offset, which is relative to the address of the current instruction, where the code will jump to
-{% endhint %}
+> [!INFO]
+> `e9` - opcode for near jump\
+> `0f64f8c7`- offset, which is relative to the address of the current instruction, where the code will jump to
 
 ### Checking for Hooks
 
@@ -83,7 +81,7 @@ Below is a simplified visual example attempting to further explain the above pro
 1. `NtReadVirtualMemory` starts with opcodes `e9 0f 64 f8` rather than `4c 8b d1 b8`, meaning it's most likely hooked
 2. `NtWriteVirtualMemory` starts with opcodes `4c 8b d1 b8`, meaning it has not been hooked
 
-![Hooked and unhooked functions](<../../.gitbook/assets/image (714).png>)
+![[image (714).png|Hooked and unhooked functions]]
 
 ### Detecting who placed the Hook
 
@@ -103,20 +101,19 @@ if (*((unsigned char*)targetFunction) == 0xE9) // first byte is a jmp instructio
 }
 ```
 
-{% hint style="warning" %}
-**False Positives**\
-\*\*\*\*Although highly effective at detecting functions hooked with inline patching, this method returns a few false positives when enumerating hooked functions inside ntdll.dll, such as:\
-\
-`NtGetTickCount`\
-`NtQuerySystemTime`\
-`NtdllDefWindowProc_A`\
-`NtdllDefWindowProc_W`\
-`NtdllDialogWndProc_A`\
-`NtdllDialogWndProc_W`\
-`ZwQuerySystemTime`
-
-The above functions are not hooked.
-{% endhint %}
+> [!WARNING]
+> **False Positives**\
+> \*\*\*\*Although highly effective at detecting functions hooked with inline patching, this method returns a few false positives when enumerating hooked functions inside ntdll.dll, such as:\
+> \
+> `NtGetTickCount`\
+> `NtQuerySystemTime`\
+> `NtdllDefWindowProc_A`\
+> `NtdllDefWindowProc_W`\
+> `NtdllDialogWndProc_A`\
+> `NtdllDialogWndProc_W`\
+> `ZwQuerySystemTime`
+> 
+> The above functions are not hooked.
 
 ## Code
 
@@ -196,7 +193,7 @@ int main()
 
 Below is a snippet of the output of the program compiled from the above source code and run on a system with an EDR present. It shows some of the interesting functions (not all displayed) that are most likely hooked, with an exception of `NtGetTickCount`, which is a false positive, as mentioned earlier:
 
-![Usual suspects hooked + some false positives](<../../.gitbook/assets/image (717).png>)
+![[image (717).png|Usual suspects hooked + some false positives]]
 
 ## Updates
 
@@ -214,10 +211,10 @@ fffff803`24a13180 0f01f8          swapgs
 fffff803`24a13183 654889242510900000 mov   qword ptr gs:[9010h],rsp
 ```
 
-![](<../../.gitbook/assets/image (719).png>)
+![[image (719).png]]
 
 ## References
 
-{% embed url="https://posts.specterops.io/adventures-in-dynamic-evasion-1fe0bac57aa" %}
+[posts.specterops.io/adventures-in-dynamic-evasion-1fe0bac57aa](https://posts.specterops.io/adventures-in-dynamic-evasion-1fe0bac57aa)
 
-{% embed url="https://rayanfam.com/topics/hypervisor-from-scratch-part-8/" %}
+[rayanfam.com/topics/hypervisor-from-scratch-part-8](https://rayanfam.com/topics/hypervisor-from-scratch-part-8/)

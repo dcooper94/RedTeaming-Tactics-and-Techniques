@@ -16,7 +16,7 @@ dt _peb
 
 There are many fields in the structure among which there are `ImageBaseAddresss` and `ProcessParameters` which are interesting to us for this lab:
 
-![](../.gitbook/assets/peb-structure%20%281%29.png)
+![[peb-structure%20%281%29.png]]
 
 Getting the PEB address of the process:
 
@@ -33,7 +33,7 @@ The `_PEB` structure can now be overlaid on the memory pointed to by the `$peb` 
 
 `_PEB` structure is now populated with the actual data pulled from the process memory:
 
-![](../.gitbook/assets/peb-overlay.png)
+![[peb-overlay.png]]
 
 Let's check what's in memory at address `0000000049d40000` - pointed to by the `ImageBaseAddress` member of the `_peb` structure:
 
@@ -43,7 +43,7 @@ Let's check what's in memory at address `0000000049d40000` - pointed to by the `
 
 Exactly! This is the actual binary image of the running process:
 
-![](../.gitbook/assets/peb-baseimage.png)
+![[peb-baseimage.png]]
 
 Another way of finding the `ImageBaseAddress` is:
 
@@ -71,7 +71,7 @@ We can forget about all of the above and just use:
 
 This gets us a nicely formatted PEB information of some of the key members of the structure:
 
-![](../.gitbook/assets/peb.png)
+![[peb.png]]
 
 ## Finding Commandline Arguments
 
@@ -85,7 +85,7 @@ ntdll!_PEB
 dt _RTL_USER_PROCESS_PARAMETERS 0x00000000`002a1f40
 ```
 
-![](../.gitbook/assets/peb-cmdline.png)
+![[peb-cmdline.png]]
 
 We can be more direct and ask the same question like so:
 
@@ -107,7 +107,7 @@ or even this:
 00000000`002a283c  ""C:\Windows\system32\cmd.exe" "
 ```
 
-![](../.gitbook/assets/peb-cmdline2.png)
+![[peb-cmdline2.png]]
 
 Since we now know where the commandline arguments are stored - can we modify them? Of course.
 
@@ -117,7 +117,7 @@ Since we now know where the commandline arguments are stored - can we modify the
 0:001> eu 00000000002a283c "cmdline-logging? Are You Sure?"
 ```
 
-![](../.gitbook/assets/peb-cmdline3.png)
+![[peb-cmdline3.png]]
 
 ## \_PEB\_LDR\_DATA <a id="_peb_ldr_data-structure"></a>
 
@@ -147,11 +147,11 @@ dt _LDR_DATA_TABLE_ENTRY 0x00000000`002a2df0
 ...loop...
 ```
 
-![](../.gitbook/assets/peb-modulelist.png)
+![[peb-modulelist.png]]
 
 If we check the loaded modules with `!peb`, it shows we were walking the list correctly:
 
-![](../.gitbook/assets/peb-modules2.png)
+![[peb-modules2.png]]
 
 Here is another way to find the first `_LDR_DATA_TABLE_ENTRY`:
 
@@ -160,13 +160,13 @@ dt _peb @$peb
 dt _PEB_LDR_DATA 0x00000000`774ed640
 ```
 
-![](../.gitbook/assets/peb-manual1.png)
+![[peb-manual1.png]]
 
 ```cpp
 dt _LDR_DATA_TABLE_ENTRY 0x00000000`002a2980
 ```
 
-![](../.gitbook/assets/peb-manual2.png)
+![[peb-manual2.png]]
 
 A nice way of getting a list of linked-list structure addresses is by providing address of the first `list_entry` structure to the command `dl` and specifying how many list items it should print out:
 
@@ -192,33 +192,33 @@ Another way of achieving the same would be to use the !list command to list thro
 !list -x "dt _LDR_DATA_TABLE_ENTRY" 0x00000000`002a2980
 ```
 
-![](../.gitbook/assets/peb-dll-automated.gif)
+![[peb-dll-automated.gif]]
 
 Continuing further:
 
-![](../.gitbook/assets/peb-dll-automated2.gif)
+![[peb-dll-automated2.gif]]
 
 ## Abusing PEB
 
 It is possible to abuse the PEB structure and masquerade one windows processes with another process. See this lab for more:
 
-{% page-ref page="../offensive-security/defense-evasion/masquerading-processes-in-userland-through-\_peb.md" %}
+
 
 ## References
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/api/winternl/ns-winternl-\_peb\_ldr\_data" %}
+[docs.microsoft.com/en-us/windows/desktop/api/winternl/ns-winternl-\_peb\_ldr\_data](https://docs.microsoft.com/en-us/windows/desktop/api/winternl/ns-winternl-\_peb\_ldr\_data)
 
-{% embed url="http://windbg.info/doc/1-common-cmds.html\#13\_breakpoints" %}
+[windbg.info/doc/1-common-cmds.html\#13\_breakpoints](http://windbg.info/doc/1-common-cmds.html\#13\_breakpoints)
 
-{% embed url="https://www.aldeid.com/wiki/PEB\_LDR\_DATA" %}
+[www.aldeid.com/wiki/PEB\_LDR\_DATA](https://www.aldeid.com/wiki/PEB\_LDR\_DATA)
 
-{% embed url="https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-list" %}
+[docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-list](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-list)
 
-{% embed url="https://docs.microsoft.com/en-us/windows/desktop/api/winternl/ns-winternl-\_peb\_ldr\_data" %}
+[docs.microsoft.com/en-us/windows/desktop/api/winternl/ns-winternl-\_peb\_ldr\_data](https://docs.microsoft.com/en-us/windows/desktop/api/winternl/ns-winternl-\_peb\_ldr\_data)
 
-{% embed url="http://jumpdollar.blogspot.com/2014/08/windbg-peb-command.html" %}
+[jumpdollar.blogspot.com/2014/08/windbg-peb-command.html](http://jumpdollar.blogspot.com/2014/08/windbg-peb-command.html)
 
-{% embed url="http://jumpdollar.blogspot.com/search/label/.process" %}
+[jumpdollar.blogspot.com/search/label/.process](http://jumpdollar.blogspot.com/search/label/.process)
 
 
 

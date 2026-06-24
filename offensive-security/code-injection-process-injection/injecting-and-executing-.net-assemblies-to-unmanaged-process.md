@@ -2,9 +2,8 @@
 
 This is a quick lab to see what API sequence makes it possible to inject C\# .NET assemblies / PE files \(.exe and .dll\) into an unmanaged process and invoke their methods. 
 
-{% hint style="info" %}
-This is the technique that makes `execute-assembly` command possible in Cobalt Strike.
-{% endhint %}
+> [!INFO]
+> This is the technique that makes `execute-assembly` command possible in Cobalt Strike.
 
 ## Overview
 
@@ -26,8 +25,8 @@ At a high level, it works as follows:
 
 Once invoked, the `spotlessMethod` prints out `Hi from CLR` to the console window.
 
-{% tabs %}
-{% tab title="unmanaged.cpp" %}
+
+
 ```cpp
 // code mostly stolen from pabloko's comment in https://gist.github.com/xpn/e95a62c6afcf06ede52568fcd8187cc2
 #include <iostream>
@@ -58,9 +57,9 @@ int main()
     return 0;
 }
 ```
-{% endtab %}
 
-{% tab title="managed.cs" %}
+
+
 ```csharp
 using System;
 using System.Collections.Generic;
@@ -86,18 +85,18 @@ namespace CLRHello1
     }
 }
 ```
-{% endtab %}
-{% endtabs %}
+
+
 
 ## Demo
 
 Below shows how `LoadCLR.exe` loaded our C\# assembly `CLRHello.exe` \(seen in `LoadCLR.exe` loaded modules tab\) and invoked the `spotlessMethod`, that printed `Hi from CLR` to the console:
 
-![](../../.gitbook/assets/unmanaged-process-load-clr.gif)
+![[unmanaged-process-load-clr.gif]]
 
 ## References
 
-{% embed url="https://blog.xpnsec.com/hiding-your-dotnet-etw/" %}
+[blog.xpnsec.com/hiding-your-dotnet-etw](https://blog.xpnsec.com/hiding-your-dotnet-etw/)
 
 [https://gist.github.com/xpn/e95a62c6afcf06ede52568fcd8187cc2](https://gist.github.com/xpn/e95a62c6afcf06ede52568fcd8187cc2)
 
