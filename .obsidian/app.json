@@ -7,7 +7,7 @@
   "newFileLocation": "current",
   "newLinkFormat": "relative",
   "useMarkdownLinks": false,
-  "attachmentFolderPath": ".gitbook/assets",
+  "attachmentFolderPath": "_attachments/assets",
   "promptDelete": true,
   "legacyEditor": false,
   "livePreview": true,
